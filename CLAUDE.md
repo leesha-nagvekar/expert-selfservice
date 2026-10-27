@@ -2,73 +2,46 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Working agreement
+## Always show me a plan before code
 
-- **Always show a plan before writing code.** Wait for the plan to be approved. One feature per request.
-- Tests come first: write the test, confirm it fails, then implement until it passes.
-- Do only what was asked: no extra features, files or libraries. Every new library needs a reason in `docs/decisions.md`.
-- `docs/guide.md` is the full project brief (user stories, phases, gates, review checklist). Read it when you need scope or acceptance criteria.
+Always show me a plan before you write code. Wait until I approve it, and build one feature per request.
 
 ## Purpose
 
-An MVP self-service app for VBA (Voldgiftsnævnet for Bygge- og Anlægsvirksomhed). It lets the experts (skønsmænd) in VBA's expert register (skønsmandsdatabasen) update their own details. It has three parts:
+VBA (Voldgiftsnævnet for Bygge- og Anlægsvirksomhed) keeps a register of the experts it appoints to cases - the skønsmandsdatabase. When an expert moves, changes employer or gets a new email, the secretariat types it in by hand. This project builds an MVP where the experts update their own details.
 
-1. A **test copy of the expert database**: the same tables and columns as the real one, filled with 100 fake experts, 3 demo experts with known emails (e.g. `anna.demo@example.com`) and 2 secretariat users.
-2. An **expert web app** (phone and desktop). The expert logs in with an email one-time code and updates name, address, company, email, phone and fields of expertise.
-3. A **secretariat view**. Staff search experts, approve or reject pending changes, and see the per-expert change log.
+It has three parts:
 
-User stories with "done when" criteria are in `docs/guide.md` section 4 (they will be copied to `docs/stories.md`). Must = E1–E7 and S1–S3. Should and Could stories come only after Gate 3. Out of scope: MitID, real email/SMS, the real database, case data and hosting.
+1. A test copy of the expert database - the same tables and columns as the real one, filled with 100 fake experts.
+2. A web app for the expert. It works on phone and desktop. The expert logs in and updates name, address, company, email, phone and fields of expertise.
+3. A small secretariat view where VBA staff see all changes and approve the ones that need approval.
 
-## Ground rules: data and security (non-negotiable)
+The hand-over on 27 November 2026 is the running app shown live with the 100 test experts, the code in Git with automated tests, a README (install, run, reset, test) and the learning log.
 
-1. Never connect to the real skønsmandsdatabase. `schema/` holds a structure-only export plus lookup lists without personal data (competence list, postcodes), made by the developer in the database tool.
-2. If any file contains a real name, email, phone number or address: stop and tell the user. They must delete it and report it to Claus the same day.
-3. Never ask for or accept real personal data in prompts or files.
-4. No secrets in code or Git. Passwords, keys and connection strings go in `.env`, and `.env` goes in `.gitignore`.
-5. The app never sends email or SMS. One-time codes are written to the console and to an in-app "dev mailbox" page.
-6. Every test email ends in `@example.com`.
-7. The app runs on localhost only. Never deploy it or expose it.
+The full brief (user stories, phases, gates, review checklist) is in `docs/guide.md`.
 
-Code rules that follow from these:
-- Every query for expert data filters on the logged-in expert's ID **from the session**, never from a URL or form field.
-- SQL uses parameters only, never string formatting.
-- Validate input on the server. Users see plain error messages, never stack traces (no `debug=True`).
+## Ground rules: data and security
 
-## Stack (default; any change needs Claus's approval and an entry in docs/decisions.md)
+You never copy or handle real expert data. Development and test at LITTAU run on fake or anonymised data only. These rules are not up for discussion, and they go into CLAUDE.md on day one:
 
-Python 3.12, FastAPI, Jinja2 server-rendered templates (no JavaScript framework), SQLite, plain CSS, pytest, ruff.
+1.  You make the copy yourself with your own access - structure only. Export tables, columns and keys without data, plus the lookup lists that hold no personal data, such as the competence list and postcodes. You never export a table with person rows, so there is nothing real to delete. Do the export in the database tool, never through Claude - Claude must never connect to the real database.
 
-## Planned commands (update this section once they exist)
+2.  If anything you receive contains a real name, email, phone number or address: stop, delete the file and tell Claus the same day.
 
-- `python seed.py --reset`: rebuild the SQLite test database with the same 100 experts every time (Faker `da_DK`, fixed seed). Run before every demo.
-- `python check_data.py`: checks there are exactly 100 experts, no duplicate emails, all keys are valid and every email ends in `@example.com`.
-- One command runs all tests (pytest). To run a single test: `pytest path/to/test_file.py::test_name`.
-- `ruff format` and `ruff check` for formatting and linting.
+3.  Never paste real data into Claude. Whatever you type or attach is sent to Anthropic's servers.
 
-## Data model rules
+4.  No secrets in code or Git. Passwords, keys and connection strings go in a .env file, and .env goes in .gitignore.
 
-- Keep the original table and column names from `schema/` untouched. New self-service tables use the prefix `ss_` (login codes, pending changes, change log).
-- Change log (S3): who, what, when, old value, new value. Entries are append-only and can never be edited or deleted.
-- Approval rule (still to be confirmed at Gate 1): name, title and fields of expertise go to the secretariat as "Pending approval". Everything else is saved at once with a change-log entry.
-- Domain validation:
-  - Login codes are 6 digits, valid for 10 minutes. After 5 failed tries the account is locked for 15 minutes.
-  - Postcodes are 4 digits; the city is looked up from the postcode list.
-  - CVR numbers are 8 digits with a modulus-11 check (weights 2-7-6-5-4-3-2-1).
-  - Fields of expertise come only from VBA's fixed list, never free text.
-  - On an email change, the old email stays active until the code sent to the new address is confirmed.
+5.  The app never sends email or SMS. One-time codes are written to the console and to a "dev mailbox" page inside the app.
 
-## UI rules
+6.  All test emails end in @example.com - a reserved domain, so mail can never reach a real person.
 
-- **Colours live only in `static/tokens.css`** as CSS variables (light and dark tokens from `docs/guide.md` section 5). Never write a colour code anywhere else. Orange `--accent` is for borders and fills only; orange text uses `--accent-text`.
-- **All UI text lives in `i18n/en.json` and `i18n/da.json`**, never in code or templates. Format dates and numbers from the language setting.
-- Fonts: IBM Plex Sans (400/500/600/700) for text and IBM Plex Mono (500/600) for VBA numbers, CVR numbers and codes. Serve them from `static/fonts/` and never load them from Google at runtime.
-- Mobile first: the app must work at 360 px. Desktop forms are max 720 px wide and centred. Touch targets are at least 44 px. Never set fixed widths on buttons or labels.
-- Top bar in `--topbar` with the white VBA logo on the left (the mark only on narrow screens) and the language switch on the right. The logo images are in `assets/images/`.
-- Status is always shown as icon + colour + word (Saved, Pending approval, Rejected). Errors appear next to the field in plain words. Buttons say what they do ("Save address", not "OK").
-- Read-only fields (VBA number, created date) look read-only and say "Set by VBA".
+7.  The app runs on your machine only. It is never put on the internet, not even "just for the demo".
 
-## Project files
+## Stack
 
-- `LEARNING_LOG.md`: the developer's daily log. Don't edit it unless asked.
-- `docs/decisions.md`: stack choices, new libraries, and review findings that were not fixed.
-- `docs/SPEC.md`, `docs/data-dictionary.md`: the specification and schema explanations (written in phase 1).
+Default, unless Claus agrees to something else: Python, FastAPI, Jinja2 templates (HTML from the server, no JavaScript framework), SQLite, plain CSS and pytest. Ruff is the formatter and linter, and one command runs all tests. The stack choice and the reason for it are written in `docs/decisions.md`.
+
+## Colour rule
+
+Put the colour tokens from `docs/guide.md` section 5 in `static/tokens.css` as CSS variables, and never write a colour code anywhere else. Orange `--accent` (#E96900) is too weak for text, so it is only for borders and fills. Orange text uses `--accent-text`, and green uses `--ok`.
