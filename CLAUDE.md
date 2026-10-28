@@ -20,6 +20,15 @@ The hand-over on 27 November 2026 is the running app shown live with the 100 tes
 
 The full brief (user stories, phases, gates, review checklist) is in `docs/guide.md`.
 
+## Project documents
+
+Read these before planning a feature:
+
+- `docs/SPEC.md`: the specification. Decisions, the approval rule (Field Rule), every screen with its fields and validation, the new `ss_` tables, test data rules and open points.
+- `docs/data-dictionary.md`: what each table and column in the expert database means, and the questions and answers behind the decisions.
+- `docs/stories.md`: the user stories with "done when" criteria.
+- `schema/schema.sql`: the structure-only export of VBA's database (UTF-16). It stays on this machine and must never be committed or pushed.
+
 ## Ground rules: data and security
 
 You never copy or handle real expert data. Development and test at LITTAU run on fake or anonymised data only. These rules are not up for discussion, and they go into CLAUDE.md on day one:
