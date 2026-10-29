@@ -1,0 +1,9 @@
+Id,RegionName,ShowInFilter,IsAutoSelected,DisplayOrder
+1,Sverige,,,6
+2,Norge,,,7
+3,Andre,,,8
+4,Midtjylland,,1,4
+5,Nordjylland,,1,3
+6,Syddanmark,,1,5
+7,Hovedstaden,,1,1
+8,Sjælland,,1,2

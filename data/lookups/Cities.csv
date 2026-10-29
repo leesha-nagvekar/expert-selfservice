@@ -1,0 +1,1101 @@
+Id,City,RegionId,ZipCode
+1,Stockholm,1,0
+2,Hägersten,1,0
+3,Skärholmen,1,0
+4,Skarpnäck,1,0
+5,Bagarmossen,1,0
+1275,OSLO,2,0
+1276,SANDVIKA,2,0
+1277,HASLUM,2,0
+1278,RUD,2,0
+1279,HØVIKODDEN,2,0
+1280,SLEPENDEN,2,0
+2001,København K,7,1050
+2002,København K,7,1051
+2003,København K,7,1052
+2004,København K,7,1053
+2005,København K,7,1054
+2006,København K,7,1055
+2007,København K,7,1056
+2008,København K,7,1057
+2009,København K,7,1058
+2010,København K,7,1059
+2011,København K,7,1060
+2012,København K,7,1061
+2013,København K,7,1062
+2014,København K,7,1063
+2015,København K,7,1064
+2016,København K,7,1065
+2017,København K,7,1066
+2018,København K,7,1067
+2019,København K,7,1068
+2020,København K,7,1069
+2021,København K,7,1070
+2022,København K,7,1071
+2023,København K,7,1072
+2024,København K,7,1073
+2025,København K,7,1074
+2026,København K,7,1100
+2027,København K,7,1101
+2028,København K,7,1102
+2029,København K,7,1103
+2030,København K,7,1104
+2031,København K,7,1105
+2032,København K,7,1106
+2033,København K,7,1107
+2034,København K,7,1110
+2035,København K,7,1111
+2036,København K,7,1112
+2037,København K,7,1113
+2038,København K,7,1114
+2039,København K,7,1115
+2040,København K,7,1116
+2041,København K,7,1117
+2042,København K,7,1118
+2043,København K,7,1119
+2044,København K,7,1120
+2045,København K,7,1121
+2046,København K,7,1122
+2047,København K,7,1123
+2048,København K,7,1124
+2049,København K,7,1125
+2050,København K,7,1126
+2051,København K,7,1127
+2052,København K,7,1128
+2053,København K,7,1129
+2054,København K,7,1130
+2055,København K,7,1131
+2056,København K,7,1150
+2057,København K,7,1151
+2058,København K,7,1152
+2059,København K,7,1153
+2060,København K,7,1154
+2061,København K,7,1155
+2062,København K,7,1156
+2063,København K,7,1157
+2064,København K,7,1158
+2065,København K,7,1159
+2066,København K,7,1160
+2067,København K,7,1161
+2068,København K,7,1162
+2069,København K,7,1164
+2070,København K,7,1165
+2071,København K,7,1166
+2072,København K,7,1167
+2073,København K,7,1168
+2074,København K,7,1169
+2075,København K,7,1170
+2076,København K,7,1171
+2077,København K,7,1172
+2078,København K,7,1173
+2079,København K,7,1174
+2080,København K,7,1175
+2081,København K,7,1200
+2082,København K,7,1201
+2083,København K,7,1202
+2084,København K,7,1203
+2085,København K,7,1204
+2086,København K,7,1205
+2087,København K,7,1206
+2088,København K,7,1207
+2089,København K,7,1208
+2090,København K,7,1209
+2091,København K,7,1210
+2092,København K,7,1211
+2093,København K,7,1212
+2094,København K,7,1213
+2095,København K,7,1214
+2096,København K,7,1215
+2097,København K,7,1216
+2098,København K,7,1218
+2099,København K,7,1219
+2100,København K,7,1220
+2101,København K,7,1221
+2102,København K,7,1250
+2103,København K,7,1251
+2104,København K,7,1252
+2105,København K,7,1253
+2106,København K,7,1254
+2107,København K,7,1255
+2108,København K,7,1256
+2109,København K,7,1257
+2110,København K,7,1259
+2111,København K,7,1260
+2112,København K,7,1261
+2113,København K,7,1263
+2114,København K,7,1264
+2115,København K,7,1265
+2116,København K,7,1266
+2117,København K,7,1267
+2118,København K,7,1268
+2119,København K,7,1270
+2120,København K,7,1271
+2121,København K,7,1300
+2122,København K,7,1301
+2123,København K,7,1302
+2124,København K,7,1303
+2125,København K,7,1304
+2126,København K,7,1306
+2127,København K,7,1307
+2128,København K,7,1308
+2129,København K,7,1309
+2130,København K,7,1310
+2131,København K,7,1311
+2132,København K,7,1312
+2133,København K,7,1313
+2134,København K,7,1314
+2135,København K,7,1315
+2136,København K,7,1316
+2137,København K,7,1317
+2138,København K,7,1318
+2139,København K,7,1319
+2140,København K,7,1320
+2141,København K,7,1321
+2142,København K,7,1322
+2143,København K,7,1323
+2144,København K,7,1324
+2145,København K,7,1325
+2146,København K,7,1326
+2147,København K,7,1327
+2148,København K,7,1328
+2149,København K,7,1329
+2150,København K,7,1350
+2151,København K,7,1352
+2152,København K,7,1353
+2153,København K,7,1354
+2154,København K,7,1355
+2155,København K,7,1356
+2156,København K,7,1357
+2157,København K,7,1358
+2158,København K,7,1359
+2159,København K,7,1360
+2160,København K,7,1361
+2161,København K,7,1362
+2162,København K,7,1363
+2163,København K,7,1364
+2164,København K,7,1365
+2165,København K,7,1366
+2166,København K,7,1367
+2167,København K,7,1368
+2168,København K,7,1369
+2169,København K,7,1370
+2170,København K,7,1371
+2171,København K,7,1400
+2172,København K,7,1401
+2173,København K,7,1402
+2174,København K,7,1403
+2175,København K,7,1406
+2176,København K,7,1407
+2177,København K,7,1408
+2178,København K,7,1409
+2179,København K,7,1410
+2180,København K,7,1411
+2181,København K,7,1412
+2182,København K,7,1413
+2183,København K,7,1414
+2184,København K,7,1415
+2185,København K,7,1416
+2186,København K,7,1417
+2187,København K,7,1418
+2188,København K,7,1419
+2189,København K,7,1420
+2190,København K,7,1421
+2191,København K,7,1422
+2192,København K,7,1423
+2193,København K,7,1424
+2194,København K,7,1425
+2195,København K,7,1426
+2196,København K,7,1427
+2197,København K,7,1428
+2198,København K,7,1429
+2199,København K,7,1430
+2200,København K,7,1432
+2201,København K,7,1433
+2202,København K,7,1434
+2203,København K,7,1435
+2204,København K,7,1436
+2205,København K,7,1437
+2206,København K,7,1438
+2207,København K,7,1439
+2208,København K,7,1440
+2209,København K,7,1441
+2210,København K,7,1450
+2211,København K,7,1451
+2212,København K,7,1452
+2213,København K,7,1453
+2214,København K,7,1454
+2215,København K,7,1455
+2216,København K,7,1456
+2217,København K,7,1457
+2218,København K,7,1458
+2219,København K,7,1459
+2220,København K,7,1460
+2221,København K,7,1461
+2222,København K,7,1462
+2223,København K,7,1463
+2224,København K,7,1464
+2225,København K,7,1465
+2226,København K,7,1466
+2227,København K,7,1467
+2228,København K,7,1468
+2229,København K,7,1470
+2230,København K,7,1471
+2231,København K,7,1472
+2232,København K,7,1473
+2233,København V,7,1550
+2234,København V,7,1551
+2235,København V,7,1552
+2236,København V,7,1553
+2237,København V,7,1554
+2238,København V,7,1555
+2239,København V,7,1556
+2240,København V,7,1557
+2241,København V,7,1558
+2242,København V,7,1559
+2243,København V,7,1560
+2244,København V,7,1561
+2245,København V,7,1562
+2246,København V,7,1563
+2247,København V,7,1564
+2248,København V,7,1567
+2249,København V,7,1568
+2250,København V,7,1569
+2251,København V,7,1570
+2252,København V,7,1571
+2253,København V,7,1572
+2254,København V,7,1573
+2255,København V,7,1574
+2256,København V,7,1575
+2257,København V,7,1576
+2258,København V,7,1577
+2259,København V,7,1600
+2260,København V,7,1601
+2261,København V,7,1602
+2262,København V,7,1603
+2263,København V,7,1604
+2264,København V,7,1605
+2265,København V,7,1606
+2266,København V,7,1607
+2267,København V,7,1608
+2268,København V,7,1609
+2269,København V,7,1610
+2270,København V,7,1611
+2271,København V,7,1612
+2272,København V,7,1613
+2273,København V,7,1614
+2274,København V,7,1615
+2275,København V,7,1616
+2276,København V,7,1617
+2277,København V,7,1618
+2278,København V,7,1619
+2279,København V,7,1620
+2280,København V,7,1621
+2281,København V,7,1622
+2282,København V,7,1623
+2283,København V,7,1624
+2284,København V,7,1631
+2285,København V,7,1632
+2286,København V,7,1633
+2287,København V,7,1634
+2288,København V,7,1635
+2289,København V,7,1650
+2290,København V,7,1651
+2291,København V,7,1652
+2292,København V,7,1653
+2293,København V,7,1654
+2294,København V,7,1655
+2295,København V,7,1656
+2296,København V,7,1657
+2297,København V,7,1658
+2298,København V,7,1659
+2299,København V,7,1660
+2300,København V,7,1661
+2301,København V,7,1662
+2302,København V,7,1663
+2303,København V,7,1664
+2304,København V,7,1665
+2305,København V,7,1666
+2306,København V,7,1667
+2307,København V,7,1668
+2308,København V,7,1669
+2309,København V,7,1670
+2310,København V,7,1671
+2311,København V,7,1672
+2312,København V,7,1673
+2313,København V,7,1674
+2314,København V,7,1675
+2315,København V,7,1676
+2316,København V,7,1677
+2317,København V,7,1699
+2318,København V,7,1700
+2319,København V,7,1701
+2320,København V,7,1702
+2321,København V,7,1703
+2322,København V,7,1704
+2323,København V,7,1705
+2324,København V,7,1706
+2325,København V,7,1707
+2326,København V,7,1708
+2327,København V,7,1709
+2328,København V,7,1710
+2329,København V,7,1711
+2330,København V,7,1712
+2331,København V,7,1714
+2332,København V,7,1715
+2333,København V,7,1716
+2334,København V,7,1717
+2335,København V,7,1718
+2336,København V,7,1719
+2337,København V,7,1720
+2338,København V,7,1721
+2339,København V,7,1722
+2340,København V,7,1723
+2341,København V,7,1724
+2342,København V,7,1725
+2343,København V,7,1726
+2344,København V,7,1727
+2345,København V,7,1728
+2346,København V,7,1729
+2347,København V,7,1730
+2348,København V,7,1731
+2349,København V,7,1732
+2350,København V,7,1733
+2351,København V,7,1734
+2352,København V,7,1735
+2353,København V,7,1736
+2354,København V,7,1737
+2355,København V,7,1738
+2356,København V,7,1739
+2357,København V,7,1749
+2358,København V,7,1750
+2359,København V,7,1751
+2360,København V,7,1752
+2361,København V,7,1753
+2362,København V,7,1754
+2363,København V,7,1755
+2364,København V,7,1756
+2365,København V,7,1757
+2366,København V,7,1758
+2367,København V,7,1759
+2368,København V,7,1760
+2369,København V,7,1761
+2370,København V,7,1762
+2371,København V,7,1763
+2372,København V,7,1764
+2373,København V,7,1765
+2374,København V,7,1766
+2375,København V,7,1770
+2376,København V,7,1771
+2377,København V,7,1772
+2378,København V,7,1773
+2379,København V,7,1774
+2380,København V,7,1775
+2381,København V,7,1777
+2382,København V,7,1799
+2383,Frederiksberg C,7,1800
+2384,Frederiksberg C,7,1801
+2385,Frederiksberg C,7,1802
+2386,Frederiksberg C,7,1803
+2387,Frederiksberg C,7,1804
+2388,Frederiksberg C,7,1805
+2389,Frederiksberg C,7,1806
+2390,Frederiksberg C,7,1807
+2391,Frederiksberg C,7,1808
+2392,Frederiksberg C,7,1809
+2393,Frederiksberg C,7,1810
+2394,Frederiksberg C,7,1811
+2395,Frederiksberg C,7,1812
+2396,Frederiksberg C,7,1813
+2397,Frederiksberg C,7,1814
+2398,Frederiksberg C,7,1815
+2399,Frederiksberg C,7,1816
+2400,Frederiksberg C,7,1817
+2401,Frederiksberg C,7,1818
+2402,Frederiksberg C,7,1819
+2403,Frederiksberg C,7,1820
+2404,Frederiksberg C,7,1822
+2405,Frederiksberg C,7,1823
+2406,Frederiksberg C,7,1824
+2407,Frederiksberg C,7,1825
+2408,Frederiksberg C,7,1826
+2409,Frederiksberg C,7,1827
+2410,Frederiksberg C,7,1828
+2411,Frederiksberg C,7,1829
+2412,Frederiksberg C,7,1850
+2413,Frederiksberg C,7,1851
+2414,Frederiksberg C,7,1852
+2415,Frederiksberg C,7,1853
+2416,Frederiksberg C,7,1854
+2417,Frederiksberg C,7,1855
+2418,Frederiksberg C,7,1856
+2419,Frederiksberg C,7,1857
+2420,Frederiksberg C,7,1860
+2421,Frederiksberg C,7,1861
+2422,Frederiksberg C,7,1862
+2423,Frederiksberg C,7,1863
+2424,Frederiksberg C,7,1864
+2425,Frederiksberg C,7,1865
+2426,Frederiksberg C,7,1866
+2427,Frederiksberg C,7,1867
+2428,Frederiksberg C,7,1868
+2429,Frederiksberg C,7,1870
+2430,Frederiksberg C,7,1871
+2431,Frederiksberg C,7,1872
+2432,Frederiksberg C,7,1873
+2433,Frederiksberg C,7,1874
+2434,Frederiksberg C,7,1875
+2435,Frederiksberg C,7,1876
+2436,Frederiksberg C,7,1877
+2437,Frederiksberg C,7,1878
+2438,Frederiksberg C,7,1879
+2439,Frederiksberg C,7,1900
+2440,Frederiksberg C,7,1901
+2441,Frederiksberg C,7,1902
+2442,Frederiksberg C,7,1903
+2443,Frederiksberg C,7,1904
+2444,Frederiksberg C,7,1905
+2445,Frederiksberg C,7,1906
+2446,Frederiksberg C,7,1908
+2447,Frederiksberg C,7,1909
+2448,Frederiksberg C,7,1910
+2449,Frederiksberg C,7,1911
+2450,Frederiksberg C,7,1912
+2451,Frederiksberg C,7,1913
+2452,Frederiksberg C,7,1914
+2453,Frederiksberg C,7,1915
+2454,Frederiksberg C,7,1916
+2455,Frederiksberg C,7,1917
+2456,Frederiksberg C,7,1920
+2457,Frederiksberg C,7,1921
+2458,Frederiksberg C,7,1922
+2459,Frederiksberg C,7,1923
+2460,Frederiksberg C,7,1924
+2461,Frederiksberg C,7,1925
+2462,Frederiksberg C,7,1926
+2463,Frederiksberg C,7,1927
+2464,Frederiksberg C,7,1928
+2465,Frederiksberg C,7,1950
+2466,Frederiksberg C,7,1951
+2467,Frederiksberg C,7,1952
+2468,Frederiksberg C,7,1953
+2469,Frederiksberg C,7,1954
+2470,Frederiksberg C,7,1955
+2471,Frederiksberg C,7,1956
+2472,Frederiksberg C,7,1957
+2473,Frederiksberg C,7,1958
+2474,Frederiksberg C,7,1959
+2475,Frederiksberg C,7,1960
+2476,Frederiksberg C,7,1961
+2477,Frederiksberg C,7,1962
+2478,Frederiksberg C,7,1963
+2479,Frederiksberg C,7,1964
+2480,Frederiksberg C,7,1965
+2481,Frederiksberg C,7,1966
+2482,Frederiksberg C,7,1967
+2483,Frederiksberg C,7,1970
+2484,Frederiksberg C,7,1971
+2485,Frederiksberg C,7,1972
+2486,Frederiksberg C,7,1973
+2487,Frederiksberg C,7,1974
+2488,Frederiksberg,7,2000
+2489,København Ø,7,2100
+2490,Nordhavn,7,2150
+2491,København N,7,2200
+2492,København S,7,2300
+2493,København NV,7,2400
+2494,København SV,7,2450
+2495,Valby,7,2500
+2496,Glostrup,7,2600
+2497,Brøndby,7,2605
+2498,Rødovre,7,2610
+2499,Albertslund,7,2620
+2500,Vallensbæk,7,2625
+2501,Taastrup,7,2630
+2502,Ishøj,7,2635
+2503,Hedehusene,7,2640
+2504,Hvidovre,7,2650
+2505,Brøndby Strand,7,2660
+2506,Vallensbæk Strand,7,2665
+2507,Greve,8,2670
+2508,Solrød Strand,8,2680
+2509,Karlslunde,8,2690
+2510,Brønshøj,7,2700
+2511,Vanløse,7,2720
+2512,Herlev,7,2730
+2513,Skovlunde,7,2740
+2514,Ballerup,7,2750
+2515,Måløv,7,2760
+2516,Smørum,7,2765
+2517,Kastrup,7,2770
+2518,Dragør,7,2791
+2519,Kongens Lyngby,7,2800
+2520,Gentofte,7,2820
+2521,Virum,7,2830
+2522,Holte,7,2840
+2523,Nærum,7,2850
+2524,Søborg,7,2860
+2525,Dyssegård,7,2870
+2526,Bagsværd,7,2880
+2527,Hellerup,7,2900
+2528,Charlottenlund,7,2920
+2529,Klampenborg,7,2930
+2530,Skodsborg,7,2942
+2531,Vedbæk,7,2950
+2532,Rungsted Kyst,7,2960
+2533,Hørsholm,7,2970
+2534,Kokkedal,7,2980
+2535,Nivå,7,2990
+2536,Helsingør,7,3000
+2537,Humlebæk,7,3050
+2538,Espergærde,7,3060
+2539,Snekkersten,7,3070
+2540,Tikøb,7,3080
+2541,Hornbæk,7,3100
+2542,Dronningmølle,7,3120
+2543,Ålsgårde,7,3140
+2544,Hellebæk,7,3150
+2545,Helsinge,7,3200
+2546,Vejby,7,3210
+2547,Tisvildeleje,7,3220
+2548,Græsted,7,3230
+2549,Gilleleje,7,3250
+2550,Frederiksværk,7,3300
+2551,Ølsted,7,3310
+2552,Skævinge,7,3320
+2553,Gørløse,7,3330
+2554,Liseleje,7,3360
+2555,Melby,7,3370
+2556,Hundested,7,3390
+2557,Hillerød,7,3400
+2558,Allerød,7,3450
+2559,Birkerød,7,3460
+2560,Fredensborg,7,3480
+2561,Kvistgård,7,3490
+2562,Værløse,7,3500
+2563,Farum,7,3520
+2564,Lynge,7,3540
+2565,Slangerup,7,3550
+2566,Frederikssund,7,3600
+2567,Jægerspris,7,3630
+2568,Ølstykke,7,3650
+2569,Stenløse,7,3660
+2570,Veksø Sjælland,7,3670
+2571,Rønne,7,3700
+2572,Aakirkeby,7,3720
+2573,Nexø,7,3730
+2574,Svaneke,7,3740
+2575,Østermarie,7,3751
+2576,Gudhjem,7,3760
+2577,Allinge,7,3770
+2578,Klemensker,7,3782
+2579,Hasle,7,3790
+2580,Roskilde,8,4000
+2581,Tune,8,4030
+2582,Jyllinge,8,4040
+2583,Skibby,7,4050
+2584,Kirke Såby,8,4060
+2585,Kirke Hyllinge,8,4070
+2586,Ringsted,8,4100
+2587,Viby Sjælland,8,4130
+2588,Borup,8,4140
+2589,Herlufmagle,8,4160
+2590,Glumsø,8,4171
+2591,Fjenneslev,8,4173
+2592,Jystrup Midtsj,8,4174
+2593,Sorø,8,4180
+2594,Munke Bjergby,8,4190
+2595,Slagelse,8,4200
+2596,Korsør,8,4220
+2597,Skælskør,8,4230
+2598,Vemmelev,8,4241
+2599,Boeslunde,8,4242
+2600,Rude,8,4243
+2601,Agersø,8,4244
+2602,Omø,8,4245
+2603,Fuglebjerg,8,4250
+2604,Dalmose,8,4261
+2605,Sandved,8,4262
+2606,Høng,8,4270
+2607,Gørlev,8,4281
+2608,Ruds Vedby,8,4291
+2609,Dianalund,8,4293
+2610,Stenlille,8,4295
+2611,Nyrup,8,4296
+2612,Holbæk,8,4300
+2613,Orø,8,4305
+2614,Lejre,8,4320
+2615,Hvalsø,8,4330
+2616,Tølløse,8,4340
+2617,Ugerløse,8,4350
+2618,Kirke Eskilstrup,8,4360
+2619,Store Merløse,8,4370
+2620,Vipperød,8,4390
+2621,Kalundborg,8,4400
+2622,Regstrup,8,4420
+2623,Mørkøv,8,4440
+2624,Jyderup,8,4450
+2625,Snertinge,8,4460
+2626,Svebølle,8,4470
+2627,Store Fuglede,8,4480
+2628,Jerslev Sjælland,8,4490
+2629,Nykøbing Sj,8,4500
+2630,Svinninge,8,4520
+2631,Gislinge,8,4532
+2632,Hørve,8,4534
+2633,Fårevejle,8,4540
+2634,Asnæs,8,4550
+2635,Vig,8,4560
+2636,Grevinge,8,4571
+2637,Nørre Asmindrup,8,4572
+2638,Højby,8,4573
+2639,Rørvig,8,4581
+2640,Sjællands Odde,8,4583
+2641,Føllenslev,8,4591
+2642,Sejerø,8,4592
+2643,Eskebjerg,8,4593
+2644,Køge,8,4600
+2645,Gadstrup,8,4621
+2646,Havdrup,8,4622
+2647,Lille Skensved,8,4623
+2648,Bjæverskov,8,4632
+2649,Faxe,8,4640
+2650,Hårlev,8,4652
+2651,Karise,8,4653
+2652,Faxe Ladeplads,8,4654
+2653,Store Heddinge,8,4660
+2654,Strøby,8,4671
+2655,Klippinge,8,4672
+2656,Rødvig Stevns,8,4673
+2657,Herfølge,8,4681
+2658,Tureby,8,4682
+2659,Rønnede,8,4683
+2660,Holmegaard,8,4684
+2661,Haslev,8,4690
+2662,Næstved,8,4700
+2663,Præstø,8,4720
+2664,Tappernøje,8,4733
+2665,Mern,8,4735
+2666,Karrebæksminde,8,4736
+2667,Lundby,8,4750
+2668,Vordingborg,8,4760
+2669,Kalvehave,8,4771
+2670,Langebæk,8,4772
+2671,Stensved,8,4773
+2672,Stege,8,4780
+2673,Borre,8,4791
+2674,Askeby,8,4792
+2675,Bogø By,8,4793
+2676,Nykøbing F,8,4800
+2677,Nørre Alslev,8,4840
+2678,Stubbekøbing,8,4850
+2679,Guldborg,8,4862
+2680,Eskilstrup,8,4863
+2681,Horbelev,8,4871
+2682,Idestrup,8,4872
+2683,Væggerløse,8,4873
+2684,Gedser,8,4874
+2685,Nysted,8,4880
+2686,Toreby L,8,4891
+2687,Kettinge,8,4892
+2688,Øster Ulslev,8,4894
+2689,Errindlev,8,4895
+2690,Nakskov,8,4900
+2691,Harpelunde,8,4912
+2692,Horslunde,8,4913
+2693,Søllested,8,4920
+2694,Maribo,8,4930
+2695,Bandholm,8,4941
+2696,Askø,8,4942
+2697,Torrig L,8,4943
+2698,Fejø,8,4944
+2699,Femø,8,4945
+2700,Nørreballe,8,4951
+2701,Stokkemarke,8,4952
+2702,Vesterborg,8,4953
+2703,Holeby,8,4960
+2704,Rødby,8,4970
+2705,Dannemare,8,4983
+2706,Sakskøbing,8,4990
+2707,Odense C,6,5000
+2708,Odense V,6,5200
+2709,Odense NV,6,5210
+2710,Odense SØ,6,5220
+2711,Odense M,6,5230
+2712,Odense NØ,6,5240
+2713,Odense SV,6,5250
+2714,Odense S,6,5260
+2715,Odense N,6,5270
+2716,Marslev,6,5290
+2717,Kerteminde,6,5300
+2718,Agedrup,6,5320
+2719,Munkebo,6,5330
+2720,Rynkeby,6,5350
+2721,Mesinge,6,5370
+2722,Dalby,6,5380
+2723,Martofte,6,5390
+2724,Bogense,6,5400
+2725,Otterup,6,5450
+2726,Morud,6,5462
+2727,Harndrup,6,5463
+2728,Brenderup Fyn,6,5464
+2729,Asperup,6,5466
+2730,Søndersø,6,5471
+2731,Veflinge,6,5474
+2732,Skamby,6,5485
+2733,Blommenslyst,6,5491
+2734,Vissenbjerg,6,5492
+2735,Middelfart,6,5500
+2736,Ullerslev,6,5540
+2737,Langeskov,6,5550
+2738,Aarup,6,5560
+2739,Nørre Aaby,6,5580
+2740,Gelsted,6,5591
+2741,Ejby,6,5592
+2742,Faaborg,6,5600
+2743,Lyø,6,5601
+2744,Avernakø,6,5602
+2745,Bjørnø,6,5603
+2746,Assens,6,5610
+2747,Glamsbjerg,6,5620
+2748,Ebberup,6,5631
+2749,Millinge,6,5642
+2750,Broby,6,5672
+2751,Haarby,6,5683
+2752,Tommerup,6,5690
+2753,Svendborg,6,5700
+2754,Ringe,6,5750
+2755,Vester Skerninge,6,5762
+2756,Stenstrup,6,5771
+2757,Kværndrup,6,5772
+2758,Årslev,6,5792
+2759,Nyborg,6,5800
+2760,Ørbæk,6,5853
+2761,Gislev,6,5854
+2762,Ryslinge,6,5856
+2763,Ferritslev Fyn,6,5863
+2764,Frørup,6,5871
+2765,Hesselager,6,5874
+2766,Skårup Fyn,6,5881
+2767,Vejstrup,6,5882
+2768,Oure,6,5883
+2769,Gudme,6,5884
+2770,Gudbjerg Sydfyn,6,5892
+2771,Rudkøbing,6,5900
+2772,Humble,6,5932
+2773,Bagenkop,6,5935
+2774,Strynø,6,5943
+2775,Tranekær,6,5953
+2776,Marstal,6,5960
+2777,Birkholm,6,5965
+2778,Ærøskøbing,6,5970
+2779,Søby Ærø,6,5985
+2780,Kolding,6,6000
+2781,Egtved,6,6040
+2782,Almind,6,6051
+2783,Viuf,6,6052
+2784,Jordrup,6,6064
+2785,Christiansfeld,6,6070
+2786,Bjert,6,6091
+2787,Sønder Stenderup,6,6092
+2788,Sjølund,6,6093
+2789,Hejls,6,6094
+2790,Haderslev,6,6100
+2791,Aabenraa,6,6200
+2792,Barsø,6,6210
+2793,Rødekro,6,6230
+2794,Løgumkloster,6,6240
+2795,Bredebro,6,6261
+2796,Tønder,6,6270
+2797,Højer,6,6280
+2798,Gråsten,6,6300
+2799,Broager,6,6310
+2800,Egernsund,6,6320
+2801,Padborg,6,6330
+2802,Kruså,6,6340
+2803,Tinglev,6,6360
+2804,Bylderup-Bov,6,6372
+2805,Bolderslev,6,6392
+2806,Sønderborg,6,6400
+2807,Nordborg,6,6430
+2808,Augustenborg,6,6440
+2809,Sydals,6,6470
+2810,Vojens,6,6500
+2811,Gram,6,6510
+2812,Toftlund,6,6520
+2813,Agerskov,6,6534
+2814,Branderup J,6,6535
+2815,Bevtoft,6,6541
+2816,Sommersted,6,6560
+2817,Vamdrup,6,6580
+2818,Vejen,6,6600
+2819,Gesten,6,6621
+2820,Bække,6,6622
+2821,Vorbasse,6,6623
+2822,Rødding,6,6630
+2823,Lunderskov,6,6640
+2824,Brørup,6,6650
+2825,Lintrup,6,6660
+2826,Holsted,6,6670
+2827,Hovborg,6,6682
+2828,Føvling,6,6683
+2829,Gørding,6,6690
+2830,Esbjerg,6,6700
+2831,Esbjerg Ø,6,6705
+2832,Esbjerg V,6,6710
+2833,Esbjerg N,6,6715
+2834,Fanø,6,6720
+2835,Tjæreborg,6,6731
+2836,Bramming,6,6740
+2837,Glejbjerg,6,6752
+2838,Agerbæk,6,6753
+2839,Ribe,6,6760
+2840,Gredstedbro,6,6771
+2841,Skærbæk,6,6780
+2842,Rømø,6,6792
+2843,Varde,6,6800
+2844,Årre,6,6818
+2845,Ansager,6,6823
+2846,Nørre Nebel,6,6830
+2847,Oksbøl,6,6840
+2848,Janderup Vestj,6,6851
+2849,Billum,6,6852
+2850,Vejers Strand,6,6853
+2851,Henne,6,6854
+2852,Outrup,6,6855
+2853,Blåvand,6,6857
+2854,Tistrup,6,6862
+2855,Ølgod,6,6870
+2856,Tarm,4,6880
+2857,Hemmet,4,6893
+2858,Skjern,4,6900
+2859,Videbæk,4,6920
+2860,Kibæk,4,6933
+2861,Lem St,4,6940
+2862,Ringkøbing,4,6950
+2863,Hvide Sande,4,6960
+2864,Spjald,4,6971
+2865,Ørnhøj,4,6973
+2866,Tim,4,6980
+2867,Ulfborg,4,6990
+2868,Fredericia,6,7000
+2869,Børkop,6,7080
+2870,Vejle,6,7100
+2871,Vejle Øst,6,7120
+2872,Juelsminde,4,7130
+2873,Stouby,4,7140
+2874,Barrit,4,7150
+2875,Tørring,4,7160
+2876,Uldum,4,7171
+2877,Vonge,6,7173
+2878,Bredsten,6,7182
+2879,Randbøl,6,7183
+2880,Vandel,6,7184
+2881,Billund,6,7190
+2882,Grindsted,6,7200
+2883,Hejnsvig,6,7250
+2884,Sønder Omme,6,7260
+2885,Stakroge,4,7270
+2886,Sønder Felding,4,7280
+2887,Jelling,6,7300
+2888,Gadbjerg,6,7321
+2889,Give,6,7323
+2890,Brande,4,7330
+2891,Ejstrupholm,4,7361
+2892,Hampen,4,7362
+2893,Herning,4,7400
+2894,Ikast,4,7430
+2895,Bording,4,7441
+2896,Engesvang,4,7442
+2897,Sunds,4,7451
+2898,Karup J,4,7470
+2899,Vildbjerg,4,7480
+2900,Aulum,4,7490
+2901,Holstebro,4,7500
+2902,Haderup,4,7540
+2903,Sørvad,4,7550
+2904,Hjerm,4,7560
+2905,Vemb,4,7570
+2906,Struer,4,7600
+2907,Lemvig,4,7620
+2908,Bøvlingbjerg,4,7650
+2909,Bækmarksbro,4,7660
+2910,Harboøre,4,7673
+2911,Thyborøn,4,7680
+2912,Thisted,5,7700
+2913,Hanstholm,5,7730
+2914,Frøstrup,5,7741
+2915,Vesløs,5,7742
+2916,Snedsted,5,7752
+2917,Bedsted Thy,5,7755
+2918,Hurup Thy,5,7760
+2919,Vestervig,5,7770
+2920,Thyholm,4,7790
+2921,Skive,4,7800
+2922,Vinderup,4,7830
+2923,Højslev,4,7840
+2924,Stoholm Jyll,4,7850
+2925,Spøttrup,4,7860
+2926,Roslev,4,7870
+2927,Fur,4,7884
+2928,Nykøbing M,5,7900
+2929,Erslev,5,7950
+2930,Karby,5,7960
+2931,Redsted M,5,7970
+2932,Vils,5,7980
+2933,Øster Assels,5,7990
+2934,Aarhus C,4,8000
+2935,Aarhus N,4,8200
+2936,Aarhus V,4,8210
+2937,Brabrand,4,8220
+2938,Åbyhøj,4,8230
+2939,Risskov,4,8240
+2940,Egå,4,8250
+2941,Viby J,4,8260
+2942,Højbjerg,4,8270
+2943,Odder,4,8300
+2944,Samsø,4,8305
+2945,Tranbjerg J,4,8310
+2946,Mårslet,4,8320
+2947,Beder,4,8330
+2948,Malling,4,8340
+2949,Hundslund,4,8350
+2950,Solbjerg,4,8355
+2951,Hasselager,4,8361
+2952,Hørning,4,8362
+2953,Hadsten,4,8370
+2954,Trige,4,8380
+2955,Tilst,4,8381
+2956,Hinnerup,4,8382
+2957,Ebeltoft,4,8400
+2958,Rønde,4,8410
+2959,Knebel,4,8420
+2960,Balle,4,8444
+2961,Hammel,4,8450
+2962,Harlev J,4,8462
+2963,Galten,4,8464
+2964,Sabro,4,8471
+2965,Sporup,4,8472
+2966,Grenaa,4,8500
+2967,Lystrup,4,8520
+2968,Hjortshøj,4,8530
+2969,Skødstrup,4,8541
+2970,Hornslet,4,8543
+2971,Mørke,4,8544
+2972,Ryomgård,4,8550
+2973,Kolind,4,8560
+2974,Trustrup,4,8570
+2975,Nimtofte,4,8581
+2976,Glesborg,4,8585
+2977,Ørum Djurs,4,8586
+2978,Anholt,4,8592
+2979,Silkeborg,4,8600
+2980,Kjellerup,4,8620
+2981,Lemming,4,8632
+2982,Sorring,4,8641
+2983,Ans By,4,8643
+2984,Them,4,8653
+2985,Bryrup,4,8654
+2986,Skanderborg,4,8660
+2987,Låsby,4,8670
+2988,Ry,4,8680
+2989,Horsens,4,8700
+2990,Daugård,4,8721
+2991,Hedensted,4,8722
+2992,Løsning,4,8723
+2993,Hovedgård,4,8732
+2994,Brædstrup,4,8740
+2995,Gedved,4,8751
+2996,Østbirk,4,8752
+2997,Flemming,4,8762
+2998,Rask Mølle,4,8763
+2999,Klovborg,4,8765
+3000,Nørre Snede,4,8766
+3001,Stenderup,4,8781
+3002,Hornsyld,4,8783
+3003,Endelave,4,8789
+3004,Tunø,4,8799
+3005,Viborg,4,8800
+3006,Tjele,4,8830
+3007,Løgstrup,4,8831
+3008,Skals,4,8832
+3009,Rødkærsbro,4,8840
+3010,Bjerringbro,4,8850
+3011,Ulstrup,4,8860
+3012,Langå,4,8870
+3013,Thorsø,4,8881
+3014,Fårvang,4,8882
+3015,Gjern,4,8883
+3016,Randers C,4,8900
+3017,Randers NV,4,8920
+3018,Randers NØ,4,8930
+3019,Randers SV,4,8940
+3020,Ørsted,4,8950
+3021,Randers SØ,4,8960
+3022,Allingåbro,4,8961
+3023,Auning,4,8963
+3024,Havndal,4,8970
+3025,Spentrup,4,8981
+3026,Gjerlev J,4,8983
+3027,Fårup,4,8990
+3028,Aalborg,5,9000
+3029,Aalborg SV,5,9200
+3030,Aalborg SØ,5,9210
+3031,Aalborg Øst,5,9220
+3032,Svenstrup J,5,9230
+3033,Nibe,5,9240
+3034,Gistrup,5,9260
+3035,Klarup,5,9270
+3036,Storvorde,5,9280
+3037,Kongerslev,5,9293
+3038,Sæby,5,9300
+3039,Vodskov,5,9310
+3040,Hjallerup,5,9320
+3041,Dronninglund,5,9330
+3042,Asaa,5,9340
+3043,Dybvad,5,9352
+3044,Gandrup,5,9362
+3045,Hals,5,9370
+3046,Vestbjerg,5,9380
+3047,Sulsted,5,9381
+3048,Tylstrup,5,9382
+3049,Nørresundby,5,9400
+3050,Vadum,5,9430
+3051,Aabybro,5,9440
+3052,Brovst,5,9460
+3053,Løkken,5,9480
+3054,Pandrup,5,9490
+3055,Blokhus,5,9492
+3056,Saltum,5,9493
+3057,Hobro,5,9500
+3058,Arden,5,9510
+3059,Skørping,5,9520
+3060,Støvring,5,9530
+3061,Suldrup,5,9541
+3062,Mariager,5,9550
+3063,Hadsund,5,9560
+3064,Bælum,5,9574
+3065,Terndrup,5,9575
+3066,Aars,5,9600
+3067,Nørager,5,9610
+3068,Aalestrup,5,9620
+3069,Gedsted,5,9631
+3070,Møldrup,4,9632
+3071,Farsø,5,9640
+3072,Løgstør,5,9670
+3073,Ranum,5,9681
+3074,Fjerritslev,5,9690
+3075,Brønderslev,5,9700
+3076,Jerslev J,5,9740
+3077,Østervrå,5,9750
+3078,Vrå,5,9760
+3079,Hjørring,5,9800
+3080,Tårs,5,9830
+3081,Hirtshals,5,9850
+3082,Sindal,5,9870
+3083,Bindslev,5,9881
+3084,Frederikshavn,5,9900
+3085,Læsø,5,9940
+3086,Strandby,5,9970
+3087,Jerup,5,9981
+3088,Ålbæk,5,9982
+3089,Skagen,5,9990
