@@ -86,3 +86,32 @@ Overall result after the three rounds:
 **python-dotenv reads `.env`.** A small library is safer than a hand-written parser for a file people edit by hand. It handles quotes, comments and `export`. The file is read as `utf-8-sig`, because Notepad and PowerShell may add a BOM. The order is: environment variable, then `.env`, then the default. Phase 3 needs python-dotenv anyway, for the session secret.
 
 **Foreign keys are per connection.** SQLite doesn't store `PRAGMA foreign_keys = ON` in the database file. It applies only to the connection that ran it. `db/schema_sqlite.sql` turns it on for the build. **Action for Phase 3: the app must turn it on for every connection it opens.** Otherwise the database won't stop broken keys.
+
+## Security review, Phase 2 (29 Oct 2026)
+
+`/security-review` is Claude Code's security-focused review. Unlike `/code-review`, it looks only for weaknesses an attacker could exploit, such as injection, leaked secrets, unsafe file handling or exposed personal data. It reports only findings it is confident about (8 out of 10 or higher), to avoid false alarms.
+
+**How it was run.** The command reviews commits that are not yet on the remote. So the Phase 2 work was first committed locally, without pushing: `f5c1d31` (spec documents) and `e35def9` (test database). Then `origin/HEAD` was set with `git remote set-head origin --auto`, and the review ran on those two commits. Nothing was pushed before the review was done. `schema/` was kept out of the review.
+
+**Result: no findings.** Nothing reached the reporting bar, so there was nothing to fix. The review lists every area it checked and why each one is safe today:
+
+| Area | What was checked | Why it is safe |
+|---|---|---|
+| SQL injection | Every query in `seed.py`, `check_data.py` and `rules.py` | All values go in as `?` parameters. Table and column names that are written into SQL come only from constants (`CANDIDATE_COLUMNS`, `LOOKUP_TABLES`, `MAX_LENGTHS`, and `DANISH_POSTCODE_SQL`, which holds whole numbers only) or from the headers of our own committed lookup files. No outside input reaches any SQL, because there is no web app yet. |
+| Running code or commands | `subprocess`, `os.system`, `eval`, `exec`, pickle, yaml | None of them is used. |
+| File paths | Where the database is written and read | The path comes only from `DATABASE_PATH`, which is trusted configuration, not user input. `check_data.py` opens the database read-only (`mode=ro`). |
+| `tools/build_postcodes.py` | Download and unzip | It downloads over HTTPS, and Python checks the certificate. It reads only `DK.txt` from the zip, in memory, and never unpacks files to disk, so a crafted zip can't write elsewhere. It writes only to the two fixed lookup files. |
+| Secrets | Code, lookup files, Git | `.env` and `.env.*` are ignored by Git. `.env.example` holds only `DATABASE_PATH`. There is no password, key or token anywhere. Git tracks no `.env`, `.db` or `schema/` file. |
+| Randomness | `random.Random(2026)` in `seed.py` | It only makes repeatable fake data, which is its purpose. It isn't used for anything that must be secret. |
+| Personal data | Expert, demo and staff rows; lookup files | All experts are made up with Faker. Every email ends in `@example.com`, and `check_data` enforces that. The lookup files hold regions, cities, postcodes, fields of expertise and roles, with no rows about people. The only other email in the code is `someone@gmail.com`, in a test that proves the check catches it. It is never sent anywhere. |
+| Database schema | `db/schema_sqlite.sql` | Only table definitions, `PRAGMA foreign_keys = ON` and the two triggers that block edits and deletes in `ss_change_log`. No `ATTACH` and no `load_extension`. |
+| Network | Anything that listens or sends | Nothing listens on a network, and nothing sends email or SMS. |
+
+**Why there was so little to find.** Phase 2 has no user input: no web pages, no forms and no login. The dangerous parts of this project start in Phase 3. The rules below come from this review and from the SPEC, and are for Phase 3:
+
+- **One-time login codes must use Python's `secrets` module, never `random`.** `random` can be predicted, so codes made with it could be guessed. The review raised this. The fixed-seed `random` stays only in `seed.py`.
+- **Every query keeps using `?` parameters** for anything a user typed. Never build SQL from form or URL values (the guide's review checklist shows exactly this mistake).
+- **Turn on foreign keys for every connection** (see "Foreign keys are per connection" above).
+- **Store only a hash of each code** (`ss_login_codes.code_hash`, SPEC section 5), and take `expert_id` only from the session, never from the URL (SPEC section 2).
+
+`/security-review` runs again on the Phase 3 code, where it has real input to examine.
