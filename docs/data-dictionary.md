@@ -261,3 +261,49 @@ A: "It is an INTEGER having 1 or more digits."
 **Q14. Status 2, 'Optag': which English word should the app and the docs use?**
 Options: Accepted / Being admitted.
 A: Accepted.
+
+## 10. Questions and answers (Phase 2 test database, 28–29 Oct 2026)
+
+Claude asked these while planning the SQLite test database (`seed.py`, `check_data.py`). Same format as section 9: typed answers are quoted word for word, and where the developer picked an option, the option is shown.
+
+**Q15. The lookup lists (Fags, ProfessionTags, Zipcodes, Cities, Regions) are not in schema/ yet. Only schema.sql is there, and it has no rows. Where should seed.py get them from?**
+Options: Wait for your export / Stand-in list now / Public postcodes + stand-in Fags.
+A: "I will give the export of the above 5 files in /schema so that you get an idea how these files look like. after you get the idea of what the files look like and data, delete these files, the you create your own data look up files,feed them with more data as per the requirement of project. like you will create the other table data. … any thing unclear please ask."
+Done: the exports were read, checked for personal data (none), and written as our own files in `data/lookups/`. The exports were then deleted.
+
+**Q15b. 'Feed them with more data': which lists should get more rows?** (28 Oct 2026)
+Options: Postcodes only / All five lists / Copy exactly, add nothing.
+A: Postcodes only.
+Zipcodes and Cities get all 1,089 normal Danish postcodes from GeoNames (CC BY 4.0), with Ids from 2001. The public DAWA API closed in 2026, and Datafordeler needs an API key. PO-box and bulk-mail postcodes are left out.
+
+**Q15c. Should the plan be written now, or after the export files arrive?**
+Options: Plan now / Wait for the files.
+A: "i have already added the files , please check and Plan"
+
+**Q16. The guide asks for 'some experts with two languages', but the schema has no language column, and languages belong to E8 (Should, after Gate 3). What should the seed do?**
+Options: Skip until E8 / New ss_expert_languages.
+A: New ss_expert_languages.
+Two new tables: `ss_languages` (the list) and `ss_expert_languages` (one row per expert and language). See `docs/SPEC.md` section 5.
+
+**Q17. Are the 3 demo experts part of the 100, or extra? SPEC 7 said '100 fake experts plus 3 demo experts', but check_data.py should check 'exactly 100 experts'.**
+Options: Part of the 100 / Extra: 103 rows.
+A: Part of the 100.
+Candidates holds 97 random experts and 3 demo experts (Anna, Bo, Carl), 100 rows in all.
+
+**Q18. Some fake RegistrationIds (VBA numbers) could match real ones by chance. Which range should the test data use?**
+Options: 900001 and up / Look like real ones.
+A: 900001 and up.
+Still digits only (Q13), but easy to spot as test data.
+
+**Q19. Fags.csv has 10 rows (Fiber, Netværk, EL … Udstykning, Ids 282–298), but the four examples from the interview (Konstruktioner, Generalist, Installationer, Tømrer) are not among them. Is this the whole Fags list or a sample?**
+Options: Sample: use 10 + the 4 / I'll send the full list / Use the 10 only.
+A: Use the 10 only.
+Each expert gets 1–4 fields of expertise from these 10.
+
+**Q20. ProfessionTags.csv has 9 roles (Faglig dommer, Skønsmand, Sagkyndig, Mediator, Enedommer, Mægler, Opmand, Mentor, Staderegistrant). Is that the full list?**
+Options: Yes, full list / Sample, use these 9.
+A: "you can expand the list by adding more this is just for sample"
+Three made-up roles were added: Voldgiftsdommer, Bisidder and Tilsynsførende (Ids 43–45). That gives 12 roles. Each expert holds 1–2 of them.
+
+**Q21. OldStatus for a Standby expert.** Claude asked which values `OldStatus` may hold, either 1–4 only (a Retired expert can't be put on Standby) or 0–4. The question was turned down, so it hasn't been answered yet. For now the seed uses 1–4 only, and `check_data.py` only checks that a Standby expert has an UntilDate and an OldStatus. 
+A: "Old Status is basically the status which was before changing the experts status to new one. for e.g. if Current status is : active , and now the expert changes it to standby, then the oldstatus will hold active.

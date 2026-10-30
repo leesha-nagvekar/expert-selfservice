@@ -10,8 +10,10 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 schema/
-# Claude Code session exports (/export)
+# Claude Code session exports (/export). New exports land in the root;
+# move them into exports/. Both places stay out of Git.
 /[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-*.txt
+exports/
 
 # Any other env file, e.g. .env.local. Keep only the example.
 .env.*
