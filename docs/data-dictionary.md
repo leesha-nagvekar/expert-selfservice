@@ -305,5 +305,5 @@ Options: Yes, full list / Sample, use these 9.
 A: "you can expand the list by adding more this is just for sample"
 Three made-up roles were added: Voldgiftsdommer, Bisidder and Tilsynsførende (Ids 43–45). That gives 12 roles. Each expert holds 1–2 of them.
 
-**Q21. OldStatus for a Standby expert.** Claude asked which values `OldStatus` may hold, either 1–4 only (a Retired expert can't be put on Standby) or 0–4. The question was turned down, so it hasn't been answered yet. For now the seed uses 1–4 only, and `check_data.py` only checks that a Standby expert has an UntilDate and an OldStatus. 
+**Q21. OldStatus for a Standby expert.** Claude asked which values `OldStatus` may hold, either 1–4 only (a Retired expert can't be put on Standby) or 0–4. The question was first turned down and answered later, on 30 Oct 2026. The seed gives OldStatus a value from 1–4 (Active to Evaluated), and `check_data.py` checks that every Standby expert has an UntilDate and an OldStatus.
 A: "Old Status is basically the status which was before changing the experts status to new one. for e.g. if Current status is : active , and now the expert changes it to standby, then the oldstatus will hold active.
