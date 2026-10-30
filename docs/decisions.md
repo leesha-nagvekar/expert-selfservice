@@ -2,9 +2,46 @@
 
 Short records of choices made in the project and why.
 
-## Stack
+## Stack (30 Oct 2026)
 
-Python, FastAPI, Jinja2 templates, SQLite, plain CSS, pytest and Ruff, as set in the project guide. SQLite is one file with nothing to install, so someone else can set the app up from the README in under 15 minutes. The app only runs on localhost with 100 test experts, so a database server would add work without any benefit.
+**Choice (Leesha):** Python, FastAPI, Jinja2 templates, SQLite (Python's built-in `sqlite3`), plain CSS, pytest and Ruff.
+
+**Why:**
+- It is the guide's default, so it needs no extra approval from Claus.
+- Phase 2 is already written in Python with pytest and Ruff. `rules.py`, `settings.py` and the 74 tests are reused as they are, and there is only one language to learn.
+- SQLite is one file with nothing to install, so someone else can set the app up from the README in under 15 minutes. The app only runs on localhost with 100 test experts, so a database server would add work without any benefit.
+- FastAPI's `TestClient` tests every page without a running server, and Jinja2 builds the HTML on the server, so no JavaScript framework is needed.
+
+**Options considered:**
+- **Flask + Jinja2:** a close second and a little easier to learn. Not chosen: it leaves the default for a small gain (built-in CSRF), which a small helper gives us in FastAPI.
+- **Django:** the strongest security defaults. Not chosen: its ORM and migrations clash with the hand-written `db/schema_sqlite.sql`, its translations use gettext files instead of `i18n/*.json`, and it is the most to learn in four weeks.
+- **Node.js (Express):** left out. It would throw away the Phase 2 Python code and tests.
+
+**Packages.** Every version is pinned exactly in `requirements.txt`, so the install gives the same result on any machine.
+
+| Package | Why it is needed |
+|---|---|
+| fastapi | The web framework: routes, forms and dependencies such as "the logged-in expert". |
+| uvicorn | The server that runs the app on 127.0.0.1. Plain install, without the `[standard]` extras, so nothing needs compiling on Windows. |
+| jinja2 | Builds the HTML pages on the server, with auto-escaping. |
+| python-multipart | FastAPI needs it to read HTML form posts. |
+| itsdangerous | Starlette's `SessionMiddleware` needs it to sign the session cookie. |
+| httpx | FastAPI's `TestClient` needs it to call pages in tests. |
+| tzdata | Windows has no time-zone database, so `zoneinfo` needs it to show times in Europe/Copenhagen. |
+| python-dotenv | Reads `.env` (database path, session secret, code key). |
+| Faker | Makes the 100 fake experts in `seed.py`. |
+| pytest | Runs all tests with one command. |
+| ruff | Formatter and linter. |
+
+Python's standard library covers the rest: `sqlite3`, `secrets`, `hmac`/`hashlib`, `json` and `zoneinfo`. `starlette` and `pydantic` come with fastapi.
+
+**Rules that come with the choice:**
+- Plain `def` routes, no `async`. Every query uses `sqlite3` with `?` parameters. No ORM, so `db/schema_sqlite.sql` stays the one source of the table structure. `PRAGMA foreign_keys = ON` on every connection.
+- CSRF: our own small helper instead of `starlette-csrf`. A random token from `secrets` is kept in the session, every POST form sends it in a hidden field, and the server compares it with `hmac.compare_digest`. A missing or wrong token gives a plain error page.
+- Session: Starlette's `SessionMiddleware`, with the secret from `.env`, `httponly` and `samesite=lax`. It holds only `expert_id` or `staff_id`.
+- One-time codes come from `secrets` and are stored as HMAC-SHA256 with a key from `.env`. A plain hash is not enough: a 6-digit code has only a million values, so trying them all reverses a plain hash in a second.
+- Own "Page not found" and error pages, never a stack trace. uvicorn listens on 127.0.0.1 only.
+- All text through a `t("key")` function in the templates, reading `i18n/da.json` and `i18n/en.json`. Dates are formatted by a small helper with month names from the same files, so no Babel package is needed.
 
 ## Phase 2: test database (29 Oct 2026)
 
