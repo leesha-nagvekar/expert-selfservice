@@ -9,7 +9,7 @@ Status: draft for Gate 1 (28 Oct 2026). Stories: `docs/stories.md`. Tables and c
 | 1 | Fields of expertise are VBA's fixed list in **Fags**. An expert's fields are rows in **CandidateSkills**, where `Skill` holds the Fag name as text. **ProfessionTags** (via CandidateTags) are roles, not fields of expertise. VBA maintains the Fags list (add, rename, delete). The expert only picks from it. |
 | 2 | Changes waiting for approval go in the new table **ss_pending_changes**. The app never writes to the `_Temp` tables. |
 | 3 | The change log is the new append-only table **ss_change_log**. `CandidateChangeLog` is left untouched. |
-| 4 | Title = `Candidates.Designation`. Role = the expert's ProfessionTags (via CandidateTags). |
+| 4 | Title = `Candidates.Designation` (job title). There is no extra field for it: no new column and no ss_ table (confirmed 2 Nov 2026). Role = the expert's ProfessionTags (via CandidateTags). |
 | 5 | Address = `Street` + `ZipcodeId`. `Address` is neither shown nor changed. |
 | 6 | All three phones (`PhoneMobile`, `PhoneWork`, `PhoneHome`) can be edited. All are optional. |
 | 7 | VBA number = `RegistrationId`. Read-only. |
@@ -17,7 +17,6 @@ Status: draft for Gate 1 (28 Oct 2026). Stories: `docs/stories.md`. Tables and c
 | 9 | Every status except Retired (0) can log in. Status is read-only in the app. |
 | 10 | Approval rule: the Field Rule in section 3. It differs from the guide: Designation (job title) is saved at once, and roles are set by VBA only. |
 
-Items marked **(proposal)** were not part of the interview. Check them before Gate 1.
 
 ## 2. Users and access
 
@@ -43,7 +42,7 @@ Items marked **(proposal)** were not part of the interview. Check them before Ga
 
 - Saved at once means the value in Candidates is updated, `LastUpdated` is set to today, and one ss_change_log row per changed field is written in the same transaction.
 - Pending approval means one ss_pending_changes row is written. Candidates is not touched until the secretariat approves.
-- **(proposal)** While a change to a field is pending, the expert can't edit that field again. The screen shows the pending value and "Pending approval".
+- While a change to a field is pending, the expert can't edit that field again. The screen shows the pending value and "Pending approval".
 - On approval the new value is written to Candidates (or CandidateSkills), `LastUpdated` is set, and a change-log row is written. Who = the secretariat user, plus a link to the pending change, which shows which expert asked for it.
 - On rejection nothing in Candidates changes. The expert sees "Rejected" and the reason on the profile until they make a new change to that field.
 
@@ -85,15 +84,15 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 |---|---|---|
 | Street and number | Street | Required, max 50 characters. |
 | Postcode | ZipcodeId (via Zipcodes) | Exactly 4 digits and must exist in Zipcodes. Otherwise: "Postcode must be 4 digits" / "Unknown postcode". |
-| City | via Zipcodes → Cities | Not typed. Filled in from the postcode when the page reloads after the expert presses "Find city" or "Save address". **(proposal)** |
-| Mobile, work, home phone | PhoneMobile, PhoneWork, PhoneHome | Optional. **(proposal)** Digits, spaces and a leading +, 8–15 digits, max 50 characters. |
+| City | via Zipcodes → Cities | Not typed. Filled in from the postcode when the page reloads after the expert presses "Find city" or "Save address".  |
+| Mobile, work, home phone | PhoneMobile, PhoneWork, PhoneHome | Optional. Digits, spaces and a leading +, 8–15 digits, max 50 characters. |
 - Button: "Save address and phone". Saved at once.
 
 **X6 Change email (E4)**
 - Field: new email. Max 50 characters, a valid email format, not used by another expert or a staff user. In test data it must end in @example.com.
 - "Send code to new email" sends a 6-digit code to the **new** address (dev mailbox). Same rules as login: 10 minutes, 5 tries, 15-minute lock.
 - The old email keeps working for login until the code is confirmed. Then Email is updated and a change-log row is written.
-- **(proposal)** A new request cancels an older unconfirmed one.
+- A new request cancels an older unconfirmed one.
 
 **X7 Edit name (E5)**
 | Field | Column | Rule |
@@ -111,13 +110,13 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 | Job title | Designation | Optional, max 250. |
 - Roles are shown read-only here, marked "Set by VBA".
 - Button: "Save company and job title". Saved at once.
-- The job title sits here, not with the name, because it is saved at once and the name goes to approval. One screen never mixes the two (proposal).
+- The job title sits here, not with the name, because it is saved at once and the name goes to approval. One screen never mixes the two .
 
 **X9 Edit fields of expertise (E7)**
 - A list of tick boxes with every Fags.Fag. No free text.
 - The server accepts only names that exist in Fags.
 - The expert can't create, rename or delete Fags. VBA maintains the list, and the app has no screen for that (no story asks for one).
-- **(proposal)** At least one field must be chosen.
+- At least one field must be chosen.
 - Button: "Send for approval". One pending change with the whole old list and the whole new list (names sorted and separated by "; ").
 - On approval the expert's CandidateSkills rows are replaced by the new list.
 
@@ -137,7 +136,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 **S-B Pending changes (S2)**
 - A list of all pending changes, oldest first: expert, field, old value, new value, date.
 - "Approve" applies the change (section 3).
-- "Reject" requires a reason, max 500 characters (proposal). Error: "Write a reason for rejecting".
+- "Reject" requires a reason, max 500 characters. Error: "Write a reason for rejecting".
 - A change that has already been decided can't be decided again.
 
 **S-C Expert page and change log (S3)**
@@ -218,7 +217,7 @@ Should and Could stories (E8–E11, S4) are specified after Gate 3.
 - **B. VBA number:** settled. RegistrationId is a whole number with 1 or more digits, stored as text. The test data uses made-up numbers in the same pattern, never real ones.
 - **C. Status names:** settled. Standby (-1), Retired (0), Active (1), Accepted (2), Under observation (3), Evaluated (4).
 - **D. Lookup lists:** settled for test data (section 7). The exports were samples, so Fags has 10 names and ProfessionTags has 3 made-up additions.
-- **E. Proposals:** the items marked (proposal) above.
 - **F. Middle name:** not in the Field Rule. For now it goes to approval with first and last name.
 - **G. Fags list:** settled. VBA maintains Fags. The expert only picks from it.
+- **H. Job title:** settled (2 Nov 2026). The job title is `Candidates.Designation` and nothing else. The schema has no other title column in Candidates (`contact_info.Position` and `fagCompare.Title` belong to tables the app doesn't use), so no extra field is added.
 

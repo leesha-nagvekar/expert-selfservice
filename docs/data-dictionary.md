@@ -4,7 +4,6 @@ Plain-English explanation of the tables in `schema/schema.sql` that matter for t
 
 This file explains 35 tables. The other 14 are left out on purpose, because the app never uses them: the seven `_Temp` tables (`Candidates_Temp`, `CandidateTags_Temp`, `CandidateSkills_Temp`, `CandidateCourses_Temp`, `CandidatePreferredRegions_Temp`, `CandidateFiles_Temp`, `AttachedFiles_Temp`), `RATINGS`, `Documents`, `DocumentGroups`, `old_documents`, `contact_info`, `KCOPYPATH` and `test`.
 
-- **(guess)**: worked out from the name or type only. Still to be checked with Claus.
 - **(confirmed)**: answered by the developer on 27 Oct 2026.
 - **Used**: the table is created in the SQLite test database and used by the app. All other tables are left out (decision 8 in `docs/SPEC.md`).
 
@@ -21,8 +20,8 @@ One row per expert.
 | FirstName | text 50, required | First name. Change needs approval. |
 | LastName | text 50, required | Last name. Change needs approval. |
 | MiddleName | text 50 | Middle name. Change needs approval. |
-| FirstName2, LastName2 | text 50 | A second name form, e.g. the name used professionally (guess). Not shown in the app. |
-| FirstNameOld, LastNameOld | text 50 | The name before a name change (guess). Not shown in the app. |
+| FirstName2, LastName2 | text 50 | e.g. the name used professionally. |
+| FirstNameOld, LastNameOld | text 50 | The name before a name change. |
 | RegistrationId | text 20 | The VBA number (confirmed). A whole number with 1 or more digits, stored as text (confirmed). Read-only, "Set by VBA". |
 | PhoneHome | text 50 | Home phone. Optional. |
 | PhoneWork | text 50 | Work phone. Optional. |
@@ -33,9 +32,9 @@ One row per expert.
 | Stat_Provins | text 50 | State or province. Not shown. |
 | Notes | text, long | Internal notes by the secretariat . Never shown to the expert. |
 | Company | text 250 | Company name. Saved at once. |
-| Designation | text 250 | The expert's job title (confirmed). Saved at once. |
+| Designation | text 250 | The expert's job title (confirmed 2 Nov 2026). The only place the job title is stored: no extra field is added. Saved at once. |
 | Website | text 250 | Website address. Not part of the MVP. |
-| statusOld | yes/no | A yes/no status from an older version of the system (guess). It can't hold a status such as Standby: that is what `OldStatus` does. Check with Claus. |
+| statusOld | yes/no | this is the old status before the expert status is changed e.g. before standby and after the active so statusOld = standby |
 | LastUpdated | date | Date the record was last changed. The app sets it on every change. |
 | Email | text 50 | Email. Used for login. Max 50 characters. |
 | Fax | text 50 | Fax number. Not part of the MVP. |
@@ -177,9 +176,8 @@ These hold the same columns as Candidates at an earlier point in time:
 ### Migration helpers
 When VBA moved from its old expert system to today's database, the experts were copied over once. These tables are the scratch paper from that one-time move. Nothing uses them today, and the app doesn't touch them.
 - **temp1**: the old-to-new number list. For each expert it holds the number in the old system (`old_id`) and the new `Candidates.Id` (`ID`), with the name in the old form (`First_Name`, `Last_Name`) and the new form (`FirstName`, `LastName`), so each match could be checked. 
-- **tempPassive**: the experts who were set to passive during the move: `id`, `NewID` (new Candidates.Id), `Old_Id`, `RegistrationId`, `First_Name`, `FirstName`, the old `Status` (text) and `NewStatus` (yes/no) (guess).
-- **fagCompare**: a translation list for fields of expertise. `OldFag` (the old system's name) → `NewFag` (the Fags name it became), plus `Title` (guess).
-- **Old_Region**: the old system's regions with postcodes and cities: `REGION`, `ZIPCODE`, `CITY`, `RID` (internal number), `RGID` (region group, guess). Replaced by Regions, Cities and Zipcodes.
+- **tempPassive**: the experts who were set to passive during the move: `id`, `NewID` (new Candidates.Id), `Old_Id`, `RegistrationId`, `First_Name`, `FirstName`, the old `Status` (text) and `NewStatus` (text).
+- **fagCompare**: a translation list for fields of expertise. `OldFag` (the old system's name) → `NewFag` (the Fags name it became).
 
 ### File copying
 - **COPYPATH**: `CPID`, `CPATH` (file path), `UID`, `USRID` (user ids), `UNAME` (computer name, e.g. `PC01.EXAMPLE.LOCAL`), `FLAG` (done yes/no, default no). The folder path where a file is stored after an expert uploads it, e.g. `\\server\CV\AttachedFiles\<expert id>\<file name>.pdf`.
@@ -210,6 +208,7 @@ A: Only ss_change_log.
 **Q4. E5 says 'title' (goes to approval) and E6 says 'my role' at the company (saved at once). Candidates has only one matching column, Designation. How should these be stored?**
 Options: Designation = title, new column for role / Designation = role, new column for title / Same thing, one field / Ask Claus.
 A: "so basically since Candidate is linked to other tables such as Skills , ProfessionTags, etc. E5 - Title will be the [Designation] column from Candidates and Role will probably be the CandidateTags - which is the Profession Tags linked to the candidate. So its a whole picture view it as a tree form which with candidate as main and liked to multiple tables and all data is gathered and got into one whole bundle."
+Confirmed by the developer on 2 Nov 2026: job title = `Candidates.Designation`, with no extra field. A schema check found no other title column in Candidates. The two other title-like columns, `contact_info.Position` and `fagCompare.Title`, belong to tables the app doesn't use (see Q12 and section 7).
 
 **Q4b. When an expert changes their role (ProfessionTags, e.g. adds 'Mediator'), what should happen?**
 Options: Goes to approval / Saved at once, as E6 says / Read-only, set by VBA / Ask Claus.
