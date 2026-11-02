@@ -2,6 +2,42 @@
 
 Short records of choices made in the project and why.
 
+## Test 3: code review (2 Nov 2026)
+
+The guide's section 11 T3 has a short piece of code that Claude wrote for stories E3 and E4. The task is to find everything wrong with it. That code is a test exercise and is not part of this app. Leesha reviewed it alone first, then Claude checked Leesha's list.
+
+### Leesha's list: 4 findings, all correct
+
+| # | Finding | Why it matters | Fix |
+|---|---|---|---|
+| 1 | `SECRET_KEY` is written in the code. | It breaks ground rule 4. Anyone who can read the key can forge a session cookie and log in as any expert. | Put the key in `.env`, read it with `os.environ["SECRET_KEY"]`, and keep `.env` in `.gitignore`. Change the key, because the old one is in Git history. |
+| 2 | The login code goes only to the console, not to the dev mailbox, and it never expires. | Ground rule 5 requires the dev mailbox. E1 says a code is valid for 10 minutes. A short life gives an attacker less time to guess or reuse a code. | Write the code to the dev mailbox too. Save a `created_at` time with the code, and have `/login/verify` reject codes older than 10 minutes. |
+| 3 | Address change: no change-log entry, and the expert ID is in the URL. | E3 needs the old and new value in the change log. With the ID in the URL, any expert can **change** another expert's data. | Write the change-log entry. Use `/profile/address`, read `request.session["expert_id"]`, and return 401 if it's missing. |
+| 4 | Email change: saved without a code, and the expert ID is in the URL. | E4 says a code goes to the new address and the old email stays active until the code is confirmed. Login uses the email, so a typo would lock the expert out. The ID in the URL has the same problem as #3. | Two steps: (a) save a pending change and send a code to the **new** address (console and dev mailbox); (b) confirm the code, then update `experts` and write the change log. Take the ID from the session. |
+
+The list also ended with a code sample for the email fix. That sample doesn't work: it uses `email` and `code`, which don't exist in that function, the line under the `if` has no indentation, and it checks the code against the **old** email. The fix in row 4 replaces it.
+
+### Found by Claude, not in Leesha's list
+
+| # | Finding | Why it matters | Fix |
+|---|---|---|---|
+| 5 | SQL injection: `f"... WHERE postcode = '{postcode}'"` | The biggest hole in the code. User input becomes part of the SQL. The section 7 checklist says "parameters only". | `WHERE postcode = ?` with `(postcode,)`. |
+| 6 | The update endpoints never check for a login. | Even a visitor who isn't logged in can change any expert's data, which goes further than #3 and #4. | Require `expert_id` in the session on every expert page. |
+| 7 | No limit of 5 tries, no 15-minute lock, and a used code still works. | E1 requires the limit. Without it, a 6-digit code can be guessed by trying them all. | Save `attempts` and `used_at` in `ss_login_codes`, and check them in `/login/verify`. |
+| 8 | Codes come from `random`. | `random` can be predicted, so its codes can be guessed. | Use `secrets.randbelow(1_000_000)`, formatted as 6 digits. |
+| 9 | `FastAPI(debug=True)` | Users see stack traces, which section 7 forbids. | Turn debug off. |
+| 10 | No `SessionMiddleware`. | `request.session` raises an error, so login never works. | Add `SessionMiddleware` with the secret from `.env`. |
+| 11 | `verify` crashes when the code matches but the email isn't in `experts`. | `expert` is `None`, so `expert[0]` crashes. | Check for `None` and show a plain error. |
+| 12 | Unknown postcode crashes, and nothing checks it is 4 digits. | `fetchone()[0]` on `None` gives an error 500. The user should see "Postcode must be 4 digits". | Check the postcode on the server and show the error next to the field. |
+| 13 | The new email isn't checked. | No format check and no check that another expert doesn't already have it. With two experts on one email, login can pick the wrong person. | Use `rules.is_valid_email()` and reject an email that is already used. |
+| 14 | One SQLite connection is shared by all requests. | `check_same_thread=False` lets requests use the connection at the same time, which isn't safe. | Open one connection per request with a FastAPI dependency. |
+| 15 | Other rules broken | It returns JSON instead of Jinja2 pages, has no i18n text and no tests, and `import random, sqlite3` on one line fails ruff (E401). | Follow the stack and the review checklist. |
+
+**How to check Claude's findings (not run yet):**
+- #5: run the query with `x' OR '1'='1` as the postcode and see that it returns a city.
+- #6: POST to `/experts/2/address` without logging in and see that it saves.
+- #10: call `/login/verify` without the middleware and see the error.
+
 ## Stack (30 Oct 2026)
 
 **Choice (Leesha):** Python, FastAPI, Jinja2 templates, SQLite (Python's built-in `sqlite3`), plain CSS, pytest and Ruff.
@@ -26,7 +62,7 @@ Short records of choices made in the project and why.
 | jinja2 | Builds the HTML pages on the server, with auto-escaping. |
 | python-multipart | FastAPI needs it to read HTML form posts. |
 | itsdangerous | Starlette's `SessionMiddleware` needs it to sign the session cookie. |
-| httpx | FastAPI's `TestClient` needs it to call pages in tests. |
+| httpx2 | FastAPI's `TestClient` needs it to call pages in tests. (Planned as `httpx`, but Starlette 1.10 marks `httpx` as deprecated for its test client and asks for `httpx2`.) |
 | tzdata | Windows has no time-zone database, so `zoneinfo` needs it to show times in Europe/Copenhagen. |
 | python-dotenv | Reads `.env` (database path, session secret, code key). |
 | Faker | Makes the 100 fake experts in `seed.py`. |
@@ -42,6 +78,28 @@ Python's standard library covers the rest: `sqlite3`, `secrets`, `hmac`/`hashlib
 - One-time codes come from `secrets` and are stored as HMAC-SHA256 with a key from `.env`. A plain hash is not enough: a 6-digit code has only a million values, so trying them all reverses a plain hash in a second.
 - Own "Page not found" and error pages, never a stack trace. uvicorn listens on 127.0.0.1 only.
 - All text through a `t("key")` function in the templates, reading `i18n/da.json` and `i18n/en.json`. Dates are formatted by a small helper with month names from the same files, so no Babel package is needed.
+
+## Skeleton, Phase 3 step 2 (30 Oct 2026)
+
+**Layout.** The web code is in the `app/` package (`main.py`, `i18n.py`), apart from the Phase 2 scripts, which stay where they are. `templates/`, `static/` and `i18n/` sit in the project root, where the guide names them.
+
+**`python run.py` starts the app on 127.0.0.1:8000.** The host is fixed in the code, so nobody can make the app listen on the network by typing the wrong command (ground rule 7). No auto-reload and no debug mode. FastAPI's built-in API pages (`/docs`, `/redoc`, `/openapi.json`) are turned off: the app is for people, not an API, and they would list every route.
+
+**Language.** Danish by default (decided with Leesha). The choice is kept in a `lang` cookie (1 year, `httponly`, `samesite=lax`). A cookie value other than `da` or `en` is ignored. The switch is a plain link, `GET /language/en?next=/current/page`: it changes no data, so it needs no CSRF token, and it works without JavaScript. `next` is only followed if it is a path on this site (starts with `/`, but not `//` or `/\`). Anything else goes to `/`, so the link can't be used to send someone to another site (open redirect).
+
+**Texts.** All text is in `i18n/da.json` and `i18n/en.json`, flat keys such as `home.title`. A missing key raises an error instead of showing a blank, so tests catch it. Tests check that both files have the same keys, that no text is empty, and that every key used in a template exists. Language names are written in their own language ("Dansk", "English") in both files. Every template gets `t()` and `lang` from one `render()` helper, so no page can forget them.
+
+**Error pages.** Every HTTP error (404, 405, ...) shows the same plain "Page not found" page in the visitor's language. Any other error is logged to the console and shows a plain "Something went wrong" page, never a stack trace. Demo step 7 (another expert's id in the URL) will use the 404 page.
+
+**Fonts.** IBM Plex Sans 400/500/600/700 and Mono 500/600 as `.woff2`, taken once from IBM's own GitHub releases (`@ibm/plex-sans@1.1.0`, `@ibm/plex-mono@2.5.0`) and committed with the licence (`static/fonts/OFL.txt`). Nothing is loaded from Google or any other site at runtime. Windows doesn't always know the `.woff2` file type, so `app/main.py` registers `font/woff2`.
+
+**Colours.** `static/tokens.css` holds only the 15 light tokens. The dark values come with story E11, so the app doesn't turn dark on phones before the dark theme is designed and tested. A test fails if a colour code (`#…`, `rgb(`, `hsl(`) appears in any other CSS, template or app file.
+
+**Logos.** `static/img/vn-logo-white.png` and `vn-mark-white.png` are copies of `assets/images/image4.png` and `image5.png`. The mark replaces the full logo below 480 px.
+
+**Not in this step, on purpose:** session, CSRF helper, the database connection and the `.env` keys come with E1 login, the first feature that needs them. `python-multipart` and `itsdangerous` are added then. The Help, "Contact the secretariat" and "About your data" links come when those pages exist.
+
+**Extra package noticed:** fastapi 0.162 installs `opentelemetry-api` as a dependency. It is only the interface library: nothing is collected or sent unless an exporter is installed and set up, and we install none.
 
 ## Phase 2: test database (29 Oct 2026)
 

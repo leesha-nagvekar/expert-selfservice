@@ -13,6 +13,14 @@ pip install -r requirements.txt
 copy .env.example .env          # macOS/Linux: cp .env.example .env
 ```
 
+## Run
+
+```
+python run.py
+```
+
+Open http://127.0.0.1:8000. Stop the app with Ctrl+C. It only listens on your own machine (127.0.0.1), never on the network.
+
 ## Reset the test database
 
 ```
@@ -46,11 +54,19 @@ Checks for exactly 100 experts, no duplicate emails, valid keys, @example.com ev
 
 ```
 pytest
-ruff check . && ruff format --check .
+ruff check .
+ruff format --check .
 ```
+
+`pytest` runs all tests. The two `ruff` lines check the code style.
 
 ## Files
 
+- `run.py`: starts the app.
+- `app/`: the web app (`main.py` routes and error pages, `i18n.py` texts and language).
+- `templates/`: the HTML pages. `base.html` holds the top bar.
+- `static/`: `tokens.css` (the only place with colour codes), `fonts.css`, `app.css`, logos and fonts.
+- `i18n/`: every text the app shows, in `da.json` and `en.json`.
 - `db/schema_sqlite.sql`: the database structure.
 - `data/lookups/`: regions, cities, postcodes, fields of expertise (Fags) and roles.
 - `seed.py`, `check_data.py`: build and check the test database.
@@ -58,3 +74,5 @@ ruff check . && ruff format --check .
 - `settings.py`: reads `DATABASE_PATH` from the environment or `.env`.
 - `tools/build_postcodes.py`: a one-off that fetched the Danish postcodes (GeoNames, CC BY 4.0).
 - `docs/`: specification, data dictionary, stories and decisions.
+
+The IBM Plex fonts in `static/fonts/` are under the SIL Open Font License (`static/fonts/OFL.txt`).

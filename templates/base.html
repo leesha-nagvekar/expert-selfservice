@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ t("app.name") }}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/fonts.css">
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="topbar-logo" href="/">
+      <picture>
+        <source media="(max-width: 479px)" srcset="/static/img/vn-mark-white.png">
+        <img src="/static/img/vn-logo-white.png" alt="{{ t('topbar.logo_alt') }}">
+      </picture>
+    </a>
+    <nav class="topbar-language" aria-label="{{ t('topbar.language') }}">
+      {% for code in languages %}
+        {% if code == lang %}
+          <span aria-current="true" lang="{{ code }}">{{ t("language." ~ code) }}</span>
+        {% else %}
+          <a href="/language/{{ code }}?next={{ request.url.path | urlencode }}" lang="{{ code }}">{{ t("language." ~ code) }}</a>
+        {% endif %}
+      {% endfor %}
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

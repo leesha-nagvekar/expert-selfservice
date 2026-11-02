@@ -1,0 +1,19 @@
+/* VBA colour tokens, light theme (docs/guide.md section 5).
+   The only file with colour codes. Dark values come with story E11. */
+:root {
+  --brand: #00437C;
+  --topbar: #00437C;
+  --secondary: #1F5F8B;
+  --ink: #1E2B39;
+  --text: #34495E;
+  --muted: #6C7C8D;
+  --accent: #E96900;        /* borders and fills only, never text */
+  --accent-text: #B05407;
+  --ok: #0E7C55;
+  --surface: #F4F6F9;
+  --background: #FFFFFF;
+  --line: #E7ECF1;
+  --brand-soft: #E8EFF6;
+  --accent-soft: #FCF0E4;
+  --on-brand: #FFFFFF;
+}

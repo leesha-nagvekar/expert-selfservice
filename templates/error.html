@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t("error." ~ kind ~ ".title") }}{% endblock %}
+
+{% block content %}
+  <h1>{{ t("error." ~ kind ~ ".title") }}</h1>
+  <p>{{ t("error." ~ kind ~ ".text") }}</p>
+  <p><a href="/">{{ t("error.back_home") }}</a></p>
+{% endblock %}

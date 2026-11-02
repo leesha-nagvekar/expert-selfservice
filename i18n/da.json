@@ -1,0 +1,14 @@
+{
+  "app.name": "Selvbetjening for skønsmænd",
+  "topbar.logo_alt": "Voldgiftsnævnet for Bygge- og Anlægsvirksomhed – til forsiden",
+  "topbar.language": "Sprog",
+  "language.da": "Dansk",
+  "language.en": "English",
+  "home.title": "Selvbetjening for skønsmænd",
+  "home.intro": "Her kan du som skønsmand hos VBA selv holde dine oplysninger opdateret.",
+  "error.not_found.title": "Siden findes ikke",
+  "error.not_found.text": "Siden findes ikke, eller du har ikke adgang til den.",
+  "error.server.title": "Der skete en fejl",
+  "error.server.text": "Noget gik galt hos os. Prøv igen om lidt.",
+  "error.back_home": "Gå til forsiden"
+}

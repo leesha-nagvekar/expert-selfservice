@@ -1,0 +1,14 @@
+{
+  "app.name": "Expert self-service",
+  "topbar.logo_alt": "Danish Building and Construction Arbitration Board – to the front page",
+  "topbar.language": "Language",
+  "language.da": "Dansk",
+  "language.en": "English",
+  "home.title": "Expert self-service",
+  "home.intro": "As an expert with VBA, you can keep your own details up to date here.",
+  "error.not_found.title": "Page not found",
+  "error.not_found.text": "The page does not exist, or you do not have access to it.",
+  "error.server.title": "Something went wrong",
+  "error.server.text": "Something went wrong on our side. Please try again in a moment.",
+  "error.back_home": "Go to the front page"
+}
