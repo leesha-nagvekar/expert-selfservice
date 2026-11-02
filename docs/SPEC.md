@@ -1,6 +1,6 @@
 # Specification: Expert Register Self-Service (MVP)
 
-Status: draft for Gate 1 (28 Oct 2026). Stories: `docs/stories.md`. Tables and columns: `docs/data-dictionary.md`.
+Status: Approved at Gate 1 (28 Oct 2026). Updated 2 Nov 2026 for the new guide (ASP.NET Core, Field Rule). Stories: `docs/stories.md`. Tables and columns: `docs/data-dictionary.md`.
 
 ## 1. Decisions from the interview (27 Oct 2026)
 
@@ -67,6 +67,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - Lists every message "sent" by the app, newest first: to, subject, text (with the code), time.
 - Every code is also printed to the console.
 - Only exists because the app runs on localhost. It doesn't need a login.
+- Only available when the app runs in the Development environment.
 
 **X4 Profile overview (E2)**
 - Sections, each with a button that opens its edit screen:
@@ -84,7 +85,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 |---|---|---|
 | Street and number | Street | Required, max 50 characters. |
 | Postcode | ZipcodeId (via Zipcodes) | Exactly 4 digits and must exist in Zipcodes. Otherwise: "Postcode must be 4 digits" / "Unknown postcode". |
-| City | via Zipcodes → Cities | Not typed. Filled in from the postcode when the page reloads after the expert presses "Find city" or "Save address".  |
+| City | via Zipcodes → Cities | Not typed. When the postcode has 4 digits, a small plain-JavaScript call asks the server for the city and fills it in (guide section 9, demo step 3: "Type postcode 8000 and Aarhus C appears by itself"). "Find city" stays as a fallback without JavaScript: the page reloads with the city filled in. No JavaScript framework. The server still checks the postcode when the address is saved. |
 | Mobile, work, home phone | PhoneMobile, PhoneWork, PhoneHome | Optional. Digits, spaces and a leading +, 8–15 digits, max 50 characters. |
 - Button: "Save address and phone". Saved at once.
 

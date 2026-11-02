@@ -30,7 +30,7 @@ One row per expert.
 | Street | text 50 | Street and house number. Edited by the expert (confirmed). |
 | ZipcodeId | int → Zipcodes.Id | The expert's postcode, which also gives the city. |
 | Stat_Provins | text 50 | State or province. Not shown. |
-| Notes | text, long | Internal notes by the secretariat . Never shown to the expert. |
+| Notes | text, long | Internal notes by the secretariat. Never shown to the expert. |
 | Company | text 250 | Company name. Saved at once. The schema has no CVR column: the CVR number is stored in `ss_expert_company.cvr` (section 8). |
 | Designation | text 250 | The expert's job title (confirmed 2 Nov 2026). The only place the job title is stored: no extra field is added. Saved at once. |
 | Website | text 250 | Website address. Not part of the MVP. |
@@ -72,7 +72,7 @@ One row per expert.
 | Id | Internal number. |
 | RegionName | Name of the region. |
 | ShowInFilter | Yes/no: shown as a filter in the secretariat's search. |
-| IsAutoSelected | Yes/no: ticked by default in that filter . |
+| IsAutoSelected | Yes/no: ticked by default in that filter. |
 | DisplayOrder | Sort order, default 1000. |
 
 ### CandidatePreferredRegions
@@ -114,7 +114,7 @@ The roles of each expert, several per expert (confirmed): `Id`, `CandidateId` �
 ## 4. Courses
 
 ### Courses
-VBA's courses for experts: `Id`, `CourseName`, `Logo` (image file ). Not part of the MVP.
+VBA's courses for experts: `Id`, `CourseName`, `Logo` (image file). Not part of the MVP.
 
 ### CandidateCourses
 Courses an expert has taken: `Id`, `CandidateId`, `CourseId` → Courses, `CourseAttended` (date). Not part of the MVP.
@@ -128,9 +128,9 @@ Files per expert, e.g. a CV.
 |---|---|
 | Id | Internal number. |
 | CandidateId | → Candidates.Id. |
-| FileContent | These are pdf files uploaded by the Experts |
+| FileContent | PDF files uploaded by the expert. |
 | FileName | File name. |
-| CreationDateTime | When it was added. Default 1 Jan 1900, It shows when the file was uploaded by an expert. |
+| CreationDateTime | When it was added. Default 1 Jan 1900. It shows when the file was uploaded by an expert. |
 | IsPrimary | Yes/no: the main file, e.g. the current CV. |
 
 Possible use for E10 (CV upload, a Could story).
@@ -140,7 +140,7 @@ Possible use for E10 (CV upload, a Could story).
 Other attachments per expert. Same columns as CandidateFiles but without IsPrimary. Not used.
 
 ### Attachment
-Attachments every time uploaded by an Expert, records of all the attachments as text form: `T_ID`, `CID` (expert), `File_Path`, `FileMatter` (file text from the CV), `FileName` (Name of the CV ).
+Every attachment an expert uploads, with its text: `T_ID`, `CID` (expert), `File_Path`, `FileMatter` (file text from the CV), `FileName` (name of the CV).
 
 ## 6. Secretariat tools
 
@@ -244,7 +244,7 @@ A: All except Retired.
 **Q10. Approval rule: which changes go to the secretariat as 'Pending approval', and which are saved at once?**
 Options: As in the guide / Guide + company to approval / Ask Claus at Gate 1.
 A: As in the guide.
-Later replaced by the Field Rule the developer added to `docs/SPEC.md` section 3: Designation (job title) is saved at once; only first name, last name and fields of expertise go to approval.
+Later replaced by the Field Rule the developer added to `docs/SPEC.md` section 3: Designation (job title) is saved at once; only first name, middle name, last name and fields of expertise go to approval (middle name: open point F).
 
 **Q11. Who adds, renames or deletes entries in the Fags list (the fields of expertise)?** (28 Oct 2026)
 Options: VBA, outside this app / Secretariat, inside this app.
@@ -307,4 +307,4 @@ A: "you can expand the list by adding more this is just for sample"
 Three made-up roles were added: Voldgiftsdommer, Bisidder and Tilsynsførende (Ids 43–45). That gives 12 roles. Each expert holds 1–2 of them.
 
 **Q21. OldStatus for a Standby expert.** Claude asked which values `OldStatus` may hold, either 1–4 only (a Retired expert can't be put on Standby) or 0–4. The question was first turned down and answered later, on 30 Oct 2026. The seed gives OldStatus a value from 1–4 (Active to Evaluated), and `check_data.py` checks that every Standby expert has an UntilDate and an OldStatus.
-A: "Old Status is basically the status which was before changing the experts status to new one. for e.g. if Current status is : active , and now the expert changes it to standby, then the oldstatus will hold active.
+A: "Old Status is basically the status which was before changing the experts status to new one. for e.g. if Current status is : active , and now the expert changes it to standby, then the oldstatus will hold active."
