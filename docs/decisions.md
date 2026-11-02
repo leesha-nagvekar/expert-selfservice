@@ -2,7 +2,36 @@
 
 Short records of choices made in the project and why.
 
-## Stack (30 Oct 2026)
+## Stack changed to ASP.NET Core (2 Nov 2026)
+
+**Decision (Claus, guide phase 3, 2 Nov 2026):** from phase 3 the app is built in ASP.NET Core MVC on .NET 10 (LTS) with Razor views, SQLite through Microsoft.Data.Sqlite and Dapper, plain CSS, xUnit and `dotnet format`. It replaces the Python choice of 30 Oct (below).
+
+**Why:**
+- .NET is Leesha's own home ground. The guide's rule 4 is "never accept code you can't explain", and that is easier in a language she already knows.
+- Gate 3 (20 Nov) now includes walking Claus through the code, and the T3 retake is in C#.
+
+**What stays:**
+- The test data tools stay in Python: `seed.py`, `check_data.py`, `rules.py`, `settings.py`, their 74 pytest tests and Ruff. `python seed.py --reset` is still the reset command.
+- `db/schema_sqlite.sql` stays the one source of the table structure. The .NET app reads the same database file.
+- `i18n/da.json`, `i18n/en.json`, the colour tokens, fonts and logos were copied from the Python skeleton (commit `4c7761a`) and move to `wwwroot/` in the .NET skeleton.
+- The Python skeleton is kept under the Git tag `python-skeleton` (branch `phase3-stack-decision`) for reference. It is not merged.
+
+**Rules carried over, in .NET form:**
+- Every query uses Dapper parameters (`@name`), never SQL built from text. Foreign keys are turned on for every connection (`Foreign Keys=True` in the connection string).
+- CSRF: ASP.NET Core's built-in antiforgery tokens on every POST form, switched on for all of them, not one by one. It replaces the own helper planned for Python.
+- Login: the session cookie is `HttpOnly` and `SameSite=Lax`, and holds only `expert_id` or `staff_id`.
+- One-time codes come from `RandomNumberGenerator`, never `Random`, and are stored as HMAC-SHA256 with a secret key.
+- The app listens on `127.0.0.1` only. Own "Page not found" and error pages, never the developer exception page or a stack trace.
+- All text comes from `i18n/*.json` through a small service of our own, not `.resx` files, because the guide names the JSON files.
+- Times are shown in Europe/Copenhagen with .NET's own `TimeZoneInfo`, so no extra package is needed.
+- Every NuGet package is pinned to an exact version and gets one line here explaining why it is needed. The list is written in the skeleton step.
+
+**Open points:**
+- This machine has only the .NET 7.0.100 SDK. The .NET 10 SDK must be installed before the skeleton step, and the README must say so.
+- Where secrets go: CLAUDE.md ground rule 4 says `.env`, but .NET doesn't read `.env` on its own. Either a small package reads it, or .NET's "user secrets" are used (also outside Git). Decided with E1 login, the first feature with a secret.
+- Tests run with two commands: `dotnet test` for the app and `pytest` for the test data tools.
+
+## Stack, first choice: Python (30 Oct 2026, replaced 2 Nov 2026)
 
 **Choice (Leesha):** Python, FastAPI, Jinja2 templates, SQLite (Python's built-in `sqlite3`), plain CSS, pytest and Ruff.
 
