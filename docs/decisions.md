@@ -72,6 +72,12 @@ Python's standard library covers the rest: `sqlite3`, `secrets`, `hmac`/`hashlib
 - Own "Page not found" and error pages, never a stack trace. uvicorn listens on 127.0.0.1 only.
 - All text through a `t("key")` function in the templates, reading `i18n/da.json` and `i18n/en.json`. Dates are formatted by a small helper with month names from the same files, so no Babel package is needed.
 
+## 2 Nov 2026: CVR stored in ss_expert_company
+
+**Decision (Leesha):** the CVR number stays in the side table `ss_expert_company.cvr`, not in a new column in Candidates.
+
+**Why:** guide phase 1, step 3: what is missing goes into new tables with the prefix ss_, and the original tables stay untouched. VBA's schema has no CVR column, so a CVR column in Candidates would change an original table. That option is out, so there is nothing to ask Claus.
+
 ## Phase 2: test database (29 Oct 2026)
 
 **Hand-written SQLite schema (`db/schema_sqlite.sql`).** `schema/schema.sql` must never go into Git, but anyone who clones the repo must be able to run `python seed.py --reset`. So the 8 tables the app uses are written out by hand, with the same table and column names. Types are mapped to SQLite: int → INTEGER, text → TEXT, bit → INTEGER 0/1, date → TEXT. Text lengths aren't enforced by SQLite. The app's validation and `check_data.py` enforce them. Fags has no primary key in the original, so it has none here either.

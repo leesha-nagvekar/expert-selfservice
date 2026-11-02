@@ -31,7 +31,7 @@ One row per expert.
 | ZipcodeId | int → Zipcodes.Id | The expert's postcode, which also gives the city. |
 | Stat_Provins | text 50 | State or province. Not shown. |
 | Notes | text, long | Internal notes by the secretariat . Never shown to the expert. |
-| Company | text 250 | Company name. Saved at once. |
+| Company | text 250 | Company name. Saved at once. The schema has no CVR column: the CVR number is stored in `ss_expert_company.cvr` (section 8). |
 | Designation | text 250 | The expert's job title (confirmed 2 Nov 2026). The only place the job title is stored: no extra field is added. Saved at once. |
 | Website | text 250 | Website address. Not part of the MVP. |
 | statusOld | yes/no | Not used by the app (2 Nov 2026). Kept in the test copy so the columns match VBA's schema, but never filled, shown or changed. The status before Standby is `OldStatus`, not this column. |
@@ -184,6 +184,8 @@ When VBA moved from its old expert system to today's database, the experts were 
 
 ## 8. New self-service tables (prefix ss_)
 Defined in `docs/SPEC.md` section 5.
+
+**ss_expert_company**: the expert's CVR number. Story E6 asks for it, but VBA's schema has no column for it. `candidate_id` (→ Candidates.Id) is the primary key, so there is at most one row per expert. `cvr` is empty or exactly 8 digits that pass the modulus-11 check (weights 2-7-6-5-4-3-2-1, sum divisible by 11). It is stored as text so a leading zero is kept. It is a side table, not a column in Candidates, because the guide (phase 1, step 3) says that what is missing goes into new ss_ tables and the original tables stay untouched (`docs/decisions.md`, 2 Nov 2026).
 
 ## 9. Questions and answers (schema interview, 27–28 Oct 2026)
 
