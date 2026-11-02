@@ -1,0 +1,86 @@
+/* Layout and components. Colours only as var(--...) from tokens.css. Mobile first. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1 {
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+a {
+  color: var(--brand);
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* Top bar: logo blue, white logo and white text in both themes. */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 8px 16px;
+  background: var(--topbar);
+  color: var(--on-brand);
+}
+
+.topbar :focus-visible {
+  outline-color: var(--on-brand);
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.topbar-logo img {
+  display: block;
+  height: 40px;
+  width: auto;
+}
+
+.topbar-language {
+  display: flex;
+  gap: 4px;
+}
+
+.topbar-language a,
+.topbar-language span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--on-brand);
+}
+
+.topbar-language span {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
