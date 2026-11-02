@@ -49,8 +49,16 @@ You never copy or handle real expert data. Development and test at LITTAU run on
 
 ## Stack
 
-Default, unless Claus agrees to something else: Python, FastAPI, Jinja2 templates (HTML from the server, no JavaScript framework), SQLite, plain CSS and pytest. Ruff is the formatter and linter, and one command runs all tests. The stack choice and the reason for it are written in `docs/decisions.md`.
+Changed 2 November 2026 by Claus (guide, phase 3): the app is built in ASP.NET Core.
+
+- App: ASP.NET Core MVC on .NET 10 (LTS) with Razor views - HTML from the server, no JavaScript framework. Plain CSS.
+- Database: SQLite through Microsoft.Data.Sqlite and Dapper. Every query uses Dapper parameters (`@name`), never SQL glued together from text.
+- Tests: xUnit. `dotnet test` runs all the app's tests, and `dotnet format` keeps the C# tidy.
+- Test data stays in Python: `seed.py`, `check_data.py` and `rules.py`, tested with pytest and checked with Ruff.
+- Static files (`tokens.css`, fonts, logos) live in `wwwroot/`. Where the guide says `static/`, read `wwwroot/`. All text stays in `i18n/da.json` and `i18n/en.json`.
+
+The stack choice and the reason for it are in `docs/decisions.md`. The earlier Python skeleton is kept under the Git tag `python-skeleton`.
 
 ## Colour rule
 
-Put the colour tokens from `docs/guide.md` section 5 in `static/tokens.css` as CSS variables, and never write a colour code anywhere else. Orange `--accent` (#E96900) is too weak for text, so it is only for borders and fills. Orange text uses `--accent-text`, and green uses `--ok`.
+Put the colour tokens from `docs/guide.md` section 5 in `wwwroot/tokens.css` as CSS variables, and never write a colour code anywhere else. Orange `--accent` (#E96900) is too weak for text, so it is only for borders and fills. Orange text uses `--accent-text`, and green uses `--ok`.
