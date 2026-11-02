@@ -34,7 +34,7 @@ One row per expert.
 | Company | text 250 | Company name. Saved at once. |
 | Designation | text 250 | The expert's job title (confirmed 2 Nov 2026). The only place the job title is stored: no extra field is added. Saved at once. |
 | Website | text 250 | Website address. Not part of the MVP. |
-| statusOld | yes/no | this is the old status before the expert status is changed e.g. before standby and after the active so statusOld = standby |
+| statusOld | yes/no | Not used by the app (2 Nov 2026). Kept in the test copy so the columns match VBA's schema, but never filled, shown or changed. The status before Standby is `OldStatus`, not this column. |
 | LastUpdated | date | Date the record was last changed. The app sets it on every change. |
 | Email | text 50 | Email. Used for login. Max 50 characters. |
 | Fax | text 50 | Fax number. Not part of the MVP. |
@@ -208,7 +208,7 @@ A: Only ss_change_log.
 **Q4. E5 says 'title' (goes to approval) and E6 says 'my role' at the company (saved at once). Candidates has only one matching column, Designation. How should these be stored?**
 Options: Designation = title, new column for role / Designation = role, new column for title / Same thing, one field / Ask Claus.
 A: "so basically since Candidate is linked to other tables such as Skills , ProfessionTags, etc. E5 - Title will be the [Designation] column from Candidates and Role will probably be the CandidateTags - which is the Profession Tags linked to the candidate. So its a whole picture view it as a tree form which with candidate as main and liked to multiple tables and all data is gathered and got into one whole bundle."
-Confirmed by the developer on 2 Nov 2026: job title = `Candidates.Designation`, with no extra field. A schema check found no other title column in Candidates. The two other title-like columns, `contact_info.Position` and `fagCompare.Title`, belong to tables the app doesn't use (see Q12 and section 7).
+Confirmed by the developer on 2 Nov 2026: job title = `Candidates.Designation`, with no extra field. A schema check found no other title column in Candidates.
 
 **Q4b. When an expert changes their role (ProfessionTags, e.g. adds 'Mediator'), what should happen?**
 Options: Goes to approval / Saved at once, as E6 says / Read-only, set by VBA / Ask Claus.

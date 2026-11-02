@@ -219,5 +219,5 @@ Should and Could stories (E8–E11, S4) are specified after Gate 3.
 - **D. Lookup lists:** settled for test data (section 7). The exports were samples, so Fags has 10 names and ProfessionTags has 3 made-up additions.
 - **F. Middle name:** not in the Field Rule. For now it goes to approval with first and last name.
 - **G. Fags list:** settled. VBA maintains Fags. The expert only picks from it.
-- **H. Job title:** settled (2 Nov 2026). The job title is `Candidates.Designation` and nothing else. The schema has no other title column in Candidates (`contact_info.Position` and `fagCompare.Title` belong to tables the app doesn't use), so no extra field is added.
+- **H. Job title:** settled (2 Nov 2026). The job title is `Candidates.Designation` and nothing else. The schema has no other title column in Candidates, so no extra field is added.
 
