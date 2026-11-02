@@ -15,7 +15,7 @@ Status: draft for Gate 1 (28 Oct 2026). Stories: `docs/stories.md`. Tables and c
 | 7 | VBA number = `RegistrationId`. Read-only. |
 | 8 | The SQLite test database holds only the tables the app uses: Candidates, Zipcodes, Cities, Regions, Fags, CandidateSkills, ProfessionTags, CandidateTags, plus the ss_ tables. Names and columns stay as in `schema/`. |
 | 9 | Every status except Retired (0) can log in. Status is read-only in the app. |
-| 10 | Approval rule: the Field Rule in section 3. It differs from the guide: Designation (job title) is saved at once, and roles are set by VBA only. |
+| 10 | Approval rule: the Field Rule in section 3. The guide was updated on 2 Nov 2026 to match it: Designation (job title) is saved at once, and roles are set by VBA only. |
 
 
 ## 2. Users and access
@@ -102,7 +102,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 | Last name | LastName | Required, max 50. |
 - Button: "Send name for approval". One pending change per changed field.
 
-**X8 Edit company and job title (E5 title, E6)**
+**X8 Edit company and job title (E6)**
 | Field | Column | Rule |
 |---|---|---|
 | Company name | Company | Optional, max 250. |
@@ -110,7 +110,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 | Job title | Designation | Optional, max 250. |
 - Roles are shown read-only here, marked "Set by VBA".
 - Button: "Save company and job title". Saved at once.
-- The job title sits here, not with the name, because it is saved at once and the name goes to approval. One screen never mixes the two .
+- The job title sits here, not with the name, because it is saved at once and the name goes to approval. One screen never mixes the two.
 
 **X9 Edit fields of expertise (E7)**
 - A list of tick boxes with every Fags.Fag. No free text.
@@ -189,7 +189,7 @@ The SQLite structure of all tables is in `db/schema_sqlite.sql`.
 | E3 address, phone | Zipcodes, Cities | Candidates.Street, ZipcodeId, PhoneMobile, PhoneWork, PhoneHome, LastUpdated; ss_change_log |
 | E4 email | Candidates.Email | ss_email_changes, ss_login_codes, ss_login_lockouts, ss_dev_mailbox; Candidates.Email; ss_change_log |
 | E5 name | Candidates.FirstName, MiddleName, LastName | ss_pending_changes |
-| E5 title, E6 company | Candidates.Company, Designation; ss_expert_company; CandidateTags→ProfessionTags (read-only) | Candidates.Company, Designation, LastUpdated; ss_expert_company; ss_change_log |
+| E6 company and job title | Candidates.Company, Designation; ss_expert_company; CandidateTags→ProfessionTags (read-only) | Candidates.Company, Designation, LastUpdated; ss_expert_company; ss_change_log |
 | E7 fields of expertise | Fags; CandidateSkills | ss_pending_changes |
 | S1 search | Candidates; Zipcodes→Cities; CandidateSkills; Fags; ss_pending_changes | – |
 | S2 approve / reject | ss_pending_changes | ss_pending_changes; Candidates or CandidateSkills; ss_change_log |
