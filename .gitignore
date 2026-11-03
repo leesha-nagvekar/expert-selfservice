@@ -22,3 +22,10 @@ exports/
 # Local Claude Code and editor settings
 .claude/settings.local.json
 
+# .NET build output and IDE files (ASP.NET Core app, phase 3)
+bin/
+obj/
+.vs/
+*.user
+TestResults/
+
