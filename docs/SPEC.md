@@ -149,13 +149,13 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 All times are stored in UTC and shown in local time (Europe/Copenhagen), formatted from the chosen language.
 
 **ss_staff_users**: secretariat users.
-`id` PK · `name` · `email` UNIQUE (ends in @example.com) · `created_at`
+`id` PK · `name` · `email` UNIQUE, case-insensitive (ends in @example.com) · `created_at`
 
 **ss_login_codes**: one-time codes for login and email change.
 `id` PK · `email` · `purpose` (`login` / `email_change`) · `code_hash` (the code is never stored in plain text) · `created_at` · `expires_at` (created + 10 min) · `used_at` (empty until used)
 
 **ss_login_lockouts**: failed tries per email.
-`email` PK · `failed_count` · `locked_until` (empty or a time)
+`email` PK, case-insensitive · `failed_count` · `locked_until` (empty or a time)
 
 **ss_dev_mailbox**: messages the app "sends".
 `id` PK · `to_email` · `subject` · `body` · `created_at`

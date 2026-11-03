@@ -113,10 +113,12 @@ CREATE TABLE CandidateFiles (
 -- Part 2: self-service tables
 -- ---------------------------------------------------------------------------
 
+-- COLLATE NOCASE: one email in different capitals is still one user (and below,
+-- one lockout counter). NOCASE folds A-Z only; emails are ASCII (rules.is_valid_email).
 CREATE TABLE ss_staff_users (
     id         INTEGER PRIMARY KEY,
     name       TEXT NOT NULL,
-    email      TEXT NOT NULL UNIQUE,
+    email      TEXT NOT NULL UNIQUE COLLATE NOCASE,
     created_at TEXT NOT NULL
 );
 
@@ -131,7 +133,7 @@ CREATE TABLE ss_login_codes (
 );
 
 CREATE TABLE ss_login_lockouts (
-    email        TEXT PRIMARY KEY,
+    email        TEXT PRIMARY KEY COLLATE NOCASE,
     failed_count INTEGER NOT NULL DEFAULT 0,
     locked_until TEXT
 );

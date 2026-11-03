@@ -47,6 +47,15 @@ Short records of choices made in the project and why.
 
 **Why:** two copies of a rule are the same risk the Phase 2 review fixed with `rules.py` (round 1 #6 and #7). A shared test file is the cheapest guard that works across two languages.
 
+## Emails are compared without case (3 Nov 2026)
+
+**Decision (Leesha):** an email is the same email whatever its capitals.
+- The database guards the two email columns that must be unique with `COLLATE NOCASE`: `ss_staff_users.email` and `ss_login_lockouts.email`.
+- The app stores and looks up emails in lower case.
+- `Candidates.Email` is VBA's original table and stays untouched, so the app compares it with `lower(Email) = lower(@email)`, as `check_data.py` already does.
+
+**Why:** one email must never count as two staff users. Above all, it must never get two lockout counters: typing `ANNA.DEMO@example.com` would otherwise start a fresh count of failed tries and get around E1's "5 tries, then locked for 15 minutes". NOCASE folds A-Z only, which is enough because `rules.is_valid_email` allows ASCII only. Proved by `test_staff_email_is_unique_in_any_case` and `test_lockout_is_one_row_per_email_in_any_case`.
+
 ## Stack, first choice: Python (30 Oct 2026, replaced 2 Nov 2026)
 
 **Choice (Leesha):** Python, FastAPI, Jinja2 templates, SQLite (Python's built-in `sqlite3`), plain CSS, pytest and Ruff.

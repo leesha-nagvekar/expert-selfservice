@@ -202,6 +202,22 @@ def test_candidate_files_rejects_unknown_expert(db):
         db.execute("INSERT INTO CandidateFiles (CandidateId, FileName) VALUES (999, 'cv.pdf')")
 
 
+def test_staff_email_is_unique_in_any_case(db):
+    with pytest.raises(sqlite3.IntegrityError, match="UNIQUE"):
+        db.execute(
+            "INSERT INTO ss_staff_users (name, email, created_at) "
+            "VALUES ('Kopi', 'SOFIE.STAFF@example.com', '2026-10-01T08:00:00Z')"
+        )
+
+
+def test_lockout_is_one_row_per_email_in_any_case(db):
+    # Otherwise typing the email in capitals would start a new count of failed tries.
+    insert = "INSERT INTO ss_login_lockouts (email, failed_count) VALUES (?, ?)"
+    db.execute(insert, ("anna.demo@example.com", 5))
+    with pytest.raises(sqlite3.IntegrityError, match="UNIQUE"):
+        db.execute(insert, ("ANNA.DEMO@example.com", 0))
+
+
 @pytest.mark.parametrize(
     ("name", "expected"),
     [("Søren", "soeren"), ("Æbelø", "aebeloe"), ("Åse", "aase"), ("Anne Marie", "anne-marie")],
