@@ -39,6 +39,14 @@ Short records of choices made in the project and why.
 - The script is a few plain lines anyone can read and explain.
 - Not chosen: an MSBuild step that makes `dotnet test` call pytest. It gives one familiar command, but the logic would be hidden in the `.csproj` and be harder to explain.
 
+## Data rules in two languages: rules.py and C# (3 Nov 2026)
+
+**Decision (Leesha):** `rules.py` stays the source for the test-data tools. The .NET app can't import Python, so it keeps its own C# copy of only the rules it needs for validation and display: the CVR check, the email pattern, the text limits (`MAX_LENGTHS`), the status codes and names (Retired can't log in), and the Danish postcode rule. Rules only the seed needs stay in Python only: expected counts, demo emails, experts without a phone, skills and roles per expert, and RegistrationId from 900001.
+
+**Keeping the two in step:** when the first C# rule is written (E3 or E6), a shared file `tests/rule_cases.json` is added, with valid and invalid CVRs and emails and the text limits. pytest and xUnit both read it, so a change in one language that the other doesn't follow makes a test fail. Until then the Python tests are the reference.
+
+**Why:** two copies of a rule are the same risk the Phase 2 review fixed with `rules.py` (round 1 #6 and #7). A shared test file is the cheapest guard that works across two languages.
+
 ## Stack, first choice: Python (30 Oct 2026, replaced 2 Nov 2026)
 
 **Choice (Leesha):** Python, FastAPI, Jinja2 templates, SQLite (Python's built-in `sqlite3`), plain CSS, pytest and Ruff.
@@ -152,18 +160,18 @@ Overall result after the three rounds:
 | 4 | `.gitignore` didn't ignore `*.sqlite3`. | With `DATABASE_PATH=…/register.sqlite3`, the test database could be committed. | `*.sqlite3` added. | – |
 | 5 | `tools/build_postcodes.py` drops rows with Id ≥ 2001, and crashes on a blank line in a CSV. | Same as round 2 #10, plus the blank-line case. | **Explained, no change.** See round 2 #10. The tool reads only CSV files it wrote itself, and those never contain blank lines. | – |
 | 6 | The demo-email lookup cared about upper/lower case; the rest of the checker doesn't. | After a later email change to `Anna.Demo@example.com`, the checker would wrongly report Anna as missing. | `WHERE lower(Email) = lower(?)`. | `test_demo_email_found_in_any_case` |
-| 7 | The email check only looked at the ending, so `a@b@example.com` or `x y@example.com` passed. | Such an address can't be used to log in, and the check gave false confidence. | `rules.is_valid_email()`: one `@`, no spaces, a name part of letters, digits and `._%+-`, a domain with a dot. `check_data` uses it now, and the app will use it for screen X6 in Phase 3. | `test_catches_malformed_email`, `tests/test_rules.py` |
+| 7 | The email check only looked at the ending, so `a@b@example.com` or `x y@example.com` passed. | Such an address can't be used to log in, and the check gave false confidence. | `rules.is_valid_email()`: one `@`, no spaces, a name part of letters, digits and `._%+-`, a domain with a dot. `check_data` uses it now, and the app will use it for screen X6 in Phase 3. *(3 Nov: the .NET app has its own C# copy, see "Data rules in two languages".)* | `test_catches_malformed_email`, `tests/test_rules.py` |
 | 8 | No check that every expert has at least one language, or that a CVR always comes with a company name. | Inconsistent data could pass. | **Explained, no change.** Neither is a rule in the SPEC: languages belong to E8 (not specified yet), and screen X8 allows a CVR without a company name. `check_data` checks the SPEC's rules, the same reason the status counts aren't checked (round 2 #4). | – |
 | 9 | Tests hard-coded values that `rules.py` defines once (10 experts without a phone). | Changing the rule would break correct tests. | The phone tests use `rules.NO_PHONE_EXPERTS`. **Not changed:** the fixed Ids in tests (Anna = 1, role Skønsmand = 35). They are known demo data, explained in comments next to them. | `test_no_phone_count_matches_rule`, `test_catches_wrong_number_without_phone` |
 | 10 | `tools/build_postcodes.py` works out its own lookups path instead of importing `settings.ROOT`. | Two places know where the lookup files are. | **Explained, no change.** It is a stand-alone one-off tool. Tying it to the app's modules gains nothing, and the folder is unlikely to move. | – |
 
 ### Design decisions that came out of the review
 
-**One place for the data rules: `rules.py`.** Several findings had the same cause: one rule written in two files (round 1 #6 and #7, round 2 #3 and #5). `rules.py` now holds every data rule once: status codes and names, demo emails, expected counts, the number of experts without a phone, skills and roles per expert, Danish region Ids and the postcode SQL, the column length limits from `schema.sql`, and the CVR check. `seed.py` and `check_data.py` import from it, so the seed and the check can't drift apart. In Phase 3 the app will use the same module for its form validation, such as CVR and length limits.
+**One place for the data rules: `rules.py`.** Several findings had the same cause: one rule written in two files (round 1 #6 and #7, round 2 #3 and #5). `rules.py` now holds every data rule once: status codes and names, demo emails, expected counts, the number of experts without a phone, skills and roles per expert, Danish region Ids and the postcode SQL, the column length limits from `schema.sql`, and the CVR check. `seed.py` and `check_data.py` import from it, so the seed and the check can't drift apart. In Phase 3 the app will use the same module for its form validation, such as CVR and length limits. *(3 Nov: the .NET app has its own C# copy, see "Data rules in two languages".)*
 
 **Rebuild through a temp file.** `seed.py --reset` must never leave you without a working database before a demo. So the new database is built next to the old one and checked with `check_data`. Only if it passes does an atomic `os.replace` put it in place. A failed, interrupted or failing reset leaves the old database as it was. The temp file and its side files are cleaned up. On Windows, close the app before resetting: an open database can't be replaced, and `seed.py` says so.
 
-**python-dotenv reads `.env`.** A small library is safer than a hand-written parser for a file people edit by hand. It handles quotes, comments and `export`. The file is read as `utf-8-sig`, because Notepad and PowerShell may add a BOM. The order is: environment variable, then `.env`, then the default. Phase 3 needs python-dotenv anyway, for the session secret.
+**python-dotenv reads `.env`.** A small library is safer than a hand-written parser for a file people edit by hand. It handles quotes, comments and `export`. The file is read as `utf-8-sig`, because Notepad and PowerShell may add a BOM. The order is: environment variable, then `.env`, then the default. Phase 3 needs python-dotenv anyway, for the session secret. *(3 Nov: not for the .NET app. Where its secrets go is an open point under "Stack changed to ASP.NET Core".)*
 
 **Foreign keys are per connection.** SQLite doesn't store `PRAGMA foreign_keys = ON` in the database file. It applies only to the connection that ran it. `db/schema_sqlite.sql` turns it on for the build. **Action for Phase 3: the app must turn it on for every connection it opens.** Otherwise the database won't stop broken keys.
 
@@ -193,5 +201,7 @@ Overall result after the three rounds:
 - **Every query keeps using `?` parameters** for anything a user typed. Never build SQL from form or URL values (the guide's review checklist shows exactly this mistake).
 - **Turn on foreign keys for every connection** (see "Foreign keys are per connection" above).
 - **Store only a hash of each code** (`ss_login_codes.code_hash`, SPEC section 5), and take `expert_id` only from the session, never from the URL (SPEC section 2).
+
+*3 Nov: these rules carry over in .NET form (`RandomNumberGenerator`, Dapper `@name` parameters), see "Rules carried over" under "Stack changed to ASP.NET Core".*
 
 `/security-review` runs again on the Phase 3 code, where it has real input to examine.

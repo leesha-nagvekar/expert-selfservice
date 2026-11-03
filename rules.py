@@ -1,6 +1,8 @@
-"""Data rules shared by seed.py, check_data.py and (from Phase 3) the app.
+"""Data rules shared by seed.py and check_data.py.
 
-Each rule is written here once. Don't copy these values into other files.
+Each rule is written here once. Don't copy these values into other Python files.
+The .NET app keeps a C# copy of the rules it needs (docs/decisions.md,
+"Data rules in two languages").
 """
 
 import re
