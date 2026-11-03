@@ -130,3 +130,83 @@ def test_main_accepts_relative_path(seeded_db, monkeypatch, capsys):
     monkeypatch.chdir(seeded_db.parent)
     assert check_data.main([seeded_db.name]) == 0
     assert "check_data: OK" in capsys.readouterr().out
+
+
+def test_catches_wrong_staff_count(db):
+    db.execute("DELETE FROM ss_staff_users WHERE id = 2")
+    assert has_problem(db, "Expected 2 staff users, found 1")
+
+
+def test_catches_missing_demo_expert(db):
+    db.execute("UPDATE Candidates SET Email = 'bo.lund@example.com' WHERE Id = 2")
+    assert has_problem(db, "Demo expert bo.demo@example.com is missing")
+
+
+def test_catches_missing_email(db):
+    db.execute("UPDATE Candidates SET Email = NULL WHERE Id = 4")
+    assert has_problem(db, "expert 4 has no email")
+
+
+def test_catches_missing_name(db):
+    db.execute("UPDATE Candidates SET FirstName = '' WHERE Id = 4")
+    assert has_problem(db, "Expert 4 is missing a first or last name")
+
+
+def test_catches_real_looking_registration_id(db):
+    db.execute("UPDATE Candidates SET RegistrationId = '123' WHERE Id = 4")
+    assert has_problem(db, "Expert 4 RegistrationId '123' is not a test number")
+
+
+def test_catches_duplicate_registration_id(db):
+    (number,) = db.execute("SELECT RegistrationId FROM Candidates WHERE Id = 5").fetchone()
+    db.execute("UPDATE Candidates SET RegistrationId = ? WHERE Id = 4", (number,))
+    assert has_problem(db, f"RegistrationId {number} is used 2 times")
+
+
+def test_catches_unknown_status(db):
+    db.execute("UPDATE Candidates SET Status = 9 WHERE Id = 4")
+    assert has_problem(db, "Expert 4 has unknown Status 9")
+
+
+def test_catches_standby_without_until_date(db):
+    # Bo (Id 2) is Standby.
+    db.execute("UPDATE Candidates SET UntilDate = NULL WHERE Id = 2")
+    assert has_problem(db, "Expert 2 is Standby without UntilDate and OldStatus")
+
+
+def test_catches_expert_without_skills(db):
+    db.execute("DELETE FROM CandidateSkills WHERE CandidateId = 4")
+    assert has_problem(db, "Expert 4 has 0 skills, expected 1-4")
+
+
+def test_catches_five_skills(db):
+    # Carl (Id 3) has 4 fields of expertise, and EL is not one of them.
+    db.execute("INSERT INTO CandidateSkills (CandidateId, Skill) VALUES (3, 'EL')")
+    assert has_problem(db, "Expert 3 has 5 skills, expected 1-4")
+
+
+def test_catches_same_skill_twice(db):
+    # Anna (Id 1) already has EL.
+    db.execute("INSERT INTO CandidateSkills (CandidateId, Skill) VALUES (1, 'EL')")
+    assert has_problem(db, "Expert 1 has one of their skills twice")
+
+
+def test_catches_no_second_language(db):
+    db.execute(
+        "DELETE FROM ss_expert_languages "
+        "WHERE language_id <> (SELECT id FROM ss_languages WHERE name = 'Dansk')"
+    )
+    assert has_problem(db, "No expert has two languages")
+
+
+def test_catches_duplicate_cvr(db):
+    # Anna (Id 1) and Carl (Id 3) both have a CVR number.
+    (cvr,) = db.execute("SELECT cvr FROM ss_expert_company WHERE candidate_id = 1").fetchone()
+    db.execute("UPDATE ss_expert_company SET cvr = ? WHERE candidate_id = 3", (cvr,))
+    assert has_problem(db, f"CVR {cvr} is used 2 times")
+
+
+def test_catches_duplicate_fags_id(db):
+    (fag_id,) = db.execute("SELECT MIN(Id) FROM Fags").fetchone()
+    db.execute("INSERT INTO Fags (Id, Fag) VALUES (?, 'Ekstra fag')", (fag_id,))
+    assert has_problem(db, f"Fags.Id {fag_id} is used more than once")
