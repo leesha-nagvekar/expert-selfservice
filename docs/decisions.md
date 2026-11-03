@@ -27,7 +27,7 @@ Short records of choices made in the project and why.
 - Every NuGet package is pinned to an exact version and gets one line here explaining why it is needed. The list is written in the skeleton step.
 
 **Open points:**
-- This machine has only the .NET 7.0.100 SDK. The .NET 10 SDK must be installed before the skeleton step, and the README must say so.
+- ~~This machine has only the .NET 7.0.100 SDK.~~ **Done 3 Nov 2026:** the .NET 10 SDK (10.0.403) is installed. The README gets the version in the skeleton step.
 - Where secrets go: CLAUDE.md ground rule 4 says `.env`, but .NET doesn't read `.env` on its own. Either a small package reads it, or .NET's "user secrets" are used (also outside Git). Decided with E1 login, the first feature with a secret.
 
 ## One command for all tests: `.\test.ps1` (3 Nov 2026)

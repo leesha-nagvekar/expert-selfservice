@@ -2,7 +2,7 @@
 
 Plain-English explanation of the tables in `schema/schema.sql` that matter for the app. That file is a structure-only export of VBA's expert register (SQL Server database `CVApp2`, 49 tables, saved as UTF-16). It holds no rows. It stays on the developer's machine and is not in Git.
 
-This file explains 35 tables. The other 14 are left out on purpose, because the app never uses them: the seven `_Temp` tables (`Candidates_Temp`, `CandidateTags_Temp`, `CandidateSkills_Temp`, `CandidateCourses_Temp`, `CandidatePreferredRegions_Temp`, `CandidateFiles_Temp`, `AttachedFiles_Temp`), `RATINGS`, `Documents`, `DocumentGroups`, `old_documents`, `contact_info`, `KCOPYPATH` and `test`.
+This file explains 34 tables. The other 15 are left out on purpose, because the app never uses them: the seven `_Temp` tables (`Candidates_Temp`, `CandidateTags_Temp`, `CandidateSkills_Temp`, `CandidateCourses_Temp`, `CandidatePreferredRegions_Temp`, `CandidateFiles_Temp`, `AttachedFiles_Temp`), `RATINGS`, `Documents`, `DocumentGroups`, `old_documents`, `contact_info`, `KCOPYPATH`, `test` and `Old_Region` (not required, confirmed 3 Nov 2026).
 
 - **(confirmed)**: answered by the developer on 27 Oct 2026.
 - **Used**: the table is created in the SQLite test database and used by the app. All other tables are left out (decision 8 in `docs/SPEC.md`).
@@ -183,7 +183,20 @@ When VBA moved from its old expert system to today's database, the experts were 
 - **COPYPATH**: `CPID`, `CPATH` (file path), `UID`, `USRID` (user ids), `UNAME` (computer name, e.g. `PC01.EXAMPLE.LOCAL`), `FLAG` (done yes/no, default no). The folder path where a file is stored after an expert uploads it, e.g. `\\server\CV\AttachedFiles\<expert id>\<file name>.pdf`.
 
 ## 8. New self-service tables (prefix ss_)
-Defined in `docs/SPEC.md` section 5.
+Defined in `docs/SPEC.md` section 5, which lists every column.
+
+| Table | What it holds |
+|---|---|
+| ss_staff_users | The secretariat users who log in (2 in the test data). Email is unique, case-insensitive. |
+| ss_login_codes | One-time codes for login and email change, stored only as a hash, valid 10 minutes. |
+| ss_login_lockouts | Failed code tries per email, and when a lock ends (5 tries, then 15 minutes). |
+| ss_dev_mailbox | Every message the app "sends", shown on the dev mailbox page. Nothing is really sent. |
+| ss_email_changes | An email change waiting for the code sent to the new address. |
+| ss_expert_company | The expert's CVR number, which VBA's schema has no column for (more below). |
+| ss_pending_changes | Name and field-of-expertise changes waiting for the secretariat to approve or reject. |
+| ss_change_log | Every change, with who, when, old and new value. Append-only: triggers stop edits and deletes. |
+| ss_languages | The list of languages an expert can choose from (E8). |
+| ss_expert_languages | Each expert's languages, one row per expert and language. |
 
 **ss_expert_company**: the expert's CVR number. Story E6 asks for it, but VBA's schema has no column for it. `candidate_id` (→ Candidates.Id) is the primary key, so there is at most one row per expert. `cvr` is empty or exactly 8 digits that pass the modulus-11 check (weights 2-7-6-5-4-3-2-1, sum divisible by 11). It is stored as text so a leading zero is kept. It is a side table, not a column in Candidates, because the guide (phase 1, step 3) says that what is missing goes into new ss_ tables and the original tables stay untouched (`docs/decisions.md`, 2 Nov 2026).
 
