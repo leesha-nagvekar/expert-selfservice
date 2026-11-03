@@ -1,9 +1,9 @@
 -- SQLite test database for Expert Register Self-Service.
 --
--- Part 1: the 8 tables the app uses from VBA's database (SPEC decision 8),
+-- Part 1: the 9 tables the app uses from VBA's database (SPEC decision 8),
 -- with the same table and column names as schema/schema.sql.
--- Type mapping: int -> INTEGER, (n)varchar -> TEXT, bit -> INTEGER 0/1,
--- date -> TEXT 'YYYY-MM-DD'. SQLite doesn't enforce text lengths, so the app
+-- Type mapping: int -> INTEGER, (n)varchar and text -> TEXT, bit -> INTEGER 0/1,
+-- date -> TEXT 'YYYY-MM-DD', datetime -> TEXT 'YYYY-MM-DD HH:MM:SS'. SQLite doesn't enforce text lengths, so the app
 -- and check_data.py do.
 --
 -- Part 2: the new self-service tables (prefix ss_), SPEC section 5.
@@ -96,6 +96,17 @@ CREATE TABLE CandidateTags (
     Id          INTEGER PRIMARY KEY,
     CandidateId INTEGER NOT NULL REFERENCES Candidates (Id),
     TagId       INTEGER NOT NULL REFERENCES ProfessionTags (Id)
+);
+
+-- The expert's CV (story E10). FileContent holds the whole PDF as text (base64),
+-- as in VBA's database. A 5 MB PDF is about 6.7 MB as base64.
+CREATE TABLE CandidateFiles (
+    Id               INTEGER PRIMARY KEY,
+    CandidateId      INTEGER NOT NULL REFERENCES Candidates (Id),
+    FileContent      TEXT,
+    FileName         TEXT    NOT NULL,
+    CreationDateTime TEXT    NOT NULL DEFAULT '1900-01-01 00:00:00',
+    IsPrimary        INTEGER NOT NULL DEFAULT 0
 );
 
 -- ---------------------------------------------------------------------------

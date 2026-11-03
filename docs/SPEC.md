@@ -13,7 +13,7 @@ Status: Approved at Gate 1 (28 Oct 2026). Updated 2 Nov 2026 for the new guide (
 | 5 | Address = `Street` + `ZipcodeId`. `Address` is neither shown nor changed. |
 | 6 | All three phones (`PhoneMobile`, `PhoneWork`, `PhoneHome`) can be edited. All are optional. |
 | 7 | VBA number = `RegistrationId`. Read-only. |
-| 8 | The SQLite test database holds only the tables the app uses: Candidates, Zipcodes, Cities, Regions, Fags, CandidateSkills, ProfessionTags, CandidateTags, plus the ss_ tables. Names and columns stay as in `schema/`. |
+| 8 | The SQLite test database holds only the tables the app uses: Candidates, Zipcodes, Cities, Regions, Fags, CandidateSkills, ProfessionTags, CandidateTags, CandidateFiles (added 3 Nov 2026 for E10), plus the ss_ tables. Names and columns stay as in `schema/`. |
 | 9 | Every status except Retired (0) can log in. Status is read-only in the app. |
 | 10 | Approval rule: the Field Rule in section 3. The guide was updated on 2 Nov 2026 to match it: Designation (job title) is saved at once, and roles are set by VBA only. |
 
@@ -221,4 +221,5 @@ Should and Could stories (E8–E11, S4) are specified after Gate 3.
 - **F. Middle name:** not in the Field Rule. For now it goes to approval with first and last name.
 - **G. Fags list:** settled. VBA maintains Fags. The expert only picks from it.
 - **H. Job title:** settled (2 Nov 2026). The job title is `Candidates.Designation` and nothing else. The schema has no other title column in Candidates, so no extra field is added.
+- **I. CV (E10):** stored in `CandidateFiles`, the PDF as base64 text in `FileContent` (confirmed 3 Nov 2026). How IsPrimary and "replaces the old one" work is specified after Gate 3.
 

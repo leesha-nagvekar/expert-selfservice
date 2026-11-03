@@ -173,6 +173,35 @@ def test_schema_file_turns_on_foreign_keys():
     conn.close()
 
 
+def test_candidate_files_matches_vba_schema(db):
+    # (name, NOT NULL, default) per column, in the order of VBA's CandidateFiles.
+    columns = [
+        (name, notnull, default)
+        for _, name, _, notnull, default, _ in db.execute("PRAGMA table_info(CandidateFiles)")
+    ]
+    assert columns == [
+        ("Id", 0, None),
+        ("CandidateId", 1, None),
+        ("FileContent", 0, None),
+        ("FileName", 1, None),
+        ("CreationDateTime", 1, "'1900-01-01 00:00:00'"),
+        ("IsPrimary", 1, "0"),
+    ]
+    # (table, from, to) per foreign key.
+    keys = [
+        (table, from_column, to_column)
+        for _, _, table, from_column, to_column, *_ in db.execute(
+            "PRAGMA foreign_key_list(CandidateFiles)"
+        )
+    ]
+    assert keys == [("Candidates", "CandidateId", "Id")]
+
+
+def test_candidate_files_rejects_unknown_expert(db):
+    with pytest.raises(sqlite3.IntegrityError, match="FOREIGN KEY"):
+        db.execute("INSERT INTO CandidateFiles (CandidateId, FileName) VALUES (999, 'cv.pdf')")
+
+
 @pytest.mark.parametrize(
     ("name", "expected"),
     [("Søren", "soeren"), ("Æbelø", "aebeloe"), ("Åse", "aase"), ("Anne Marie", "anne-marie")],

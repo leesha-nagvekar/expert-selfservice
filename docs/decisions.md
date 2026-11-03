@@ -96,7 +96,7 @@ Python's standard library covers the rest: `sqlite3`, `secrets`, `hmac`/`hashlib
 
 ## Phase 2: test database (29 Oct 2026)
 
-**Hand-written SQLite schema (`db/schema_sqlite.sql`).** `schema/schema.sql` must never go into Git, but anyone who clones the repo must be able to run `python seed.py --reset`. So the 8 tables the app uses are written out by hand, with the same table and column names. Types are mapped to SQLite: int → INTEGER, text → TEXT, bit → INTEGER 0/1, date → TEXT. Text lengths aren't enforced by SQLite. The app's validation and `check_data.py` enforce them. Fags has no primary key in the original, so it has none here either.
+**Hand-written SQLite schema (`db/schema_sqlite.sql`).** `schema/schema.sql` must never go into Git, but anyone who clones the repo must be able to run `python seed.py --reset`. So the 8 tables the app uses are written out by hand, with the same table and column names. Types are mapped to SQLite: int → INTEGER, text → TEXT, bit → INTEGER 0/1, date → TEXT. Text lengths aren't enforced by SQLite. The app's validation and `check_data.py` enforce them. Fags has no primary key in the original, so it has none here either. *3 Nov: CandidateFiles added for E10 (CV), now 9 tables.*
 
 **Same data every run.** Faker `da_DK` and `random` both use seed 2026, and all dates are counted from a fixed reference date (2026-10-01), not today. Faker is pinned to an exact version in `requirements.txt`, because a new Faker version gives different names from the same seed. A test seeds twice and compares the two databases.
 

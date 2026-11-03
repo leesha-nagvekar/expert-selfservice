@@ -121,19 +121,19 @@ Courses an expert has taken: `Id`, `CandidateId`, `CourseId` → Courses, `Cours
 
 ## 5. Files
 
-### CandidateFiles
+### CandidateFiles (used)
 Files per expert, e.g. a CV.
 
 | Column | Meaning |
 |---|---|
 | Id | Internal number. |
 | CandidateId | → Candidates.Id. |
-| FileContent | PDF files uploaded by the expert. |
+| FileContent | The whole PDF as text (base64). Experts upload PDF files only. |
 | FileName | File name. |
 | CreationDateTime | When it was added. Default 1 Jan 1900. It shows when the file was uploaded by an expert. |
 | IsPrimary | Yes/no: the main file, e.g. the current CV. |
 
-Possible use for E10 (CV upload, a Could story).
+Used for E10, the CV upload (confirmed 3 Nov 2026).
 
 
 ### AttachedFiles
