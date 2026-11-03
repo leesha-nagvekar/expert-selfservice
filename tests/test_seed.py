@@ -5,7 +5,15 @@ import pytest
 
 import seed
 from check_data import check
-from rules import NO_PHONE_EXPERTS, STANDBY
+from rules import (
+    ACCEPTED,
+    ACTIVE,
+    DEMO_ANNA,
+    DEMO_BO,
+    DEMO_CARL,
+    NO_PHONE_EXPERTS,
+    STANDBY,
+)
 
 
 def dump(path):
@@ -171,6 +179,30 @@ def test_schema_file_turns_on_foreign_keys():
     with pytest.raises(sqlite3.IntegrityError, match="FOREIGN KEY"):
         conn.execute("INSERT INTO CandidateSkills (CandidateId, Skill) VALUES (999, 'EL')")
     conn.close()
+
+
+def test_demo_experts_match_spec(db):
+    # The demo script relies on these facts (docs/SPEC.md section 7).
+    def expert(email):
+        return db.execute(
+            "SELECT c.Id, c.Status, z.Zipcode, c.PhoneMobile, c.PhoneWork, c.PhoneHome, "
+            "c.Company, "
+            "(SELECT COUNT(*) FROM ss_expert_company e WHERE e.candidate_id = c.Id), "
+            "(SELECT COUNT(*) FROM CandidateSkills s WHERE s.CandidateId = c.Id), "
+            "(SELECT COUNT(*) FROM CandidateTags t WHERE t.CandidateId = c.Id) "
+            "FROM Candidates c LEFT JOIN Zipcodes z ON z.Id = c.ZipcodeId WHERE c.Email = ?",
+            (email,),
+        ).fetchone()
+
+    anna_id, anna_status, anna_postcode, *_ = expert(DEMO_ANNA)
+    assert (anna_id, anna_status, anna_postcode) == (1, ACTIVE, "2100")
+
+    bo_id, bo_status, _, mobile, work, home, company, cvr_rows, *_ = expert(DEMO_BO)
+    assert (bo_id, bo_status) == (2, STANDBY)
+    assert (mobile, work, home, company, cvr_rows) == (None, None, None, None, 0)
+
+    carl_id, carl_status, *_, skills, roles = expert(DEMO_CARL)
+    assert (carl_id, carl_status, skills, roles) == (3, ACCEPTED, 4, 2)
 
 
 def test_candidate_files_matches_vba_schema(db):
