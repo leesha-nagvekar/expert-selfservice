@@ -29,7 +29,15 @@ Short records of choices made in the project and why.
 **Open points:**
 - This machine has only the .NET 7.0.100 SDK. The .NET 10 SDK must be installed before the skeleton step, and the README must say so.
 - Where secrets go: CLAUDE.md ground rule 4 says `.env`, but .NET doesn't read `.env` on its own. Either a small package reads it, or .NET's "user secrets" are used (also outside Git). Decided with E1 login, the first feature with a secret.
-- Tests run with two commands: `dotnet test` for the app and `pytest` for the test data tools.
+
+## One command for all tests: `.\test.ps1` (3 Nov 2026)
+
+**Decision (Leesha):** `test.ps1` in the repo root runs every test and check and stops at the first failure: pytest, `ruff check`, `ruff format --check`, and (from the skeleton step) `dotnet test` and `dotnet format --verify-no-changes`. Exit code 0 means all passed.
+
+**Why:**
+- The guide's MVP checklist says "All tests run with one command and pass". The app is tested with `dotnet test` and the test data tools with pytest, so a small script ties them together.
+- The script is a few plain lines anyone can read and explain.
+- Not chosen: an MSBuild step that makes `dotnet test` call pytest. It gives one familiar command, but the logic would be hidden in the `.csproj` and be harder to explain.
 
 ## Stack, first choice: Python (30 Oct 2026, replaced 2 Nov 2026)
 

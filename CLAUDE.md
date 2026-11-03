@@ -53,7 +53,7 @@ Changed 2 November 2026 by Claus (guide, phase 3): the app is built in ASP.NET C
 
 - App: ASP.NET Core MVC on .NET 10 (LTS) with Razor views - HTML from the server, no JavaScript framework. Plain CSS.
 - Database: SQLite through Microsoft.Data.Sqlite and Dapper. Every query uses Dapper parameters (`@name`), never SQL glued together from text.
-- Tests: xUnit. `dotnet test` runs all the app's tests, and `dotnet format` keeps the C# tidy.
+- Tests: xUnit for the app, pytest for the test-data tools. `.\test.ps1` runs everything: pytest, Ruff, `dotnet test` and `dotnet format --verify-no-changes`.
 - Test data stays in Python: `seed.py`, `check_data.py` and `rules.py`, tested with pytest and checked with Ruff.
 - Static files (`tokens.css`, fonts, logos) live in `wwwroot/`. Where the guide says `static/`, read `wwwroot/`. All text stays in `i18n/da.json` and `i18n/en.json`.
 

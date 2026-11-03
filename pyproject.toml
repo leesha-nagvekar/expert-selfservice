@@ -5,7 +5,7 @@ requires-python = ">=3.12"
 
 [tool.ruff]
 line-length = 100
-extend-exclude = [".venv"]
+extend-exclude = [".venv", "docs/guide.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]

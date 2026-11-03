@@ -44,10 +44,13 @@ Checks for exactly 100 experts, no duplicate emails, valid keys, @example.com ev
 
 ## Test
 
+With the virtual environment activated:
+
 ```
-pytest
-ruff check . && ruff format --check .
+.\test.ps1
 ```
+
+It runs all tests and checks and stops at the first failure. Exit code 0 means all passed. If Windows blocks scripts, run `powershell -ExecutionPolicy Bypass -File .\test.ps1`.
 
 ## Files
 
