@@ -222,4 +222,5 @@ Should and Could stories (E8–E11, S4) are specified after Gate 3.
 - **G. Fags list:** settled. VBA maintains Fags. The expert only picks from it.
 - **H. Job title:** settled (2 Nov 2026). The job title is `Candidates.Designation` and nothing else. The schema has no other title column in Candidates, so no extra field is added.
 - **I. CV (E10):** stored in `CandidateFiles`, the PDF as base64 text in `FileContent` (confirmed 3 Nov 2026). How IsPrimary and "replaces the old one" work is specified after Gate 3.
+- **J. Education (E8):** open, to decide with Claus before Gate 3 (20 Nov 2026). VBA's schema has no column for education: Candidates has none, and CandidateCourses holds VBA's own courses. Questions: (1) Does VBA keep an expert's education anywhere today? (2) One short free-text field, or several parts (degree, school, year)? (3) Max length? (4) Saved at once or approval? (5) Education in the test data for some experts? Proposal: side table `ss_expert_education` (`candidate_id` PK → Candidates.Id, `education` TEXT, max 250 characters), saved at once with an `ss_change_log` row, the same pattern as `ss_expert_company`. No table until Claus has answered.
 
