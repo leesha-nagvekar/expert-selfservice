@@ -55,10 +55,29 @@ Changed 2 November 2026 by Claus (guide, phase 3): the app is built in ASP.NET C
 - Database: SQLite through Microsoft.Data.Sqlite and Dapper. Every query uses Dapper parameters (`@name`), never SQL glued together from text.
 - Tests: xUnit for the app, pytest for the test-data tools. `.\test.ps1` runs everything: pytest, Ruff, `dotnet test` and `dotnet format --verify-no-changes`.
 - Test data stays in Python: `seed.py`, `check_data.py` and `rules.py`, tested with pytest and checked with Ruff.
-- Static files (`tokens.css`, fonts, logos) live in `wwwroot/`. Where the guide says `static/`, read `wwwroot/`. All text stays in `i18n/da.json` and `i18n/en.json`.
+- Static files (`tokens.css`, fonts, logos) live in `src/ExpertSelfService/wwwroot/`. Where the guide says `static/`, read `wwwroot/`. All text stays in `i18n/da.json` and `i18n/en.json`.
 
 The stack choice and the reason for it are in `docs/decisions.md`. The earlier Python skeleton is kept under the Git tag `python-skeleton`.
 
+## Commands
+
+Run from the repo root.
+
+- Run the app: `dotnet run --project src/ExpertSelfService`, then open http://127.0.0.1:5080
+- Run all tests and checks: `.\test.ps1` (close the app first, no need to activate `.venv`)
+- Only the app tests: `dotnet test`
+- Fix C# formatting: `dotnet format`
+- Reset the test database: `.venv\Scripts\python.exe seed.py --reset`
+
+## Folders
+
+- `src/ExpertSelfService/`: the app (`Program.cs`, `Controllers/`, `Services/`, `Views/`, `wwwroot/`)
+- `src/ExpertSelfService.Tests/`: xUnit tests for the app
+- `i18n/`: all text, copied next to the app when it is built
+- `tests/`: pytest tests for the test-data tools
+- `db/`, `data/lookups/`: the SQLite structure and the lookup lists
+- `docs/`: spec, data dictionary, stories, decisions, guide and learning log
+
 ## Colour rule
 
-Put the colour tokens from `docs/guide.md` section 5 in `wwwroot/tokens.css` as CSS variables, and never write a colour code anywhere else. Orange `--accent` (#E96900) is too weak for text, so it is only for borders and fills. Orange text uses `--accent-text`, and green uses `--ok`.
+Put the colour tokens from `docs/guide.md` section 5 in `wwwroot/tokens.css` as CSS variables, and never write a colour code anywhere else. Orange `--accent` (#E96900) is too weak for text, so it is only for borders and fills. Orange text uses `--accent-text`, and green uses `--ok`. Text on the top bar uses `--on-topbar`, never `--on-brand`, which is dark in dark mode.

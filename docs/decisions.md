@@ -42,9 +42,21 @@ Short records of choices made in the project and why.
 - ~~This machine has only the .NET 7.0.100 SDK.~~ **Done 3 Nov 2026:** the .NET 10 SDK (10.0.403) is installed. The README gets the version in the skeleton step.
 - Where secrets go: CLAUDE.md ground rule 4 says `.env`, but .NET doesn't read `.env` on its own. Either a small package reads it, or .NET's "user secrets" are used (also outside Git). Decided with E1 login, the first feature with a secret.
 
+## Skeleton choices (4 Nov 2026)
+
+**`--on-topbar`, a token the guide doesn't have.** The guide says the top bar always has white text, but its only "text on blue" token, `--on-brand`, turns dark in dark mode. That would give dark text on the blue bar. So `tokens.css` adds `--on-topbar: #FFFFFF` in both themes, and the top bar rules use it. Proved by `Top_bar_text_is_white_in_both_themes` and `Top_bar_uses_on_topbar_because_on_brand_is_dark_in_dark_mode`.
+
+**Dark tokens arrive before story E11.** The dark values from guide section 5 are in `tokens.css` now, and the page follows the device's setting. E11 is not finished by this: each new screen must still be looked at in dark mode.
+
+**Listening address.** `http://127.0.0.1:5080`, set in `Program.cs` with `IPAddress.Loopback`, so no setting can open it to the network by mistake. No HTTPS, so the install has no dev certificate step. The in-memory test server doesn't open a port, so this is checked by hand with `Get-NetTCPConnection`.
+
+**Language.** ASP.NET's built-in request localization with its cookie provider only (`.AspNetCore.Culture`). Danish is the default and the browser's language is ignored. The built-in part also sets the culture that dates and numbers will need. A language link is a GET that sets a cookie, because it changes nothing but the visitor's own display. `next` is checked with `Url.IsLocalUrl`, so a link can't send anyone to another site.
+
+**No `dotnet new mvc`.** That template brings Bootstrap and jQuery. The app starts from an empty project with only what it needs, so there are no JavaScript or CSS libraries.
+
 ## One command for all tests: `.\test.ps1` (3 Nov 2026)
 
-**Decision (Leesha):** `test.ps1` in the repo root runs every test and check and stops at the first failure: pytest, `ruff check`, `ruff format --check`, and (from the skeleton step) `dotnet test` and `dotnet format --verify-no-changes`. Exit code 0 means all passed.
+**Decision (Leesha):** `test.ps1` in the repo root runs every test and check and stops at the first failure: pytest, `ruff check`, `ruff format --check`, `dotnet test` and `dotnet format --verify-no-changes`. Exit code 0 means all passed. It calls `.venv\Scripts\python.exe` directly, so there is no need to activate the virtual environment (4 Nov 2026).
 
 **Why:**
 - The guide's MVP checklist says "All tests run with one command and pass". The app is tested with `dotnet test` and the test data tools with pytest, so a small script ties them together.
