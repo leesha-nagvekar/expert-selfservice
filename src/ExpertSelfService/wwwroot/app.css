@@ -46,11 +46,11 @@ main {
   gap: 8px 16px;
   padding: 8px 16px;
   background: var(--topbar);
-  color: var(--on-brand);
+  color: var(--on-topbar);
 }
 
 .topbar :focus-visible {
-  outline-color: var(--on-brand);
+  outline-color: var(--on-topbar);
 }
 
 .topbar-logo {
@@ -76,7 +76,7 @@ main {
   align-items: center;
   min-height: 44px;
   padding: 0 12px;
-  color: var(--on-brand);
+  color: var(--on-topbar);
 }
 
 .topbar-language span {

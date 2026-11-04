@@ -1,8 +1,10 @@
-/* VBA colour tokens, light theme (docs/guide.md section 5).
-   The only file with colour codes. Dark values come with story E11. */
+/* VBA colour tokens, light and dark (docs/guide.md section 5).
+   The only file with colour codes. --on-topbar is our addition: see docs/decisions.md. */
 :root {
+  color-scheme: light dark;
   --brand: #00437C;
   --topbar: #00437C;
+  --on-topbar: #FFFFFF;
   --secondary: #1F5F8B;
   --ink: #1E2B39;
   --text: #34495E;
@@ -16,4 +18,25 @@
   --brand-soft: #E8EFF6;
   --accent-soft: #FCF0E4;
   --on-brand: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand: #3D7FBF;
+    --topbar: #00437C;
+    --on-topbar: #FFFFFF;
+    --secondary: #7FB0DC;
+    --ink: #EDF3F9;
+    --text: #D6DEE6;
+    --muted: #8A99A8;
+    --accent: #F0952F;      /* borders and fills only, never small text */
+    --accent-text: #F0952F;
+    --ok: #4FBF95;
+    --surface: #1E2833;
+    --background: #151C24;
+    --line: #2A3644;
+    --brand-soft: #17293A;
+    --accent-soft: #33251A;
+    --on-brand: #0B131B;
+  }
 }
