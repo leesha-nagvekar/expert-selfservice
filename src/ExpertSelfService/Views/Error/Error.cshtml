@@ -1,0 +1,9 @@
+@model bool
+@{
+    var title = Model ? Text["error.server.title"] : Text["error.not_found.title"];
+    var message = Model ? Text["error.server.text"] : Text["error.not_found.text"];
+    ViewData["Title"] = title;
+}
+<h1>@title</h1>
+<p>@message</p>
+<p><a href="/">@Text["error.back_home"]</a></p>

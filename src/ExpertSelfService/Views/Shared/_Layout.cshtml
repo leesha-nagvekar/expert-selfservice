@@ -1,6 +1,10 @@
 @{
     var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var next = Uri.EscapeDataString($"{Context.Request.Path}{Context.Request.QueryString}");
+    // On an error page, switching language goes to the front page.
+    var page = Context.Request.Path.StartsWithSegments("/error")
+        ? "/"
+        : $"{Context.Request.Path}{Context.Request.QueryString}";
+    var next = Uri.EscapeDataString(page);
 }
 <!doctype html>
 <html lang="@language">

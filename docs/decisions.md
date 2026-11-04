@@ -22,6 +22,7 @@ Short records of choices made in the project and why.
 - Login: the session cookie is `HttpOnly` and `SameSite=Lax`, and holds only `expert_id` or `staff_id`.
 - One-time codes come from `RandomNumberGenerator`, never `Random`, and are stored as HMAC-SHA256 with a secret key.
 - The app listens on `127.0.0.1` only. Own "Page not found" and error pages, never the developer exception page or a stack trace.
+- Every 4xx shows "Page not found", and only 5xx shows "Something went wrong" (Leesha, 4 Nov 2026). SPEC section 2: refused access, such as another expert's id or a staff page later, must look like "Page not found", so the page gives nothing away. The HTTP status stays real, so a 405 still answers 405. Proved by `A_405_also_shows_page_not_found`.
 - All text comes from `i18n/*.json` through a small service of our own, not `.resx` files, because the guide names the JSON files.
 - Times are shown in Europe/Copenhagen with .NET's own `TimeZoneInfo`, so no extra package is needed.
 - Every NuGet package is pinned to an exact version and gets one line here explaining why it is needed (table below).
