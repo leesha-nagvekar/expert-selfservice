@@ -6,8 +6,8 @@ namespace ExpertSelfService.Services;
 /// <summary>All text the app shows, from i18n/da.json and i18n/en.json.</summary>
 public sealed class TextService
 {
-    private const string DefaultLanguage = "da";
-    private static readonly string[] Languages = [DefaultLanguage, "en"];
+    public const string DefaultLanguage = "da";
+    public static readonly string[] Languages = [DefaultLanguage, "en"];
 
     private readonly Dictionary<string, Dictionary<string, string>> _texts =
         Languages.ToDictionary(language => language, Load);

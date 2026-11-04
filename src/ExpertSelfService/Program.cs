@@ -16,14 +16,14 @@ builder.Services.Configure<WebEncoderOptions>(options =>
 
 var app = builder.Build();
 
-// Danish unless the visitor chooses otherwise. The browser's language is ignored.
-CultureInfo[] cultures = [new("da"), new("en")];
+// Danish unless the visitor chose otherwise (the language cookie). The browser's language is ignored.
+var cultures = TextService.Languages.Select(language => new CultureInfo(language)).ToList();
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
-    DefaultRequestCulture = new RequestCulture("da"),
+    DefaultRequestCulture = new RequestCulture(TextService.DefaultLanguage),
     SupportedCultures = cultures,
     SupportedUICultures = cultures,
-    RequestCultureProviders = [],
+    RequestCultureProviders = [new CookieRequestCultureProvider()],
 });
 
 app.UseStaticFiles();

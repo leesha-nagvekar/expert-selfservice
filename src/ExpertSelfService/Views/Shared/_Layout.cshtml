@@ -1,5 +1,6 @@
 @{
     var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var next = Uri.EscapeDataString($"{Context.Request.Path}{Context.Request.QueryString}");
 }
 <!doctype html>
 <html lang="@language">
@@ -23,11 +24,11 @@
       @if (language == "da")
       {
         <span aria-current="true" lang="da">@Text["language.da"]</span>
-        <a href="/language/en" lang="en">@Text["language.en"]</a>
+        <a href="/language/en?next=@next" lang="en">@Text["language.en"]</a>
       }
       else
       {
-        <a href="/language/da" lang="da">@Text["language.da"]</a>
+        <a href="/language/da?next=@next" lang="da">@Text["language.da"]</a>
         <span aria-current="true" lang="en">@Text["language.en"]</span>
       }
     </nav>
