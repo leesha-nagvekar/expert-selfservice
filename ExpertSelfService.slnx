@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ExpertSelfService.Tests/ExpertSelfService.Tests.csproj" />
+    <Project Path="src/ExpertSelfService/ExpertSelfService.csproj" />
+  </Folder>
+</Solution>

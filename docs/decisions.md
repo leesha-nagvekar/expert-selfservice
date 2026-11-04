@@ -24,7 +24,18 @@ Short records of choices made in the project and why.
 - The app listens on `127.0.0.1` only. Own "Page not found" and error pages, never the developer exception page or a stack trace.
 - All text comes from `i18n/*.json` through a small service of our own, not `.resx` files, because the guide names the JSON files.
 - Times are shown in Europe/Copenhagen with .NET's own `TimeZoneInfo`, so no extra package is needed.
-- Every NuGet package is pinned to an exact version and gets one line here explaining why it is needed. The list is written in the skeleton step.
+- Every NuGet package is pinned to an exact version and gets one line here explaining why it is needed (table below).
+
+**NuGet packages (skeleton, 4 Nov 2026).** All four are in the test project. The app itself needs no package yet, because ASP.NET Core comes with the SDK. Dapper and Microsoft.Data.Sqlite are added with the first feature that uses the database.
+
+| Package | Version | Why it is needed |
+|---|---|---|
+| xunit | 2.9.3 | The test framework. Same version as the SDK's own xUnit template. |
+| xunit.runner.visualstudio | 3.1.4 | Lets `dotnet test` find and run xUnit tests. Same version as the template. |
+| Microsoft.NET.Test.Sdk | 17.14.1 | Required by `dotnet test`. Same version as the template. |
+| Microsoft.AspNetCore.Mvc.Testing | 10.0.14 | Runs the app in memory, so tests can call pages without a running server. Matches the installed .NET runtime. |
+
+**SDK version (`global.json`, 4 Nov 2026).** Version 10.0.403 with `"rollForward": "latestPatch"`. A newer 10.0.4xx patch is accepted, so security patches don't break the install. Any other SDK gets a clear error, and this machine's old .NET 7 SDK is never used.
 
 **Open points:**
 - ~~This machine has only the .NET 7.0.100 SDK.~~ **Done 3 Nov 2026:** the .NET 10 SDK (10.0.403) is installed. The README gets the version in the skeleton step.
