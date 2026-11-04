@@ -1,0 +1,39 @@
+@{
+    var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+}
+<!doctype html>
+<html lang="@language">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@(ViewData["Title"] ?? Text["app.name"])</title>
+  <link rel="stylesheet" href="/tokens.css">
+  <link rel="stylesheet" href="/fonts.css">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="topbar-logo" href="/">
+      <picture>
+        <source media="(max-width: 479px)" srcset="/img/vn-mark-white.png">
+        <img src="/img/vn-logo-white.png" alt="@Text["topbar.logo_alt"]">
+      </picture>
+    </a>
+    <nav class="topbar-language" aria-label="@Text["topbar.language"]">
+      @if (language == "da")
+      {
+        <span aria-current="true" lang="da">@Text["language.da"]</span>
+        <a href="/language/en" lang="en">@Text["language.en"]</a>
+      }
+      else
+      {
+        <a href="/language/da" lang="da">@Text["language.da"]</a>
+        <span aria-current="true" lang="en">@Text["language.en"]</span>
+      }
+    </nav>
+  </header>
+  <main>
+    @RenderBody()
+  </main>
+</body>
+</html>
