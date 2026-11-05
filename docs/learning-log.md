@@ -16,3 +16,9 @@ This was a learning for me where i used the claude code command like /rewind.
 After the stack change i went through the db file where the table for expert CV was missing so added it from the old schema. Also checked the whole base that we have built untill now against the new guide and found several issues, which have been planned and reviewed and fixed. The .NET 10 SDK (10.0.403) is installed and CLAUDE.md was updated with all details. 
 There is one issue from the list which needs to be addressed 
 Education (E8): VBA's schema has no column for it. To decide with Claus before Gate 3: where VBA keeps it today, one field or several, max length, and whether it needs approval. Proposal: side table ss_expert_education (candidate_id PK, education TEXT, max 250), saved at once.
+
+## 4 Nov 2026
+
+Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step: clean .venv, solution and test project, /static files moved to wwwroot/, top bar and front page, language switch, own 404/500 pages on 127.0.0.1 only, and test.ps1 running all tests in one command.
+
+**Learned:** Read the failing tests before saying "go" - that's where wrong assumptions show up. 
