@@ -154,6 +154,13 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - The expert's details (read-only) and their change log, newest first: when, who (expert or secretariat user), field, old value, new value.
 - There is no edit or delete anywhere. The database blocks it too (section 5).
 
+**The secretariat view**
+After logging in, a secretariat user lands on Search experts. The top bar has Search experts, pending approvals (with a count), Help, DA/EN and Log out.
+Experts can be searched by name, email or postcode, and a filter sidebar narrows the results by field of expertise (from Fags), status, postcode range, and pending changes (the filter sidebar can have more filters). Results appear in a table: name, job title, VBA no., email, postcode and city, fields of expertise and status.
+Clicking a name opens the expert page: a read-only profile, pending changes to approve or reject (rejecting needs a reason the expert sees), and the change log, which can’t be edited.
+Pending approvals lists all waiting changes, oldest first, so I can approve or reject them there too.
+
+
 ## 5. New tables (prefix ss_)
 
 All times are stored in UTC and shown in local time (Europe/Copenhagen), formatted from the chosen language.
