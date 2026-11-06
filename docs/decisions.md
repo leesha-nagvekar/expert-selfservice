@@ -42,6 +42,10 @@ Short records of choices made in the project and why.
 - ~~This machine has only the .NET 7.0.100 SDK.~~ **Done 3 Nov 2026:** the .NET 10 SDK (10.0.403) is installed. The README gets the version in the skeleton step.
 - Where secrets go: CLAUDE.md ground rule 4 says `.env`, but .NET doesn't read `.env` on its own. Either a small package reads it, or .NET's "user secrets" are used (also outside Git). Decided with E1 login, the first feature with a secret.
 
+## 5 Nov 2026: E8 settled by Claus
+
+E8 settled by Claus: languages from `ss_languages`, education as free text (max 250) in `ss_expert_education`, both saved at once without approval; Courses/CandidateCourses untouched, read-only if shown.
+
 ## Skeleton choices (4 Nov 2026)
 
 **`--on-topbar`, a token the guide doesn't have.** The guide says the top bar always has white text, but its only "text on blue" token, `--on-brand`, turns dark in dark mode. That would give dark text on the blue bar. So `tokens.css` adds `--on-topbar: #FFFFFF` in both themes, and the top bar rules use it. Proved by `Top_bar_text_is_white_in_both_themes` and `Top_bar_uses_on_topbar_because_on_brand_is_dark_in_dark_mode`.

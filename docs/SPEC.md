@@ -34,6 +34,7 @@ Status: Approved at Gate 1 (28 Oct 2026). Updated 2 Nov 2026 for the new guide (
 | First name, last name | The expert edits. Goes to the secretariat for approval. |
 | Email | Confirmed with a code sent to the new address (E4). |
 | Fields of expertise (Fags / CandidateSkills) | The expert adds or removes, from the Fags list only - no free text, no new values. Goes to approval. The list itself is maintained by VBA. |
+| Languages and education | The expert edits. Saved at once, with an entry in `ss_change_log`. No approval: the secretariat appoints on fields of expertise (which already need approval), not on these. |
 | ProfessionTags / CandidateTags (Skønsmand, Sagkyndig, Mediator, Enedommer) | Read-only, marked "Set by VBA". VBA appoints, the expert does not. |
 | RegistrationId, Status, UntilDate, OldStatus | Read-only, marked "Set by VBA". |
 
@@ -124,6 +125,15 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 **X10 About your data**
 - In plain words: what is stored about the expert, who can see it (the expert and VBA's secretariat), what needs approval, and how to contact the secretariat.
 
+**X11 Edit languages and education (E8)**
+| Field | Column | Rule |
+|---|---|---|
+| Languages | ss_expert_languages | Tick boxes from ss_languages. No free text. |
+| Education | ss_expert_education.education | One text field, max 250 characters. |
+- Courses (CandidateCourses) may be shown read-only, marked "Set by VBA".
+- Button: "Save languages and education". Saved at once.
+- Built after Gate 3. The screen is opened from a "Languages and education" section that is added to X4 at the same time.
+
 ### Secretariat
 
 **S-A Search experts (S1)**
@@ -179,6 +189,9 @@ SQLite triggers stop every UPDATE and DELETE on this table with an error.
 **ss_expert_languages**: the languages of each expert.
 `candidate_id` → Candidates.Id · `language_id` → ss_languages.id · PK (both)
 
+**ss_expert_education**: the education of each expert. Built with E8, after Gate 3, so it isn't in `db/schema_sqlite.sql` yet.
+`candidate_id` PK → Candidates.Id · `education` TEXT (max 250 characters)
+
 The SQLite structure of all tables is in `db/schema_sqlite.sql`.
 
 ## 6. Story → tables and columns
@@ -192,11 +205,12 @@ The SQLite structure of all tables is in `db/schema_sqlite.sql`.
 | E5 name | Candidates.FirstName, MiddleName, LastName | ss_pending_changes |
 | E6 company and job title | Candidates.Company, Designation; ss_expert_company; CandidateTags→ProfessionTags (read-only) | Candidates.Company, Designation, LastUpdated; ss_expert_company; ss_change_log |
 | E7 fields of expertise | Fags; CandidateSkills | ss_pending_changes |
+| E8 languages and education | ss_languages; ss_expert_languages; ss_expert_education; CandidateCourses (read-only) | ss_expert_languages; ss_expert_education; ss_change_log |
 | S1 search | Candidates; Zipcodes→Cities; CandidateSkills; Fags; ss_pending_changes | – |
 | S2 approve / reject | ss_pending_changes | ss_pending_changes; Candidates or CandidateSkills; ss_change_log |
 | S3 change log | ss_change_log; ss_staff_users; Candidates | – |
 
-Should and Could stories (E8–E11, S4) are specified after Gate 3.
+Should and Could stories (E9–E11, S4) are specified after Gate 3.
 
 ## 7. Test data (`python seed.py --reset`)
 
@@ -222,5 +236,5 @@ Should and Could stories (E8–E11, S4) are specified after Gate 3.
 - **G. Fags list:** settled. VBA maintains Fags. The expert only picks from it.
 - **H. Job title:** settled (2 Nov 2026). The job title is `Candidates.Designation` and nothing else. The schema has no other title column in Candidates, so no extra field is added.
 - **I. CV (E10):** stored in `CandidateFiles`, the PDF as base64 text in `FileContent` (confirmed 3 Nov 2026). How IsPrimary and "replaces the old one" work is specified after Gate 3.
-- **J. Education (E8):** open, to decide with Claus before Gate 3 (20 Nov 2026). VBA's schema has no column for education: Candidates has none, and CandidateCourses holds VBA's own courses. Questions: (1) Does VBA keep an expert's education anywhere today? (2) One short free-text field, or several parts (degree, school, year)? (3) Max length? (4) Saved at once or approval? (5) Education in the test data for some experts? Proposal: side table `ss_expert_education` (`candidate_id` PK → Candidates.Id, `education` TEXT, max 250 characters), saved at once with an `ss_change_log` row, the same pattern as `ss_expert_company`. No table until Claus has answered.
+- **J. Languages and education (E8):** settled by Claus on 5 Nov 2026. Languages from `ss_languages`, education as free text (max 250 characters) in `ss_expert_education`, both saved at once without approval. Courses and CandidateCourses are untouched, read-only if shown.
 

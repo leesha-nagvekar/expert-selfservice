@@ -114,10 +114,10 @@ The roles of each expert, several per expert (confirmed): `Id`, `CandidateId` �
 ## 4. Courses
 
 ### Courses
-VBA's courses for experts: `Id`, `CourseName`, `Logo` (image file). Not part of the MVP.
+VBA's courses for experts: `Id`, `CourseName`, `Logo` (image file). Not changed by the app.
 
 ### CandidateCourses
-Courses an expert has taken: `Id`, `CandidateId`, `CourseId` → Courses, `CourseAttended` (date). Not part of the MVP.
+VBA's courses the expert attended, not their education: `Id`, `CandidateId`, `CourseId` → Courses, `CourseAttended` (date). Not changed by the app. May be shown read-only, marked "Set by VBA".
 
 ## 5. Files
 
@@ -197,6 +197,7 @@ Defined in `docs/SPEC.md` section 5, which lists every column.
 | ss_change_log | Every change, with who, when, old and new value. Append-only: triggers stop edits and deletes. |
 | ss_languages | The list of languages an expert can choose from (E8). |
 | ss_expert_languages | Each expert's languages, one row per expert and language. |
+| ss_expert_education | Each expert's education as one short text (E8). Built with E8, after Gate 3. |
 
 **ss_expert_company**: the expert's CVR number. Story E6 asks for it, but VBA's schema has no column for it. `candidate_id` (→ Candidates.Id) is the primary key, so there is at most one row per expert. `cvr` is empty or exactly 8 digits that pass the modulus-11 check (weights 2-7-6-5-4-3-2-1, sum divisible by 11). It is stored as text so a leading zero is kept. It is a side table, not a column in Candidates, because the guide (phase 1, step 3) says that what is missing goes into new ss_ tables and the original tables stay untouched (`docs/decisions.md`, 2 Nov 2026).
 
