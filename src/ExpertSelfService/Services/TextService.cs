@@ -9,6 +9,13 @@ public sealed class TextService
     public const string DefaultLanguage = "da";
     public static readonly string[] Languages = [DefaultLanguage, "en"];
 
+    /// <summary>
+    /// The culture that formats dates and numbers for a language. Texts are still chosen by the two-letter code.
+    /// English is British, so the day comes before the month as in Danish and times are 24-hour (decisions.md, E2).
+    /// </summary>
+    public static CultureInfo FormatCulture(string language) =>
+        CultureInfo.GetCultureInfo(language == "en" ? "en-GB" : "da-DK");
+
     private readonly Dictionary<string, Dictionary<string, string>> _texts =
         Languages.ToDictionary(language => language, Load);
 

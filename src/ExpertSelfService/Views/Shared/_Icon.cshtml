@@ -1,0 +1,31 @@
+@model string
+@* Small line icons. Always next to a word, never alone (guide section 5). The colour comes from the text (currentColor). *@
+@if (!string.IsNullOrEmpty(Model))
+{
+  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    @switch (Model)
+    {
+      case "check":
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+        break;
+      case "eye":
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+        <circle cx="12" cy="12" r="3" />
+        break;
+      case "pause":
+        <path d="M9 6v12M15 6v12" />
+        break;
+      case "clock":
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+        break;
+      case "info":
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v6M12 7.5v.01" />
+        break;
+      case "cross":
+        <path d="M6 6l12 12M18 6L6 18" />
+        break;
+    }
+  </svg>
+}

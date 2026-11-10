@@ -1,0 +1,19 @@
+@model PendingState
+@* "Pending approval" or "Rejected" next to a field (SPEC section 3, X4). Icon + colour + word. *@
+@if (Model.IsPending)
+{
+  <p class="state state-pending">
+    <span class="state-word">@await Html.PartialAsync("_Icon", "clock") @Text["profile.pending"]</span>
+    <span class="state-value">@Model.NewValue</span>
+  </p>
+}
+else
+{
+  <div class="state state-rejected">
+    <p>
+      <span class="state-word">@await Html.PartialAsync("_Icon", "cross") @Text["profile.rejected"]</span>
+      <span class="state-value">@Model.NewValue</span>
+    </p>
+    <p>@Text["profile.reason"] @Model.Reason</p>
+  </div>
+}

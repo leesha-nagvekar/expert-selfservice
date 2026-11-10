@@ -1,5 +1,127 @@
+@model ProfilePage
 @{
     ViewData["Title"] = Text["profile.title"];
+    var p = Model.Profile;
+    var postcodeAndCity = $"{p.Postcode} {p.City}".Trim();
+
+    // One label and value. An empty value says "Not given", so a gap never looks like a broken page.
+    async Task Row(string labelKey, string? value, string? field = null, bool mono = false)
+    {
+        <div class="row">
+          <dt>@Text[labelKey]</dt>
+          <dd>
+            @if (string.IsNullOrWhiteSpace(value))
+            {
+              <span class="not-given">@Text["profile.not_given"]</span>
+            }
+            else if (mono)
+            {
+              <span class="mono">@value</span>
+            }
+            else
+            {
+              @value
+            }
+            @if (field is not null && Model.State(field) is PendingState state)
+            {
+              @await Html.PartialAsync("_SectionState", state)
+            }
+          </dd>
+        </div>
+    }
+
+    async Task List(IReadOnlyList<string> items)
+    {
+        if (items.Count == 0)
+        {
+            <span class="not-given">@Text["profile.not_given"]</span>
+        }
+        else
+        {
+            <ul class="plain-list">
+              @foreach (var item in items)
+              {
+                <li>@item</li>
+              }
+            </ul>
+        }
+    }
 }
 <h1>@Text["profile.title"]</h1>
-<p>@Text["profile.placeholder"]</p>
+
+<section id="name" class="profile-section">
+  <h2>@Text["profile.section.name"]</h2>
+  <dl>
+    @{ await Row("profile.first_name", p.FirstName, field: "FirstName"); }
+    @if (!string.IsNullOrWhiteSpace(p.MiddleName) || Model.State("MiddleName") is not null)
+    {
+      await Row("profile.middle_name", p.MiddleName, field: "MiddleName");
+    }
+    @{ await Row("profile.last_name", p.LastName, field: "LastName"); }
+  </dl>
+</section>
+
+<section id="address" class="profile-section">
+  <h2>@Text["profile.section.address"]</h2>
+  <dl>
+    @{
+      await Row("profile.street", p.Street);
+      await Row("profile.postcode_city", postcodeAndCity);
+      await Row("profile.phone_mobile", p.PhoneMobile);
+      await Row("profile.phone_work", p.PhoneWork);
+      await Row("profile.phone_home", p.PhoneHome);
+    }
+  </dl>
+</section>
+
+<section id="email" class="profile-section">
+  <h2>@Text["profile.section.email"]</h2>
+  <dl>
+    @{ await Row("profile.email", p.Email); }
+  </dl>
+</section>
+
+<section id="company" class="profile-section">
+  <h2>@Text["profile.section.company"]</h2>
+  <dl>
+    @{
+      await Row("profile.company", p.Company);
+      await Row("profile.cvr", p.Cvr, mono: true);
+      await Row("profile.designation", p.Designation);
+    }
+  </dl>
+</section>
+
+<section id="skills" class="profile-section">
+  <h2>@Text["profile.section.skills"]</h2>
+  @{ await List(p.Skills); }
+  @if (Model.State("Skills") is PendingState skillsState)
+  {
+    @await Html.PartialAsync("_SectionState", skillsState)
+  }
+</section>
+
+<section id="vba" class="profile-section readonly">
+  <h2>@Text["profile.section.vba"]</h2>
+  <p class="hint">@Text["profile.vba.intro"]</p>
+  <dl>
+    @{
+      await Row("profile.vba_number", p.RegistrationId, mono: true);
+      await Row("profile.created", Model.Created);
+    }
+    <div class="row">
+      <dt>@Text["profile.status"]</dt>
+      <dd>
+        <span class="status @Model.StatusClass">@await Html.PartialAsync("_Icon", Model.StatusIcon) @Model.StatusText</span>
+        @if (Model.StatusUntil is not null)
+        {
+          <span class="status-until">@Model.StatusUntil</span>
+        }
+      </dd>
+    </div>
+    <div class="row">
+      <dt>@Text["profile.roles"]</dt>
+      <dd>@{ await List(p.Roles); }</dd>
+    </div>
+  </dl>
+</section>

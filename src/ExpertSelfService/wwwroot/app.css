@@ -172,6 +172,133 @@ button {
   min-height: 44px;
 }
 
+/* Profile overview (X4). Labels above values on a phone, side by side from 600 px. */
+h2 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.profile-section {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-section dl {
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 6px 0;
+}
+
+@media (min-width: 600px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 16px;
+  }
+}
+
+dt {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Read-only fields look read-only and say who sets them (guide section 5). */
+.readonly {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+/* VBA numbers and CVR numbers in Plex Mono (guide section 5). */
+.mono {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-weight: 500;
+}
+
+.not-given {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.plain-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.icon {
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/* Status: icon + colour + word, never colour alone. */
+.status,
+.state-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.status-ok {
+  color: var(--ok);
+}
+
+.status-info {
+  color: var(--secondary);
+}
+
+.status-standby,
+.state-word {
+  color: var(--accent-text);
+}
+
+.status-unknown {
+  color: var(--muted);
+}
+
+.status-until {
+  margin-left: 8px;
+}
+
+/* "Pending approval" and "Rejected" next to a field (SPEC section 3). */
+.state {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.state p {
+  margin: 0;
+}
+
+.state-pending {
+  border: 2px solid var(--accent);
+}
+
+.state-rejected {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+.state-value {
+  margin-left: 8px;
+}
+
 /* Dev mailbox (X3) */
 .mailbox {
   margin: 0;

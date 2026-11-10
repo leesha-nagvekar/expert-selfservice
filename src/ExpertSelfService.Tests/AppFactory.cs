@@ -103,12 +103,31 @@ public sealed class AppFactory : WebApplicationFactory<Program>
     {
         using var db = Open();
         db.Execute(RepoFiles.Read("db", "schema_sqlite.sql"));
+        // Fake details in the style of seed.py's demo experts. Anna has everything,
+        // Bo is on Standby with no phone and no company. Skills are inserted unsorted.
         db.Execute(
             """
-            INSERT INTO Candidates (Id, FirstName, LastName, Email, Status) VALUES
-                (1, 'Anna', 'Demo', @Anna, 1),
-                (2, 'Bo', 'Demo', @Bo, -1),
-                (3, 'Rita', 'Retired', @Rita, 0);
+            INSERT INTO Regions (Id, RegionName) VALUES (4, 'Region Hovedstaden'), (6, 'Region Syddanmark');
+            INSERT INTO Cities (Id, City, RegionId, ZipCode) VALUES
+                (2001, 'København Ø', 4, '2100'),
+                (2002, 'Odense C', 6, '5000');
+            INSERT INTO Zipcodes (Id, CityId, Zipcode) VALUES (2001, 2001, '2100'), (2002, 2002, '5000');
+            INSERT INTO ProfessionTags (Id, Tag) VALUES (35, 'Skønsmand'), (36, 'Sagkyndig');
+
+            INSERT INTO Candidates
+                (Id, FirstName, LastName, Email, Status, OldStatus, UntilDate, RegistrationId, Created,
+                 Street, ZipcodeId, PhoneMobile, PhoneWork, Company, Designation) VALUES
+                (1, 'Anna', 'Demo', @Anna, 1, NULL, NULL, '900001', '2015-03-02',
+                 'Østerbrogade 64', 2001, '+45 20 11 22 33', '33 44 55 66', 'Holm Rådgivning ApS', 'Rådgivende ingeniør'),
+                (2, 'Bo', 'Demo', @Bo, -1, 1, '2027-03-31', '900002', '2019-06-17',
+                 'Vestergade 8', 2002, NULL, NULL, NULL, NULL),
+                (3, 'Rita', 'Retired', @Rita, 0, NULL, NULL, '900003', '2010-01-04',
+                 NULL, NULL, NULL, NULL, NULL, NULL);
+            INSERT INTO ss_expert_company (candidate_id, cvr) VALUES (1, '12345674');
+            INSERT INTO CandidateSkills (CandidateId, Skill) VALUES
+                (1, 'Varmepumpe'), (1, 'EL'), (1, 'Maskinanlæg'), (2, 'Fiber');
+            INSERT INTO CandidateTags (CandidateId, TagId) VALUES (1, 35), (2, 36);
+
             INSERT INTO ss_staff_users (id, name, email, created_at) VALUES
                 (1, 'Sofie Staff', @Sofie, '2026-10-01T00:00:00Z');
             """,

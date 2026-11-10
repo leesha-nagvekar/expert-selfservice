@@ -16,7 +16,8 @@ public class LanguageController : Controller
 
         Response.Cookies.Append(
             CookieRequestCultureProvider.DefaultCookieName,
-            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(code)),
+            // Format culture (en-GB) for dates and numbers, language (en) for the texts.
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(TextService.FormatCulture(code).Name, code)),
             new CookieOptions
             {
                 Expires = DateTimeOffset.UtcNow.AddYears(1),

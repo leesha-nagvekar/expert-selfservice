@@ -2,7 +2,7 @@
 
 Lets VBA's experts (skønsmænd) update their own details. Test data only: 100 fake experts, every email ends in @example.com. It runs on your own machine only.
 
-The app so far has the VBA top bar, the language switch, the error pages and login with a one-time code (story E1). Experts and secretariat users land on a placeholder page after login.
+The app so far has the VBA top bar, the language switch, the error pages, login with a one-time code (story E1) and the expert's own profile, read-only (story E2). Secretariat users land on a placeholder page after login.
 
 ## Install
 

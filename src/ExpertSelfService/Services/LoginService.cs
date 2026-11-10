@@ -182,13 +182,13 @@ public sealed class LoginService(
         return null;
     }
 
-    /// <summary>An expert who can log in (every status except Retired, 0), else a staff user, else null.</summary>
+    /// <summary>An expert who can log in (every status except Retired), else a staff user, else null.</summary>
     private static Person? FindPerson(SqliteConnection db, SqliteTransaction transaction, string email)
     {
         // Candidates is VBA's own table without NOCASE, so both sides are lower-cased.
         var expertId = db.QueryFirstOrDefault<long?>(
-            "SELECT Id FROM Candidates WHERE lower(Email) = lower(@email) AND Status <> 0 ORDER BY Id LIMIT 1",
-            new { email },
+            "SELECT Id FROM Candidates WHERE lower(Email) = lower(@email) AND Status <> @retired ORDER BY Id LIMIT 1",
+            new { email, retired = ExpertStatus.Retired },
             transaction);
         if (expertId is long expert)
         {

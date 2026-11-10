@@ -25,6 +25,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<Database>();
 builder.Services.AddSingleton<DevMailbox>();
 builder.Services.AddSingleton<LoginService>();
+builder.Services.AddSingleton<ProfileService>();
 
 // Login cookie. ASP.NET encrypts it with Data Protection keys kept in the Windows user profile,
 // outside the repo. It holds only expert_id or staff_id (SPEC section 2).
@@ -72,12 +73,13 @@ app.UseExceptionHandler("/error/500");
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 
 // Danish unless the visitor chose otherwise (the language cookie). The browser's language is ignored.
-var cultures = TextService.Languages.Select(language => new CultureInfo(language)).ToList();
+// Texts follow the language (da, en). Dates and numbers follow its format culture (da-DK, en-GB).
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
-    DefaultRequestCulture = new RequestCulture(TextService.DefaultLanguage),
-    SupportedCultures = cultures,
-    SupportedUICultures = cultures,
+    DefaultRequestCulture = new RequestCulture(
+        TextService.FormatCulture(TextService.DefaultLanguage), new CultureInfo(TextService.DefaultLanguage)),
+    SupportedCultures = [.. TextService.Languages.Select(TextService.FormatCulture)],
+    SupportedUICultures = [.. TextService.Languages.Select(language => new CultureInfo(language))],
     RequestCultureProviders = [new CookieRequestCultureProvider()],
 });
 

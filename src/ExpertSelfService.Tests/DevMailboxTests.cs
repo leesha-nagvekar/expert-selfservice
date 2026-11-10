@@ -45,6 +45,17 @@ public sealed class DevMailboxTests : IAsyncLifetime, IDisposable
     }
 
     [Fact]
+    public async Task English_times_are_british_day_month_and_24_hour()
+    {
+        await _browser.RequestCode(Anna); // 9 November 2026, 10:00 in Copenhagen
+
+        var html = await _browser.Html("/dev/mailbox");
+
+        Assert.Contains("09/11/2026 10:00", html);
+        Assert.DoesNotMatch(@"\d:\d\d\s?(AM|PM)", html);
+    }
+
+    [Fact]
     public async Task Needs_no_login()
     {
         Assert.Equal(HttpStatusCode.OK, (await _browser.Get("/dev/mailbox")).StatusCode);

@@ -155,13 +155,14 @@ public sealed class SessionTests : IAsyncLifetime, IDisposable
         AssertRedirect(await _browser.SubmitCode(_app.LatestCode(Anna)), "/profile");
     }
 
+    // The expert's /profile shows their own data since E2 (ProfileTests). The staff page stays a placeholder until S1.
     [Fact]
-    public async Task Landing_pages_show_no_personal_data()
+    public async Task The_staff_landing_page_shows_no_personal_data()
     {
-        await _browser.LogIn(Anna);
-        var html = await _browser.Html("/profile");
+        await _browser.LogIn(Sofie);
+        var html = await _browser.Html("/staff");
 
-        Assert.DoesNotContain("Anna", html);
-        Assert.DoesNotContain(Anna, html);
+        Assert.DoesNotContain("Sofie", html);
+        Assert.DoesNotContain(Sofie, html);
     }
 }

@@ -2,6 +2,26 @@
 
 Short records of choices made in the project and why.
 
+## E2 profile (10 Nov 2026)
+
+**Edit buttons arrive with each story (Leesha).** SPEC X4 gives every section a button to its edit screen. E2 shows the sections without buttons; E3 adds "Edit address and phone" together with its screen, and so on. No button leads to "Page not found" in a demo.
+
+**English dates are British, en-GB (Leesha).** Texts are still chosen by the two-letter language (`da`, `en`). Dates and numbers use a format culture per language: `da-DK` and `en-GB` (`TextService.FormatCulture`). So English shows 31/03/2027 and 24-hour times, with the day first as in Danish, instead of the US 3/31/2027 and AM/PM. The language cookie now holds both, for example `c=en-GB|uic=en`. A browser that kept an older `c=en` cookie gets Danish dates with English texts until it clicks "English" once. Proved by `Dates_follow_the_language` and `English_times_are_british_day_month_and_24_hour`.
+
+**Status as icon + colour + word.** Active, Accepted and Evaluated: a check in `--ok`. Under observation: an eye in `--secondary`. Standby: a pause in `--accent-text`, with "until <date>", as orange text only, without the `--accent` border or fill a "Pending approval" badge has. An unknown number: an info icon (a circle with an "i") and "Unknown (n)" in `--muted` (Leesha, after the E2 review), so it is icon + colour + word too. Proved by `An_unknown_status_also_has_an_icon_and_its_own_colour`. The icons are inline SVGs with `aria-hidden="true"` that take their colour from the text, so no colour code leaves `tokens.css`.
+
+**An empty middle name is hidden (Leesha, after the E2 review).** Every other empty field shows "Not given". The middle-name row is left out when it is empty and no middle-name change is pending, because most experts have no middle name and "Not given" there would look like something missing. When a change to it is pending or rejected, the row appears with its state.
+
+**Not shown, after the E2 review (Leesha).** OldStatus, the status a Standby expert returns to: X4 doesn't ask for it, and "until <date>" is enough. The HTML in the profile tests is decoded before checking, so they test what a person sees, for example "+45" and not `&#x2B;45`.
+
+**No red token.** The guide's palette has no red. "Rejected" uses `--accent-text` like "Pending approval", in an `--accent-soft` box, and is told apart by its cross icon and the word. Adding a red would be a new token, as `--on-topbar` was, and the guide says never colour alone anyway.
+
+**Which pending row counts.** For each field, only the newest `ss_pending_changes` row counts. Pending: the section shows "Pending approval" and the waiting value. Rejected: "Rejected", the value and the reason. Approved: nothing. That gives SPEC section 3's "Rejected stays until a new change to that field" without an extra column. E2 only reads the table; E5 and E7 write it.
+
+**Logged out when removed or Retired.** The profile query asks for `Status <> Retired`. If no row comes back, the expert is logged out and sent to `/`, so a Retired expert can't keep using the profile for the rest of the 60 minutes. Proved by `An_expert_set_to_retired_during_the_session_is_logged_out` and `An_expert_removed_during_the_session_is_logged_out`.
+
+**Status codes in C#.** `Services/ExpertStatus.cs` is the C# copy of the status codes that "Data rules in two languages" (below) foresaw. `StatusTests` reads `rules.py` and checks that every status shows `rules.py`'s English name, so the two copies can't drift apart. `LoginService` now uses `ExpertStatus.Retired` instead of the number 0.
+
 ## E1 login (9 Nov 2026)
 
 **Secrets in `.env`, read by DotNetEnv (Leesha).** Closes the open point below. CLAUDE.md ground rule 4 says `.env`, so .NET's user secrets are out. A hand-written reader is out too: Phase 2 (round 1 #3) showed one breaks on quotes and on the BOM Notepad adds. `Program.cs` loads `.env` from the repo root before anything else. A variable already set in the environment wins, as in `settings.py`. `.env` now holds `CODE_KEY`, the HMAC key for one-time codes. The app refuses to start when the key is missing or shorter than 32 characters, or when the database file doesn't exist. It never creates an empty database. Proved by `SettingsTests`.
