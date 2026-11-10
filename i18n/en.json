@@ -10,6 +10,7 @@
   "login.email.label": "Your email address",
   "login.email.submit": "Send code",
   "login.email_required": "Enter your email address.",
+  "login.email_invalid": "Enter a valid email address.",
   "login.locked": "Too many attempts. Try again in {0} minutes.",
   "login.locked_one": "Too many attempts. Try again in 1 minute.",
   "login.sent": "If the email is registered, a code has been sent.",

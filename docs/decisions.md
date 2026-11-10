@@ -2,6 +2,12 @@
 
 Short records of choices made in the project and why.
 
+## Email format on X1 (10 Nov 2026)
+
+**A wrong email format shows an error (Leesha, found in the E2 click-through).** "bo.demo@example.com)" used to go to the code page, and no code was sent, so the expert waited for nothing. Now X1 shows "Enter a valid email address." next to the field and keeps what was typed. This doesn't break SPEC X1's "same answer for every email": a format error is wrong for everyone, registered or not, so it reveals nothing. No code is made, and it doesn't count towards the lock. Proved by `An_email_in_the_wrong_format_shows_an_error_and_sends_nothing` and `A_registered_and_an_unknown_email_with_the_same_mistake_get_the_same_page`.
+
+**The rule is plain, in `Services/EmailFormat.cs`.** One `@` with something before it; no spaces, control characters or `( ) < > , ; : " [ ] \`; a domain with at least one dot and no empty part. It catches typing mistakes, not everything the email standard allows or forbids. Letters such as æ, ø and å are allowed, because real domains can have them, and a stricter rule could shut out a real expert later. `A_valid_email_goes_to_the_code_page` checks that the demo emails in `rules.py`, the test users and the shapes `seed.py` makes still get through. The new-email screen (SPEC X6) can reuse the rule.
+
 ## E2 profile (10 Nov 2026)
 
 **Edit buttons arrive with each story (Leesha).** SPEC X4 gives every section a button to its edit screen. E2 shows the sections without buttons; E3 adds "Edit address and phone" together with its screen, and so on. No button leads to "Page not found" in a demo.

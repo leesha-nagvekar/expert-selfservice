@@ -14,6 +14,7 @@ public sealed class LoginTests : IAsyncLifetime, IDisposable
 {
     private const string Sent = "If the email is registered, a code has been sent";
     private const string EmailRequired = "Enter your email address";
+    private const string EmailInvalid = "Enter a valid email address.";
     private const string MustBeSixDigits = "The code must be 6 digits";
     private const string WrongOrExpired = "The code is wrong or has expired";
     private const string LockedFifteen = "Too many attempts. Try again in 15 minutes.";
@@ -105,7 +106,6 @@ public sealed class LoginTests : IAsyncLifetime, IDisposable
     [Theory]
     [InlineData(Nobody)]
     [InlineData(Rita)] // Retired can't log in (SPEC decision 9)
-    [InlineData("not an email at all")]
     public async Task Unknown_and_retired_emails_look_exactly_the_same_but_get_nothing(string email)
     {
         var known = new Browser(_app);
@@ -121,6 +121,98 @@ public sealed class LoginTests : IAsyncLifetime, IDisposable
         Assert.Equal(knownPage, page);
         Assert.Equal(0, _app.Count("SELECT COUNT(*) FROM ss_login_codes WHERE email <> @Anna", new { Anna }));
         Assert.Equal(0, _app.Count("SELECT COUNT(*) FROM ss_dev_mailbox WHERE to_email <> @Anna", new { Anna }));
+    }
+
+    // A format error is wrong for everyone, registered or not, so showing it reveals nothing (decisions.md).
+    [Theory]
+    [InlineData("bo.demo@example.com)")]  // found in the E2 click-through
+    [InlineData("bo.demo.example.com")]   // no @
+    [InlineData("bo demo@example.com")]   // a space inside
+    [InlineData("bo@@example.com")]
+    [InlineData("bo.demo@")]
+    [InlineData("@example.com")]
+    [InlineData("bo.demo@example")]       // no dot in the domain
+    [InlineData("bo.demo@example..com")]
+    [InlineData("not an email at all")]
+    public async Task An_email_in_the_wrong_format_shows_an_error_and_sends_nothing(string email)
+    {
+        var response = await _browser.RequestCode(email);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // stays on X1, no redirect to the code page
+        var html = await Body(response);
+        Assert.Contains(EmailInvalid, html);
+        Assert.Contains($"value=\"{email}\"", html); // what was typed stays in the field
+        Assert.Equal(0, _app.Count("SELECT COUNT(*) FROM ss_login_codes"));
+        Assert.Equal(0, _app.Count("SELECT COUNT(*) FROM ss_dev_mailbox"));
+    }
+
+    [Fact]
+    public async Task The_format_error_is_in_danish_too()
+    {
+        var browser = new Browser(_app); // Danish is the default
+
+        var response = await browser.RequestCode("bo.demo@example.com)");
+
+        Assert.Contains("Indtast en gyldig e-mailadresse.", await Body(response));
+    }
+
+    [Fact]
+    public async Task A_registered_and_an_unknown_email_with_the_same_mistake_get_the_same_page()
+    {
+        var other = new Browser(_app);
+        await other.UseEnglish();
+
+        var registered = WithoutTokens(await Body(await _browser.RequestCode("anna.demo@example.com)")));
+        var unknown = WithoutTokens(await Body(await other.RequestCode("nobody.xx@example.com)")));
+
+        Assert.Contains(EmailInvalid, registered);
+        Assert.Equal(
+            registered.Replace("anna.demo@example.com)", "EMAIL", StringComparison.Ordinal),
+            unknown.Replace("nobody.xx@example.com)", "EMAIL", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task A_format_error_does_not_count_towards_the_lock()
+    {
+        for (var i = 0; i < 6; i++)
+        {
+            await _browser.RequestCode("anna.demo@example.com)");
+        }
+
+        AssertRedirect(await _browser.RequestCode(Anna), "/login/code");
+        Assert.Equal(1, Codes(Anna));
+    }
+
+    /// <summary>The demo emails in rules.py, so the rule can never shut out a demo login.</summary>
+    public static TheoryData<string> DemoEmailsInRulesPy()
+    {
+        var data = new TheoryData<string>();
+        foreach (Match match in Regex.Matches(RepoFiles.Read("rules.py"), @"^DEMO_\w+ = ""([^""]+)""", RegexOptions.Multiline))
+        {
+            data.Add(match.Groups[1].Value);
+        }
+
+        return data;
+    }
+
+    [Fact]
+    public void Rules_py_has_the_three_demo_emails() => Assert.Equal(3, DemoEmailsInRulesPy().Count);
+
+    // Guard: valid emails still get through. Shapes seed.py makes (letters, digits, "-", "."),
+    // spaces around the email, and Danish letters, which real domains can have.
+    [Theory]
+    [MemberData(nameof(DemoEmailsInRulesPy))]
+    [InlineData(Anna)]
+    [InlineData(Bo)]
+    [InlineData(Sofie)]
+    [InlineData(Nobody)]
+    [InlineData("anne-marie.holm-jensen2@example.com")]
+    [InlineData("  anna.demo@example.com  ")]
+    [InlineData("søren@kø.example.com")]
+    [InlineData("first+tag@sub.example.com")]
+    public async Task A_valid_email_goes_to_the_code_page(string email)
+    {
+        AssertRedirect(await _browser.RequestCode(email), "/login/code");
     }
 
     [Theory]

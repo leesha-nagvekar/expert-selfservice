@@ -58,6 +58,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - Field: email.
 - "Send code" always shows the same confirmation, "If the email is registered, a code has been sent". A code is only created when the email belongs to an expert with Status ≠ 0, or to a secretariat user.
 - If the email is locked: "Too many attempts. Try again in N minutes."
+- Errors: "Enter your email address" (empty or over 254 characters), "Enter a valid email address" (wrong format, for example no @, a space inside, or a trailing ")"). A format error is the same for every email, registered or not, so it reveals nothing. No code is made and it doesn't count towards the lock.
 
 **X2 Login: code (E1)**
 - Field: 6-digit code.

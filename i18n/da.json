@@ -10,6 +10,7 @@
   "login.email.label": "Din e-mailadresse",
   "login.email.submit": "Send kode",
   "login.email_required": "Skriv din e-mailadresse.",
+  "login.email_invalid": "Indtast en gyldig e-mailadresse.",
   "login.locked": "For mange forsøg. Prøv igen om {0} minutter.",
   "login.locked_one": "For mange forsøg. Prøv igen om 1 minut.",
   "login.sent": "Hvis e-mailadressen er registreret, er der sendt en kode.",

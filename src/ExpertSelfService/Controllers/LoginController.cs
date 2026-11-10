@@ -33,6 +33,12 @@ public class LoginController(LoginService login, TextService text, IWebHostEnvir
             return View(EmailView, new EmailPage(email, text["login.email_required"]));
         }
 
+        // Wrong for everyone, registered or not, so it reveals nothing. No code is made and nothing counts towards the lock.
+        if (!EmailFormat.IsValid(normalized))
+        {
+            return View(EmailView, new EmailPage(email, text["login.email_invalid"]));
+        }
+
         if (login.RequestCode(normalized) is TimeSpan lockedFor)
         {
             return View(EmailView, new EmailPage(email, LockedText(lockedFor)));
