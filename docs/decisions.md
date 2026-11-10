@@ -18,7 +18,11 @@ Short records of choices made in the project and why.
 
 **Which pending row counts.** For each field, only the newest `ss_pending_changes` row counts. Pending: the section shows "Pending approval" and the waiting value. Rejected: "Rejected", the value and the reason. Approved: nothing. That gives SPEC section 3's "Rejected stays until a new change to that field" without an extra column. E2 only reads the table; E5 and E7 write it.
 
-**Logged out when removed or Retired.** The profile query asks for `Status <> Retired`. If no row comes back, the expert is logged out and sent to `/`, so a Retired expert can't keep using the profile for the rest of the 60 minutes. Proved by `An_expert_set_to_retired_during_the_session_is_logged_out` and `An_expert_removed_during_the_session_is_logged_out`.
+**Logged out when removed or Retired, on every page (Leesha, after the E2 review).** The login cookie's `OnValidatePrincipal` event calls `ExpertSessionCheck` on every request that carries a login. For an expert it asks `SELECT 1 FROM Candidates WHERE Id = @expertId AND Status <> Retired`. No row: the login is rejected, the cookie is deleted, and the request goes on as "not logged in", so expert pages send the person to `/`. A Retired expert can't keep using any page for the rest of the 60 minutes, and the E3–E7 pages are protected without each having to remember a check. Every other status keeps the login, unknown ones included (SPEC decision 9). Staff logins are not checked; there is no "removed staff user" yet.
+- Cost: one primary-key lookup per page request. Static files are served before the login is read, so they cost nothing.
+- `ProfileController` keeps its own null check, which only covers a change between the check and its query.
+- First the check sat only in `ProfileController` (E2). The E2 review moved it here, so new pages can't forget it.
+- Proved by `Set_to_retired_the_login_ends_on_any_page_not_only_the_profile`, `Removed_the_login_ends_on_any_page_not_only_the_profile`, `Set_to_retired_every_expert_page_sends_back_to_the_front_page` (reads every expert page from the route table), `A_status_change_that_is_not_retired_keeps_the_login` and `A_staff_login_is_not_checked_against_the_experts`.
 
 **Status codes in C#.** `Services/ExpertStatus.cs` is the C# copy of the status codes that "Data rules in two languages" (below) foresaw. `StatusTests` reads `rules.py` and checks that every status shows `rules.py`'s English name, so the two copies can't drift apart. `LoginService` now uses `ExpertStatus.Retired` instead of the number 0.
 

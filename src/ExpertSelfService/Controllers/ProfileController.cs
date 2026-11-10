@@ -18,7 +18,8 @@ public class ProfileController(ProfileService profiles, TextService text) : Cont
         var profile = SessionClaims.ExpertIdOf(User) is long expertId ? profiles.Load(expertId) : null;
         if (profile is null)
         {
-            // Removed or set to Retired since logging in: the login ends here, not after 60 minutes.
+            // ExpertSessionCheck already ends the login of a Retired or removed expert on every request.
+            // This only covers a change in the moment between that check and this query.
             await HttpContext.SignOutAsync();
             return Redirect("/");
         }

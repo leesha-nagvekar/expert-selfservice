@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using ExpertSelfService.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ builder.Services.AddSingleton<Database>();
 builder.Services.AddSingleton<DevMailbox>();
 builder.Services.AddSingleton<LoginService>();
 builder.Services.AddSingleton<ProfileService>();
+builder.Services.AddSingleton<ExpertSessionCheck>();
 
 // Login cookie. ASP.NET encrypts it with Data Protection keys kept in the Windows user profile,
 // outside the repo. It holds only expert_id or staff_id (SPEC section 2).
@@ -48,6 +50,17 @@ builder.Services
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return Task.CompletedTask;
+        };
+        // Every request: an expert set to Retired or removed since logging in is logged out on any page.
+        // The request then goes on as "not logged in", so expert pages send them to "/".
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var check = context.HttpContext.RequestServices.GetRequiredService<ExpertSessionCheck>();
+            if (context.Principal is { } user && !check.IsStillValid(user))
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
         };
     });
 // The cookie's expiry uses the app's clock, so tests can move time forward.

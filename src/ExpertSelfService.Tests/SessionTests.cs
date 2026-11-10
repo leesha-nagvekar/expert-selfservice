@@ -1,4 +1,9 @@
 using System.Net;
+using Dapper;
+using ExpertSelfService.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using static ExpertSelfService.Tests.AppFactory;
 using static ExpertSelfService.Tests.Browser;
 
@@ -153,6 +158,117 @@ public sealed class SessionTests : IAsyncLifetime, IDisposable
         Assert.Contains("""<html lang="da">""", await Body(page));
 
         AssertRedirect(await _browser.SubmitCode(_app.LatestCode(Anna)), "/profile");
+    }
+
+    // Retired or removed during a session: the login itself ends on the next request, on any page,
+    // not just on pages that remember to check (decisions.md, "Logged out when removed or Retired").
+    private void SetAnnasStatus(int status)
+    {
+        using var db = _app.Open();
+        db.Execute("UPDATE Candidates SET Status = @status WHERE Id = 1", new { status });
+    }
+
+    private void RemoveAnna()
+    {
+        using var db = _app.Open();
+        db.Execute(
+            """
+            DELETE FROM CandidateSkills WHERE CandidateId = 1;
+            DELETE FROM CandidateTags WHERE CandidateId = 1;
+            DELETE FROM ss_expert_company WHERE candidate_id = 1;
+            DELETE FROM Candidates WHERE Id = 1;
+            """);
+    }
+
+    private static void AssertLoginCookieDeleted(HttpResponseMessage response)
+    {
+        Assert.True(response.Headers.TryGetValues("Set-Cookie", out var cookies), "Expected the login cookie to be deleted");
+        Assert.Contains(cookies, header =>
+            header.StartsWith(".AspNetCore.Cookies=;", StringComparison.Ordinal)
+            && header.Contains("expires=Thu, 01 Jan 1970", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task AssertFrontPageIsTheLoginForm()
+    {
+        var front = await _browser.Get("/");
+        Assert.Equal(HttpStatusCode.OK, front.StatusCode);
+        Assert.Contains("action=\"/login\"", await Body(front));
+    }
+
+    [Fact]
+    public async Task Set_to_retired_the_login_ends_on_any_page_not_only_the_profile()
+    {
+        await _browser.LogIn(Anna);
+        SetAnnasStatus(0);
+
+        // The front page never reads the database itself. It must still see that the login has ended.
+        var response = await _browser.Get("/");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        AssertLoginCookieDeleted(response);
+        await AssertFrontPageIsTheLoginForm();
+    }
+
+    [Fact]
+    public async Task Removed_the_login_ends_on_any_page_not_only_the_profile()
+    {
+        await _browser.LogIn(Anna);
+        RemoveAnna();
+
+        var response = await _browser.Get("/");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        AssertLoginCookieDeleted(response);
+        await AssertFrontPageIsTheLoginForm();
+    }
+
+    /// <summary>Every GET page behind the Expert policy, read from the app's own route table, so E3–E7 pages are included.</summary>
+    private List<string> ExpertPages() =>
+        _app.Services.GetRequiredService<EndpointDataSource>().Endpoints
+            .OfType<RouteEndpoint>()
+            .Where(e => e.Metadata.GetOrderedMetadata<IAuthorizeData>().Any(a => a.Policy == SessionClaims.ExpertPolicy))
+            .Where(e => e.Metadata.GetMetadata<IHttpMethodMetadata>()?.HttpMethods.Contains("GET") == true)
+            .Where(e => e.RoutePattern.Parameters.Count == 0)
+            .Select(e => "/" + e.RoutePattern.RawText!.TrimStart('/'))
+            .ToList();
+
+    [Fact]
+    public async Task Set_to_retired_every_expert_page_sends_back_to_the_front_page()
+    {
+        var pages = ExpertPages();
+        Assert.Contains("/profile", pages);
+
+        foreach (var page in pages)
+        {
+            SetAnnasStatus(1);
+            var browser = new Browser(_app);
+            await browser.LogIn(Anna);
+            SetAnnasStatus(0);
+
+            AssertRedirect(await browser.Get(page), "/");
+        }
+    }
+
+    [Theory]
+    [InlineData(-1)] // Standby
+    [InlineData(3)]  // Under observation
+    [InlineData(7)]  // Unknown: SPEC decision 9, only Retired is shut out
+    public async Task A_status_change_that_is_not_retired_keeps_the_login(int status)
+    {
+        await _browser.LogIn(Anna);
+        SetAnnasStatus(status);
+
+        Assert.Equal(HttpStatusCode.OK, (await _browser.Get("/profile")).StatusCode);
+        AssertRedirect(await _browser.Get("/"), "/profile");
+    }
+
+    [Fact]
+    public async Task A_staff_login_is_not_checked_against_the_experts()
+    {
+        await _browser.LogIn(Sofie);
+        SetAnnasStatus(0); // Sofie's staff id is 1, the same number as Anna's expert id
+
+        Assert.Equal(HttpStatusCode.OK, (await _browser.Get("/staff")).StatusCode);
     }
 
     // The expert's /profile shows their own data since E2 (ProfileTests). The staff page stays a placeholder until S1.
