@@ -37,6 +37,20 @@ public class TextTests
         Assert.DoesNotContain(Load(language), pair => string.IsNullOrWhiteSpace(pair.Value));
     }
 
+    // The minutes come from LoginService.CodeLifetime, so the texts can't drift from the rule.
+    [Theory]
+    [InlineData("da", "mail.login.body", "{1}")]
+    [InlineData("en", "mail.login.body", "{1}")]
+    [InlineData("da", "login.code.hint", "{0}")]
+    [InlineData("en", "login.code.hint", "{0}")]
+    public void The_code_lifetime_is_not_written_in_the_texts(string language, string key, string placeholder)
+    {
+        var value = Load(language)[key];
+
+        Assert.Contains(placeholder, value);
+        Assert.DoesNotContain("10", value);
+    }
+
     [Theory]
     [InlineData("da", "Selvbetjening for skønsmænd")]
     [InlineData("en", "Expert self-service")]

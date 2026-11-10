@@ -2,6 +2,48 @@
 
 Short records of choices made in the project and why.
 
+## E1 login (9 Nov 2026)
+
+**Secrets in `.env`, read by DotNetEnv (Leesha).** Closes the open point below. CLAUDE.md ground rule 4 says `.env`, so .NET's user secrets are out. A hand-written reader is out too: Phase 2 (round 1 #3) showed one breaks on quotes and on the BOM Notepad adds. `Program.cs` loads `.env` from the repo root before anything else. A variable already set in the environment wins, as in `settings.py`. `.env` now holds `CODE_KEY`, the HMAC key for one-time codes. The app refuses to start when the key is missing or shorter than 32 characters, or when the database file doesn't exist. It never creates an empty database. Proved by `SettingsTests`.
+
+**Login session: ASP.NET Core cookie authentication (Leesha).** The cookie holds one claim, `expert_id` or `staff_id`. ASP.NET encrypts it with its Data Protection keys, which live in the Windows user profile, outside the repo. So there is no "session secret" in `.env`, and SPEC section 2 was changed to say so. The cookie is `HttpOnly` and `SameSite=Lax`, ends when the browser closes, and expires after 60 minutes without use (sliding). Pages use two policies, `Expert` and `Staff`. The wrong kind of user gets a 403, shown as "Page not found". Not logged in sends you to `/` without a `ReturnUrl`, so no link can send anyone off the site.
+- Not chosen: server-side Session. Every login would be lost when the app restarts, and it adds nothing else here.
+
+**Known gap: log out can't cancel a copied cookie (Leesha, 9 Nov 2026).** Logging out deletes the cookie in the browser. But the cookie carries the whole login, and the server keeps no list of logins. So a copy taken before logout keeps working until its 60 minutes run out. Accepted for the MVP: the app runs with fake data and listens on 127.0.0.1 only, so the cookie never crosses a network where it could be copied. A real version would close it with a server-side check, for example a session row that log out deletes, or ASP.NET Identity's security stamp. `Log_out_is_shown_when_logged_in_and_ends_the_login` proves what the browser sees, not this.
+
+**Known gaps accepted after the E1 review (Leesha, 10 Nov 2026).** Each is accepted for the same reason as the cookie gap: fake data, and an app that listens on 127.0.0.1 only.
+- **Anyone can lock anyone out.** Whoever knows an email can enter 5 wrong codes and lock it for 15 minutes. This follows from counting wrong codes for unknown emails too, which keeps the lock from revealing who is registered. A real version would limit tries per client as well, for example per IP address, and could let a locked user unlock through a fresh code.
+- **Code requests have no limit.** Each "Send code" makes a new code and a mailbox message. Guessing stays capped at 5, because a new code doesn't reset the count and a locked email gets no new codes, so the cost is only clutter. A real version, which sends real mail, would limit requests per email and per client.
+- **The console log shows the email and the code** (`LoginService.RequestCode`). CLAUDE.md ground rule 5 asks for this, and the data is fake. A real version must remove the log line, together with the plain-text code in the dev mailbox.
+
+**How the login rules are built (SPEC X1, X2).**
+- **The email between X1 and X2** is kept in TempData, an encrypted cookie. It isn't in the URL or a form field, so it can't be changed in the page, and it survives a language switch.
+- **Only the newest `login` code** for an email is accepted. That is how "a new code makes older codes invalid" works, without marking old rows as used. `used_at` keeps meaning "used".
+- **The code is HMAC-SHA256** with `CODE_KEY` over `login:<email>:<code>`, stored as lower-case hex and compared in constant time. Codes come from `RandomNumberGenerator`.
+- **Each check runs in one write transaction** (lockout, code, count), so guesses sent at the same moment are counted one after the other.
+- **A wrong code counts for every email, registered or not.** Otherwise only registered emails could get locked, and the lock would tell who is registered. All whitespace is removed from the code first, so "123 456" works (added 10 Nov 2026 after review). A code that is then not 6 ASCII digits shows "The code must be 6 digits" and does not count.
+- **The 10 minutes are written once**, in `LoginService.CodeLifetime`. The X2 hint and the mail text get the number as a parameter, so they can't drift from the rule (10 Nov 2026, after review).
+- **Asking for a new code doesn't reset the count.** Only a right code does, or a lock that has run out. Otherwise someone could ask for a new code after every 4 guesses.
+- **The 5th wrong code locks the email for 15 minutes.** While locked, even the right code is refused and no new code is sent. "Try again in N minutes" rounds N up.
+- **The dev mailbox stores the code in plain text**, because X3 must show it. Acceptable for test data only. A real version sends real email and drops this table.
+- **CSRF:** `AutoValidateAntiforgeryToken` is on for every controller. `ErrorController` has `[IgnoreAntiforgeryToken]`, because a POST refused for a missing token is shown again on the error page as a POST. Without it, the check fails a second time and the page is blank. Proved by `A_post_without_the_antiforgery_token_is_refused_with_our_own_page`.
+
+**Additions not named in X1–X3 (approved by Leesha with the E1 plan).**
+- A log out button in the top bar.
+- The landing pages `/profile` and `/staff`, with only a heading. E2 and S1 replace them.
+- A "Start over" link on X2.
+- A link to the dev mailbox on X2, in Development only.
+
+**Open, to ask Claus: Help and "Contact the secretariat".** SPEC section 4 and guide section 5 want them reachable from every screen, at most two taps away. No story owns them, and we have no contact details for the secretariat. Left out of E1. To ask Claus what they should say and where they belong, then build as a small separate request.
+
+**NuGet packages added with E1.** All three are in the app project, pinned to an exact version.
+
+| Package | Version | Why it is needed |
+|---|---|---|
+| Dapper | 2.1.89 | Runs SQL with `@name` parameters and maps rows to objects. No ORM, so `db/schema_sqlite.sql` stays the one source of the structure. |
+| Microsoft.Data.Sqlite | 10.0.14 | Microsoft's SQLite driver. Same version as the installed .NET runtime. |
+| DotNetEnv | 3.2.0 | Reads `.env` (quotes, comments, BOM). Latest release April 2026, so it is maintained. |
+
 ## Stack changed to ASP.NET Core (2 Nov 2026)
 
 **Decision (Claus, guide phase 3, 2 Nov 2026):** from phase 3 the app is built in ASP.NET Core MVC on .NET 10 (LTS) with Razor views, SQLite through Microsoft.Data.Sqlite and Dapper, plain CSS, xUnit and `dotnet format`. It replaces the Python choice of 30 Oct (below).
@@ -40,7 +82,7 @@ Short records of choices made in the project and why.
 
 **Open points:**
 - ~~This machine has only the .NET 7.0.100 SDK.~~ **Done 3 Nov 2026:** the .NET 10 SDK (10.0.403) is installed. The README gets the version in the skeleton step.
-- Where secrets go: CLAUDE.md ground rule 4 says `.env`, but .NET doesn't read `.env` on its own. Either a small package reads it, or .NET's "user secrets" are used (also outside Git). Decided with E1 login, the first feature with a secret.
+- ~~Where secrets go: CLAUDE.md ground rule 4 says `.env`, but .NET doesn't read `.env` on its own. Either a small package reads it, or .NET's "user secrets" are used (also outside Git). Decided with E1 login, the first feature with a secret.~~ **Done 9 Nov 2026:** `.env`, read by the DotNetEnv package. See "E1 login" above.
 
 ## 5 Nov 2026: E8 settled by Claus
 

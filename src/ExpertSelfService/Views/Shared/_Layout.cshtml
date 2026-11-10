@@ -24,18 +24,27 @@
         <img src="/img/vn-logo-white.png" alt="@Text["topbar.logo_alt"]">
       </picture>
     </a>
-    <nav class="topbar-language" aria-label="@Text["topbar.language"]">
-      @if (language == "da")
+    <div class="topbar-actions">
+      <nav class="topbar-language" aria-label="@Text["topbar.language"]">
+        @if (language == "da")
+        {
+          <span aria-current="true" lang="da">@Text["language.da"]</span>
+          <a href="/language/en?next=@next" lang="en">@Text["language.en"]</a>
+        }
+        else
+        {
+          <a href="/language/da?next=@next" lang="da">@Text["language.da"]</a>
+          <span aria-current="true" lang="en">@Text["language.en"]</span>
+        }
+      </nav>
+      @if (User.Identity?.IsAuthenticated == true)
       {
-        <span aria-current="true" lang="da">@Text["language.da"]</span>
-        <a href="/language/en?next=@next" lang="en">@Text["language.en"]</a>
+        <form class="topbar-logout" method="post" action="/logout">
+          @Html.AntiForgeryToken()
+          <button type="submit">@Text["topbar.logout"]</button>
+        </form>
       }
-      else
-      {
-        <a href="/language/da?next=@next" lang="da">@Text["language.da"]</a>
-        <span aria-current="true" lang="en">@Text["language.en"]</span>
-      }
-    </nav>
+    </div>
   </header>
   <main>
     @RenderBody()

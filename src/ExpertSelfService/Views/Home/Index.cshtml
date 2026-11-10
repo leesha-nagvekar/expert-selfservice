@@ -1,2 +1,21 @@
+@model EmailPage
 <h1>@Text["home.title"]</h1>
 <p>@Text["home.intro"]</p>
+
+<form method="post" action="/login" novalidate>
+  @Html.AntiForgeryToken()
+  <div class="field">
+    <label for="email">@Text["login.email.label"]</label>
+    @if (Model.Error is null)
+    {
+      <input id="email" name="Email" type="email" autocomplete="email" value="@Model.Email">
+    }
+    else
+    {
+      <input id="email" name="Email" type="email" autocomplete="email" value="@Model.Email"
+             aria-invalid="true" aria-describedby="email-error">
+      <p class="field-error" id="email-error">@Model.Error</p>
+    }
+  </div>
+  <button type="submit">@Text["login.email.submit"]</button>
+</form>

@@ -1,0 +1,25 @@
+@model IReadOnlyList<MailboxMessage>
+@{
+    ViewData["Title"] = Text["mailbox.title"];
+}
+<h1>@Text["mailbox.title"]</h1>
+<p class="hint">@Text["mailbox.intro"]</p>
+
+@if (Model.Count == 0)
+{
+  <p>@Text["mailbox.empty"]</p>
+}
+else
+{
+  <ol class="mailbox">
+    @foreach (var message in Model)
+    {
+      <li class="message">
+        <p><strong>@Text["mailbox.to"]</strong> @message.ToEmail</p>
+        <p><strong>@Text["mailbox.time"]</strong> @LocalTime.Format(message.CreatedAt)</p>
+        <p><strong>@Text["mailbox.subject"]</strong> @message.Subject</p>
+        <p class="message-body">@message.Body</p>
+      </li>
+    }
+  </ol>
+}

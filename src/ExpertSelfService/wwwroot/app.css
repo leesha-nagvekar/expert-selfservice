@@ -65,9 +65,22 @@ main {
   width: auto;
 }
 
+.topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
 .topbar-language {
   display: flex;
   gap: 4px;
+}
+
+.topbar-logout button {
+  background: transparent;
+  color: var(--on-topbar);
+  border: 1px solid var(--on-topbar);
 }
 
 .topbar-language a,
@@ -83,4 +96,102 @@ main {
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 6px;
+}
+
+/* Forms: one field per row, errors next to the field (guide section 5). */
+.field {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+input[type="email"],
+input[type="text"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+input[aria-invalid="true"] {
+  border: 2px solid var(--accent);
+}
+
+/* One-time codes in Plex Mono (guide section 5). */
+input.code {
+  max-width: 12ch;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+
+.hint {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.field-error {
+  margin: 4px 0 0;
+  color: var(--accent-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+button {
+  min-height: 44px;
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--brand);
+  color: var(--on-brand);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 24px;
+}
+
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* Dev mailbox (X3) */
+.mailbox {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.message p {
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.message-body {
+  white-space: pre-wrap;
 }

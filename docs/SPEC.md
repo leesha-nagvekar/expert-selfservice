@@ -24,7 +24,8 @@ Status: Approved at Gate 1 (28 Oct 2026). Updated 2 Nov 2026 for the new guide (
 - **Secretariat user**: a row in `ss_staff_users`. Logs in the same way with their own email.
 - After login the session holds either `expert_id` or `staff_id`, never both. Expert pages refuse staff sessions and the other way round.
 - Every query for expert data on expert pages uses `expert_id` **from the session**. No expert page takes an expert id from the URL or a form. Changing an id in the URL gives "Page not found" (demo step 7).
-- The session secret lives in `.env`.
+- The login session is an encrypted cookie (ASP.NET Core cookie authentication). It is encrypted with ASP.NET's Data Protection keys, which are kept in the Windows user profile, outside the repo, so there is no session secret in `.env`. The key for the one-time codes (`CODE_KEY`) lives in `.env`. *(Changed 9 Nov 2026 with E1, see `docs/decisions.md`.)*
+- The session ends after 60 minutes without use, and when the browser is closed.
 
 ## 3. Approval rule (Field Rule)
 

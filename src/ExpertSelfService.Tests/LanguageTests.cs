@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace ExpertSelfService.Tests;
 
-public class LanguageTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class LanguageTests(AppFactory factory) : IClassFixture<AppFactory>
 {
     // A new client per test, so one test's cookie never reaches another test.
     private readonly HttpClient _client = factory.CreateClient(

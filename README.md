@@ -2,7 +2,7 @@
 
 Lets VBA's experts (skønsmænd) update their own details. Test data only: 100 fake experts, every email ends in @example.com. It runs on your own machine only.
 
-The app so far is the skeleton: the VBA top bar, the language switch and the error pages. It doesn't use the database yet.
+The app so far has the VBA top bar, the language switch, the error pages and login with a one-time code (story E1). Experts and secretariat users land on a placeholder page after login.
 
 ## Install
 
@@ -16,8 +16,11 @@ python -m venv .venv
 .venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
 copy .env.example .env          # macOS/Linux: cp .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"
 python seed.py --reset
 ```
+
+The `python -c` line prints a random key. Paste it after `CODE_KEY=` in `.env`. It protects the one-time login codes. The app refuses to start without it, or without the database.
 
 If Windows blocks the activate script, run `Set-ExecutionPolicy -Scope Process Bypass` in the same window first.
 
@@ -29,6 +32,14 @@ dotnet run --project src/ExpertSelfService
 
 Open http://127.0.0.1:5080. Stop the app with Ctrl+C. It listens on this machine only.
 
+## Log in
+
+1. Type one of the demo emails below and click "Send code".
+2. The app never sends email. The code is printed in the console where the app runs, and shown in the dev mailbox at http://127.0.0.1:5080/dev/mailbox. The code page links to it.
+3. Type the code. It is valid for 10 minutes and works once. After 5 wrong codes the email is locked for 15 minutes.
+
+The dev mailbox only exists when the app runs in the Development environment, which `dotnet run` uses.
+
 ## Reset the test database
 
 With the virtual environment activated:
@@ -39,7 +50,7 @@ python seed.py --reset
 
 This builds `data/expert_register.db` again with the same 100 fake experts every time, then checks the data. Run it before every demo. Close the app first: on Windows an open database can't be replaced, and the reset will tell you so. If a reset fails, or the new data fails the checks, the old database stays as it was. Without `--reset`, the script refuses to overwrite an existing database.
 
-Demo logins (login comes with story E1):
+Demo logins:
 
 | Who | Email |
 |---|---|
@@ -88,7 +99,7 @@ You don't need to activate the virtual environment. The script runs pytest, Ruff
 - `data/lookups/`: regions, cities, postcodes, fields of expertise (Fags) and roles.
 - `seed.py`, `check_data.py`: build and check the test database.
 - `rules.py`: the data rules both use (statuses, demo emails, length limits, CVR check).
-- `settings.py`: reads `DATABASE_PATH` from the environment or `.env`.
+- `settings.py`: reads `DATABASE_PATH` from the environment or `.env`. The app reads the same `.env`, plus `CODE_KEY`.
 - `tests/`: pytest tests for these tools.
 - `tools/build_postcodes.py`: a one-off that fetched the Danish postcodes.
 

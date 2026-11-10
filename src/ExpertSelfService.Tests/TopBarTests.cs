@@ -1,11 +1,10 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace ExpertSelfService.Tests;
 
-public class TopBarTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class TopBarTests(AppFactory factory) : IClassFixture<AppFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();
 

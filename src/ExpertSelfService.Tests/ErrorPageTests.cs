@@ -1,13 +1,14 @@
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ExpertSelfService.Tests;
 
 /// <summary>Lives only in the test project, so the real app has no page that crashes on purpose.</summary>
+// No antiforgery check: the POST test must reach the crash, not stop at a missing token.
+[IgnoreAntiforgeryToken]
 public class ThrowingController : Controller
 {
     public const string Secret = "secret detail from the exception";
@@ -17,7 +18,7 @@ public class ThrowingController : Controller
     public IActionResult Boom() => throw new InvalidOperationException(Secret);
 }
 
-public class ErrorPageTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class ErrorPageTests(AppFactory factory) : IClassFixture<AppFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();
 

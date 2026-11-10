@@ -1,9 +1,8 @@
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace ExpertSelfService.Tests;
 
-public class FontTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class FontTests(AppFactory factory) : IClassFixture<AppFactory>
 {
     private readonly HttpClient _client = factory.CreateClient();
 

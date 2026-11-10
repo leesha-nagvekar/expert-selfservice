@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ExpertSelfService.Controllers;
 
+// A POST refused for a missing token is shown again here as a POST. Without this,
+// the check would fail a second time and the visitor would get a blank page.
+[IgnoreAntiforgeryToken]
 public class ErrorController : Controller
 {
     // [Route] without [HttpGet]: a failed POST must reach this page too.
