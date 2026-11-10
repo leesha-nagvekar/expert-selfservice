@@ -35,3 +35,20 @@ Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step:
 - How a cookie login works, and why logging out can't cancel a copied cookie.
 - Why unknown emails must lock too: otherwise the lock reveals who is in the register.
 - Why the format check comes before CheckCode: a typo like "12ab56" shouldn't use one of the 5 tries.
+
+## 10 Nov 2026 – E2 profile, central login check, email format
+
+**Asked:**
+- Planned E2 (profile, X4) in Plan mode. The page shows the expert's own details in read-only sections, "Not given" for empty fields, a "Set by VBA" box, status as icon + colour + word, British dates in English.
+- Asked Claude to explain the diff as a colleague's PR, and answered its questions: 
+1. Empty middle name stays hidden
+2. OldStatus left out
+3. An info icon for an unknown status.
+4. Moved the "Retired or removed" check into the login cookie (OnValidatePrincipal), so every expert page is protected, including the ones E3–E7 will add.
+
+**Went wrong:**
+- In the click-through I typed "bo.demo@example.com)" and went straight to the code page, with no code sent. All tests passed, because they followed Claude's plan, which had decided "no format check". I asked for an email format check.
+
+**Learned:**
+- Breaking the code on purpose proved the tests catch it.
+- The browser checks finds errors and issues sometimes tests can't.
