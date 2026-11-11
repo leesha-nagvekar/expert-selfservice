@@ -134,6 +134,8 @@ public sealed class LoginTests : IAsyncLifetime, IDisposable
     [InlineData("bo.demo@example")]       // no dot in the domain
     [InlineData("bo.demo@example..com")]
     [InlineData("not an email at all")]
+    [InlineData("søren@example.com")]     // ASCII only, as rules.py (decisions.md)
+    [InlineData("søren@kø.example.com")]
     public async Task An_email_in_the_wrong_format_shows_an_error_and_sends_nothing(string email)
     {
         var response = await _browser.RequestCode(email);
@@ -199,7 +201,7 @@ public sealed class LoginTests : IAsyncLifetime, IDisposable
     public void Rules_py_has_the_three_demo_emails() => Assert.Equal(3, DemoEmailsInRulesPy().Count);
 
     // Guard: valid emails still get through. Shapes seed.py makes (letters, digits, "-", "."),
-    // spaces around the email, and Danish letters, which real domains can have.
+    // capitals and spaces around the email.
     [Theory]
     [MemberData(nameof(DemoEmailsInRulesPy))]
     [InlineData(Anna)]
@@ -208,7 +210,7 @@ public sealed class LoginTests : IAsyncLifetime, IDisposable
     [InlineData(Nobody)]
     [InlineData("anne-marie.holm-jensen2@example.com")]
     [InlineData("  anna.demo@example.com  ")]
-    [InlineData("søren@kø.example.com")]
+    [InlineData("ANNA.Demo@Example.COM")]
     [InlineData("first+tag@sub.example.com")]
     public async Task A_valid_email_goes_to_the_code_page(string email)
     {
