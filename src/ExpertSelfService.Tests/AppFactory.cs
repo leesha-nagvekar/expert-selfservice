@@ -107,11 +107,15 @@ public sealed class AppFactory : WebApplicationFactory<Program>
         // Bo is on Standby with no phone and no company. Skills are inserted unsorted.
         db.Execute(
             """
-            INSERT INTO Regions (Id, RegionName) VALUES (4, 'Region Hovedstaden'), (6, 'Region Syddanmark');
+            INSERT INTO Regions (Id, RegionName) VALUES (2, 'Norge'), (4, 'Region Hovedstaden'), (6, 'Region Syddanmark');
             INSERT INTO Cities (Id, City, RegionId, ZipCode) VALUES
                 (2001, 'København Ø', 4, '2100'),
-                (2002, 'Odense C', 6, '5000');
-            INSERT INTO Zipcodes (Id, CityId, Zipcode) VALUES (2001, 2001, '2100'), (2002, 2002, '5000');
+                (2002, 'Odense C', 6, '5000'),
+                (2003, 'Aarhus C', 4, '8000'),
+                (50, 'Oslo', 2, '0150');
+            INSERT INTO Zipcodes (Id, CityId, Zipcode) VALUES
+                (2001, 2001, '2100'), (2002, 2002, '5000'), (2003, 2003, '8000'),
+                (50, 50, '0150'); -- 4 digits, but Norwegian: not a Danish postcode (rules.DANISH_REGION_IDS)
             INSERT INTO ProfessionTags (Id, Tag) VALUES (35, 'Skønsmand'), (36, 'Sagkyndig');
 
             INSERT INTO Candidates

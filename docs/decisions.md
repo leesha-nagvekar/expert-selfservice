@@ -2,6 +2,20 @@
 
 Short records of choices made in the project and why.
 
+## E3 address and phone (11 Nov 2026)
+
+**Every change goes through `ExpertChanges` (Leesha).** SPEC section 3: saved at once means Candidates is updated, `LastUpdated` is set to today and one `ss_change_log` row per changed field is written, in the same transaction. E3 is the first story that writes expert data, so the rule lives in one helper, `Services/ExpertChanges.cs`, and E4, E6, E8 and S2 (approve) call it too. It runs in the caller's transaction, so a failed log row also undoes the change. Nothing changed means nothing is written and LastUpdated stays, and there is no "Saved" on the profile. LastUpdated is the date in Denmark, `yyyy-MM-dd`, the format the seed uses. Sending a change for approval (E5, E7) doesn't touch Candidates; LastUpdated and the log row come when it is approved. Proved by `The_change_log_gets_one_row_per_changed_field`, `Changing_only_one_phone_writes_one_row_and_sets_last_updated`, `Saving_with_nothing_changed_writes_nothing_and_says_nothing` and `If_the_change_log_fails_nothing_is_saved`.
+
+**The postcode in the change log is postcode + city (Leesha).** The column is `ZipcodeId`, an internal number. The log row keeps the field name `ZipcodeId` but writes the values as "2100 København Ø" → "8000 Aarhus C", so S3 can show them without a lookup, and they stay true if VBA later renames a city.
+
+**Every field is checked on every save (Leesha).** All five fields must follow SPEC X5 before anything is saved. Simple and strict. The test data is clean; in real data an expert with an old value that breaks the rules (for example a phone with a note in it) must fix it to save. Spaces around a value are trimmed and don't count as a change; an empty phone is stored as NULL.
+
+**Danish postcodes only.** A postcode must be 4 digits and belong to a city in one of the five Danish regions (`AddressRules.DanishRegionIds`, the same rule as `check_data.py`). Zipcodes also holds Swedish and Norwegian rows, and Norwegian postcodes have 4 digits too, so "exists in Zipcodes" alone isn't enough. Proved by the Oslo postcode 0150 in the test data.
+
+**The city lookup is behind the login (Leesha).** `GET /postcode/{code}` returns `{"city": "..."}` or 404, for logged-in experts only. Postcodes aren't personal data, but nothing outside the login answers from the database. `wwwroot/postcode.js` (plain JavaScript, loaded as a file only on X5) fills in the city when 4 digits are typed and hides the "Find city" button. Without JavaScript, "Find city" posts the form, saves nothing and shows the city. The server checks the postcode again on save.
+
+**Rule sync by reading `rules.py`, not `rule_cases.json` (Leesha).** "Data rules in two languages" below promised a shared `tests/rule_cases.json`. StatusTests already reads `rules.py` directly, so E3 does the same: `AddressTests` reads `MAX_LENGTHS` (Street and the 3 phones) and `DANISH_REGION_IDS` and tests the app at exactly the limit and one over. No new file. The phone rule (8–15 digits, spaces, one leading +) exists only in C#, because the seed doesn't check phones; a guard test proves the shapes `seed.py` makes are valid.
+
 ## Email format on X1 (10 Nov 2026)
 
 **A wrong email format shows an error (Leesha, found in the E2 click-through).** "bo.demo@example.com)" used to go to the code page, and no code was sent, so the expert waited for nothing. Now X1 shows "Enter a valid email address." next to the field and keeps what was typed. This doesn't break SPEC X1's "same answer for every email": a format error is wrong for everyone, registered or not, so it reveals nothing. No code is made, and it doesn't count towards the lock. Proved by `An_email_in_the_wrong_format_shows_an_error_and_sends_nothing` and `A_registered_and_an_unknown_email_with_the_same_mistake_get_the_same_page`.
@@ -143,7 +157,7 @@ E8 settled by Claus: languages from `ss_languages`, education as free text (max 
 
 **Decision (Leesha):** `rules.py` stays the source for the test-data tools. The .NET app can't import Python, so it keeps its own C# copy of only the rules it needs for validation and display: the CVR check, the email pattern, the text limits (`MAX_LENGTHS`), the status codes and names (Retired can't log in), and the Danish postcode rule. Rules only the seed needs stay in Python only: expected counts, demo emails, experts without a phone, skills and roles per expert, and RegistrationId from 900001.
 
-**Keeping the two in step:** when the first C# rule is written (E3 or E6), a shared file `tests/rule_cases.json` is added, with valid and invalid CVRs and emails and the text limits. pytest and xUnit both read it, so a change in one language that the other doesn't follow makes a test fail. Until then the Python tests are the reference.
+**Keeping the two in step:** *(replaced 11 Nov 2026: the xUnit tests read `rules.py` directly instead, see "E3 address and phone" above.)* When the first C# rule is written (E3 or E6), a shared file `tests/rule_cases.json` is added, with valid and invalid CVRs and emails and the text limits. pytest and xUnit both read it, so a change in one language that the other doesn't follow makes a test fail. Until then the Python tests are the reference.
 
 **Why:** two copies of a rule are the same risk the Phase 2 review fixed with `rules.py` (round 1 #6 and #7). A shared test file is the cheapest guard that works across two languages.
 

@@ -28,6 +28,8 @@ builder.Services.AddSingleton<DevMailbox>();
 builder.Services.AddSingleton<LoginService>();
 builder.Services.AddSingleton<ProfileService>();
 builder.Services.AddSingleton<ExpertSessionCheck>();
+builder.Services.AddSingleton<ExpertChanges>();
+builder.Services.AddSingleton<AddressService>();
 
 // Login cookie. ASP.NET encrypts it with Data Protection keys kept in the Windows user profile,
 // outside the repo. It holds only expert_id or staff_id (SPEC section 2).

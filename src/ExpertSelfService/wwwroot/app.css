@@ -111,7 +111,8 @@ label {
 }
 
 input[type="email"],
-input[type="text"] {
+input[type="text"],
+input[type="tel"] {
   width: 100%;
   min-height: 44px;
   padding: 8px 12px;
@@ -157,6 +158,42 @@ button {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* A second button, for a side action such as "Find city". */
+button.secondary {
+  border: 1px solid var(--brand);
+  background: var(--background);
+  color: var(--brand);
+}
+
+/* X5: the postcode with its city right after it. Wraps below on narrow screens. */
+.postcode-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.postcode-row input {
+  max-width: 8ch;
+}
+
+.postcode-row output {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* X4: the link from a section to its edit screen, as a touch-sized target. */
+.section-action {
+  margin: 12px 0 0;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
 }
 
 .actions {
@@ -293,6 +330,15 @@ dd {
 .state-rejected {
   border: 1px solid var(--accent);
   background: var(--accent-soft);
+}
+
+/* "Saved", once, after an edit screen (X4). Green, never colour alone: icon + word. */
+.state-saved {
+  border: 1px solid var(--ok);
+}
+
+.state-saved .state-word {
+  color: var(--ok);
 }
 
 .state-value {

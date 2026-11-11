@@ -12,4 +12,8 @@ public static class LocalTime
         var local = TimeZoneInfo.ConvertTime(Database.FromText(utcText), Copenhagen);
         return local.ToString("g", CultureInfo.CurrentCulture);
     }
+
+    /// <summary>The date in Denmark at this moment, as Candidates stores dates (yyyy-MM-dd), for LastUpdated.</summary>
+    public static string DateText(DateTimeOffset utc) =>
+        TimeZoneInfo.ConvertTime(utc, Copenhagen).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 }

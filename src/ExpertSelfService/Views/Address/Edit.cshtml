@@ -1,0 +1,69 @@
+@model AddressPage
+@{
+    ViewData["Title"] = Text["address.title"];
+    var f = Model.Form;
+
+    // One labelled input. With an error, the input points at the message right below it (guide section 5).
+    async Task Field(string name, string id, string labelKey, string value, string type, string autocomplete, string? inputmode = null)
+    {
+        var error = Model.Error(name);
+        <div class="field">
+          <label for="@id">@Text[labelKey]</label>
+          @if (error is null)
+          {
+            <input id="@id" name="@name" type="@type" autocomplete="@autocomplete" inputmode="@inputmode" value="@value">
+          }
+          else
+          {
+            <input id="@id" name="@name" type="@type" autocomplete="@autocomplete" inputmode="@inputmode" value="@value"
+                   aria-invalid="true" aria-describedby="@(id)-error">
+            <p class="field-error" id="@(id)-error">@error</p>
+          }
+        </div>
+    }
+}
+<h1>@Text["address.title"]</h1>
+
+<form method="post" action="/profile/address" novalidate>
+  @Html.AntiForgeryToken()
+  @{ await Field("Street", "street", "profile.street", f.Street, "text", "address-line1"); }
+
+  @{ var postcodeError = Model.Error("Postcode"); }
+  <div class="field">
+    <label for="postcode">@Text["address.postcode"]</label>
+    <div class="postcode-row">
+      @if (postcodeError is null)
+      {
+        <input id="postcode" name="Postcode" type="text" inputmode="numeric" autocomplete="postal-code" value="@f.Postcode">
+      }
+      else
+      {
+        <input id="postcode" name="Postcode" type="text" inputmode="numeric" autocomplete="postal-code" value="@f.Postcode"
+               aria-invalid="true" aria-describedby="postcode-error">
+      }
+      @* The city is never typed: it comes from the postcode (SPEC X5). postcode.js fills it in as you type. *@
+      <output id="city" for="postcode" aria-live="polite" data-unknown="@Text["address.error.postcode_unknown"]">@Model.City</output>
+    </div>
+    @if (postcodeError is not null)
+    {
+      <p class="field-error" id="postcode-error">@postcodeError</p>
+    }
+  </div>
+
+  @{
+    await Field("PhoneMobile", "phone-mobile", "profile.phone_mobile", f.PhoneMobile, "tel", "mobile tel");
+    await Field("PhoneWork", "phone-work", "profile.phone_work", f.PhoneWork, "tel", "work tel");
+    await Field("PhoneHome", "phone-home", "profile.phone_home", f.PhoneHome, "tel", "home tel");
+  }
+
+  <div class="actions">
+    @* Save comes first, so pressing Enter saves. *@
+    <button type="submit" name="action" value="save">@Text["address.save"]</button>
+    <button type="submit" name="action" value="find" id="find-city" class="secondary">@Text["address.find_city"]</button>
+    <a href="/profile">@Text["address.back"]</a>
+  </div>
+</form>
+
+@section scripts {
+  <script src="/postcode.js" defer></script>
+}

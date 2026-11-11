@@ -34,6 +34,8 @@ public class ProfileController(ProfileService profiles, TextService text) : Cont
                 : text[statusKey],
             ExpertStatus.Icon(profile.Status),
             ExpertStatus.CssClass(profile.Status),
-            until is null ? null : string.Format(CultureInfo.CurrentCulture, text["profile.until"], until)));
+            until is null ? null : string.Format(CultureInfo.CurrentCulture, text["profile.until"], until),
+            // Set by an edit screen just before redirecting here. Reading it removes it, so "Saved" shows once.
+            TempData[AddressController.SavedSectionKey] as string));
     }
 }

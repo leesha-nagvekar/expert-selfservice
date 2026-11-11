@@ -72,6 +72,13 @@
       await Row("profile.phone_home", p.PhoneHome);
     }
   </dl>
+  @if (Model.SavedSection == "address")
+  {
+    <p class="state state-saved">
+      <span class="state-word">@await Html.PartialAsync("_Icon", "check") @Text["profile.saved"]</span>
+    </p>
+  }
+  <p class="section-action"><a class="button-link" href="/profile/address">@Text["profile.edit_address"]</a></p>
 </section>
 
 <section id="email" class="profile-section">
