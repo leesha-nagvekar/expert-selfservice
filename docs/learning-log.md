@@ -52,3 +52,14 @@ Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step:
 **Learned:**
 - Breaking the code on purpose proved the tests catch it.
 - The browser checks finds errors and issues sometimes tests can't.
+
+## 11 Nov 2026 – E3 address and phone (T4)
+
+**Asked:** Built E3 in one session. The expert can edit street, postcode and three phones; typing a 4-digit postcode fills in the city by itself (with "Find city" when JavaScript is off). Every change is saved at once, with LastUpdated and one change-log row per changed field, in one transaction. Reviewed the diff, did three break-it checks, and clicked through in both languages, at 360 px and in dark mode.
+
+**Went wrong:**
+- Removing Commit() turned most saving tests red, but one stayed green: it only checked the redirect after saving, not that the phone was really stored. I asked for the missing check.
+- The Danish texts didn't match ("Gade" vs "Vej", "Ret" vs "Rediger"). I made them consistent.
+
+**Learned:**
+- A passing test can still miss the point. Breaking the code on purpose found a weak test for the second time (after E1's purpose filter).
