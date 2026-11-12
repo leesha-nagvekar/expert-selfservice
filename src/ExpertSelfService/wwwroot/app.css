@@ -103,11 +103,17 @@ main {
   margin-bottom: 16px;
 }
 
-label {
+label,
+.field-label {
   display: block;
-  margin-bottom: 4px;
+  margin: 0 0 4px;
   color: var(--ink);
   font-weight: 600;
+}
+
+/* A field with a pending change (X7): the current value, not an input. */
+.locked-value {
+  margin: 0;
 }
 
 input[type="email"],
@@ -314,8 +320,10 @@ dd {
 
 /* "Pending approval" and "Rejected" next to a field (SPEC section 3). */
 .state {
-  margin: 8px 0 0;
-  padding: 8px 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 6px 0 0;
+  padding: 4px 10px;
   border-radius: 4px;
 }
 
@@ -324,7 +332,7 @@ dd {
 }
 
 .state-pending {
-  border: 2px solid var(--accent);
+  border: 1px solid var(--accent);
 }
 
 .state-rejected {

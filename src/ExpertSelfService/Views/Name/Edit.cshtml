@@ -1,0 +1,67 @@
+@model NamePage
+@{
+    ViewData["Title"] = Text["name.title"];
+
+    // One name field in one of three states (SPEC section 3): pending (locked, no input), rejected (reason above
+    // the input) or free. The comment after the block marks its end, so the tests can read one field's state.
+    async Task Field(string field, string id, string labelKey, string autocomplete)
+    {
+        var state = Model.State(field);
+        <div class="field" data-field="@id">
+          @if (Model.IsLocked(field))
+          {
+            var current = Model.Current.Value(field);
+            <p class="field-label">@Text[labelKey]</p>
+            <p class="locked-value">
+              @if (string.IsNullOrWhiteSpace(current))
+              {
+                <span class="not-given">@Text["profile.not_given"]</span>
+              }
+              else
+              {
+                @current
+              }
+            </p>
+            @await Html.PartialAsync("_SectionState", state!)
+          }
+          else
+          {
+            var error = Model.Error(field);
+            <label for="@id">@Text[labelKey]</label>
+            @if (state is not null)
+            {
+              @await Html.PartialAsync("_SectionState", state)
+            }
+            @if (error is null)
+            {
+              <input id="@id" name="@field" type="text" autocomplete="@autocomplete" value="@Model.Form.Value(field)">
+            }
+            else
+            {
+              <input id="@id" name="@field" type="text" autocomplete="@autocomplete" value="@Model.Form.Value(field)"
+                     aria-invalid="true" aria-describedby="@(id)-error">
+              <p class="field-error" id="@(id)-error">@error</p>
+            }
+          }
+        </div><!-- /field -->
+    }
+}
+<h1>@Text["name.title"]</h1>
+<p>@Text["name.intro"]</p>
+
+<form method="post" action="/profile/name" novalidate>
+  @Html.AntiForgeryToken()
+  @{
+    await Field("FirstName", "first-name", "profile.first_name", "given-name");
+    await Field("MiddleName", "middle-name", "profile.middle_name", "additional-name");
+    await Field("LastName", "last-name", "profile.last_name", "family-name");
+  }
+
+  <div class="actions">
+    @if (!Model.AllLocked)
+    {
+      <button type="submit">@Text["name.send"]</button>
+    }
+    <a href="/profile">@Text["address.back"]</a>
+  </div>
+</form>

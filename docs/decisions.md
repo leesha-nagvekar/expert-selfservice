@@ -2,6 +2,20 @@
 
 Short records of choices made in the project and why.
 
+## E5 name (12 Nov 2026)
+
+**The job title is not part of E5 (Leesha).** The guide's build order says "E5 name and title", but it predates the 2 Nov decision: the title (`Designation`) is saved at once and the name goes to approval, so SPEC X8 puts the title on the company screen (E6), and one screen never mixes the two. E5 is the name only.
+
+**One pending row per changed field, nothing else.** X7 writes only `ss_pending_changes` (SPEC section 6): `candidate_id` is the expert in the session, `old_value` the current Candidates value, `new_value` the trimmed value (an empty middle name is NULL). Candidates, LastUpdated and `ss_change_log` stay untouched until S2. The comparison is exact, so "anna" → "Anna" is a change (a correction); spaces around a value are not. Nothing changed means nothing written.
+
+**A pending field is refused by the server.** The screen shows a pending field without an input, but the server is what counts: `NameService.Send` reads the states again inside its write transaction, which takes the lock at the start, and skips a pending field whatever the form says. Its value isn't even checked. So a second tab or a hand-made post can never give one field two pending changes. Proved by `A_new_value_for_a_pending_field_is_ignored` and `A_pending_field_is_neither_checked_nor_written_while_the_others_are`.
+
+**The newest row decides, in one place.** The query behind "only the newest row per field counts" (E2) moved into `ProfileService.NewestStates`, used by both X4 and X7. An approved newest row makes the field editable again, even over an older pending or rejected one (Leesha asked for the test). Proved by `When_the_newest_row_is_approved_the_field_is_editable_again`.
+
+**No line breaks or control characters in a name (Leesha).** Not in SPEC X7, added because a hand-made post can contain them, and a name with a line break would break S1, S3 and the CSV export. `NameRules.HasControlCharacter` refuses C0/C1 controls (`char.IsControl`) and the Unicode line and paragraph separators. Names are not ASCII-only: Søren, Ørsted, Åse, José (also with a combining accent), O'Brien and Jean-Luc are accepted (Leesha asked for these tests). A NUL character never reaches the app: ASP.NET refuses the whole form first, so the expert gets the "Page not found" refusal and nothing is written.
+
+**The error page lost its status on an unreadable form (found in E5).** E4's `[FromRoute]` wasn't enough: for a parameter, MVC still reads the posted form, and a form ASP.NET can't read (a NUL character) left `code` at 0, so a 400 showed as 404. `Show()` now has no parameter and reads the code from `RouteData`, so no form is read at all. Still "Page not found" on screen either way, as every 4xx. Proved by `A_refused_post_with_an_unreadable_form_keeps_its_own_status`, and the E4 tests still pass.
+
 ## E4 change email (11 Nov 2026)
 
 **"In use" is said only after the code (Leesha).** SPEC X6 says the new email must not belong to another expert or a staff user. Saying so straight away would let any logged-in expert test addresses and find out who is registered, which X1 was built to hide. So X6 always answers "code sent" and sends the code to the new address; only after the right code does it say "This email address can't be used". Only someone who controls that inbox learns anything, and they could learn it through login anyway. The check runs again inside the confirm transaction, against every Candidates row (Retired too) and every staff user, so two people can never get the same email. Proved by `An_address_in_use_gets_the_same_answer_as_a_free_one`, `An_address_in_use_cant_be_used_after_the_code` and `An_address_taken_between_request_and_confirm_cant_be_used`.
@@ -12,7 +26,7 @@ Short records of choices made in the project and why.
 
 **One code service for login and email change.** The codes and the lock moved from `LoginService` into `Services/OneTimeCodes.cs`, with the purpose (`login` / `email_change`) as a parameter. The HMAC input is still `purpose:email:code`, so login codes hash exactly as before, and a change code can never log anyone in. `CodeInput` holds the X2 whitespace rule and the lock message for both code pages. All E1 tests passed unchanged after the move, before any E4 code was written. The change itself goes through `ExpertChanges` (Email old → new, LastUpdated), in the same transaction as `Candidates.Email`.
 
-**The error page read its code from the form (found in E4).** `ErrorController.Show(int code)` is reached by re-executing `/error/{code}` after a failure, and the failed POST's form is still there. A field named `Code` (X2 and X6b) won over the address, so a refused or crashed code form showed 404 and "Page not found" instead of 400 or 500. Now `[FromRoute] int code`. Proved by `A_refused_post_with_a_code_field_keeps_its_own_status` and `A_crash_on_a_post_with_a_code_field_still_shows_our_own_500`.
+**The error page read its code from the form (found in E4).** `ErrorController.Show(int code)` is reached by re-executing `/error/{code}` after a failure, and the failed POST's form is still there. A field named `Code` (X2 and X6b) won over the address, so a refused or crashed code form showed 404 and "Page not found" instead of 400 or 500. Now `[FromRoute] int code` *(replaced in E5 by reading `RouteData`, see above)*. Proved by `A_refused_post_with_a_code_field_keeps_its_own_status` and `A_crash_on_a_post_with_a_code_field_still_shows_our_own_500`.
 
 **Known gaps, accepted for the MVP:**
 - No notice to the old address after a change (Leesha). A real version should send one, so a hijacked account is noticed.

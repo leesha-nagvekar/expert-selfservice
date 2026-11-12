@@ -126,6 +126,18 @@ public class ErrorPageTests(AppFactory factory) : IClassFixture<AppFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    // Found in E5: ASP.NET refuses a form with a NUL character (%00) before any app code runs. The error page then
+    // tried to read the same form again for model binding, failed, and showed 404 instead of the 400.
+    [Fact]
+    public async Task A_refused_post_with_an_unreadable_form_keeps_its_own_status()
+    {
+        var response = await _client.PostAsync(
+            "/login", new StringContent("Email=anna%00@example.com", System.Text.Encoding.ASCII, "application/x-www-form-urlencoded"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        AssertOwnPage(await response.Content.ReadAsStringAsync(), "Siden findes ikke"); // every 4xx looks the same
+    }
+
     [Fact]
     public async Task A_crash_on_a_post_with_a_code_field_still_shows_our_own_500()
     {

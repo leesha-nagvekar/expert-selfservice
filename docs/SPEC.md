@@ -105,7 +105,10 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 | First name | FirstName | Required, max 50. |
 | Middle name | MiddleName | Optional, max 50. |
 | Last name | LastName | Required, max 50. |
-- Button: "Send name for approval". One pending change per changed field.
+- No line breaks or other control characters in any of the three. Letters from any language, accents, spaces, hyphens and apostrophes are fine. Error: "The name can't contain line breaks." *(Added 12 Nov 2026 with E5, see `docs/decisions.md`.)*
+- Button: "Send name for approval". One pending change per changed field. Spaces around a value don't count as a change; a change of case does.
+- A field with a pending change has no input; it shows the current value and "Pending approval". The server ignores a value posted for it. When all three are pending, the button is hidden.
+- The job title is not here: it is saved at once, so it sits on X8 (E6).
 
 **X8 Edit company and job title (E6)**
 | Field | Column | Rule |

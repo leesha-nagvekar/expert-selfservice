@@ -2,7 +2,7 @@
 
 Lets VBA's experts (skønsmænd) update their own details. Test data only: 100 fake experts, every email ends in @example.com. It runs on your own machine only.
 
-The app so far has the VBA top bar, the language switch, the error pages, login with a one-time code (story E1), the expert's own profile (story E2) editing address and phone (story E3), where postcode 8000 fills in Aarhus C by itself, and changing email with a code sent to the new address (story E4). Every change goes into the change log. Secretariat users land on a placeholder page after login.
+The app so far has the VBA top bar, the language switch, the error pages, login with a one-time code (story E1), the expert's own profile (story E2) editing address and phone (story E3), where postcode 8000 fills in Aarhus C by itself, changing email with a code sent to the new address (story E4), and changing name, which goes to the secretariat and shows "Pending approval" (story E5). Every change saved at once goes into the change log. Secretariat users land on a placeholder page after login.
 
 ## Install
 

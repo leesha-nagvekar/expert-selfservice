@@ -1,5 +1,6 @@
 using System.Globalization;
 using Dapper;
+using Microsoft.Data.Sqlite;
 
 namespace ExpertSelfService.Services;
 
@@ -77,19 +78,7 @@ public sealed class ProfileService(Database database)
             new { expertId },
             transaction);
 
-        // Only the newest row per field counts: a rejection shows until a new change to that field,
-        // and an approved change shows nothing (SPEC section 3).
-        var states = db.Query<PendingState>(
-            """
-            SELECT p.field AS Field, p.new_value AS NewValue, p.status AS Status, p.reason AS Reason
-            FROM ss_pending_changes p
-            WHERE p.candidate_id = @expertId
-              AND p.status IN ('pending', 'rejected')
-              AND p.id = (SELECT MAX(newest.id) FROM ss_pending_changes newest
-                          WHERE newest.candidate_id = @expertId AND newest.field = p.field)
-            """,
-            new { expertId },
-            transaction);
+        var states = NewestStates(db, transaction, expertId);
 
         transaction.Commit();
 
@@ -99,8 +88,25 @@ public sealed class ProfileService(Database database)
             row.RegistrationId, row.Created, row.Status, row.UntilDate,
             SortedForLanguage(skills),
             SortedForLanguage(roles),
-            states.ToDictionary(state => state.Field));
+            states);
     }
+
+    /// <summary>
+    /// The state of each field that is pending or rejected. Only the newest row per field counts: a rejection shows
+    /// until a new change to that field, and an approved change shows nothing (SPEC section 3). X4 and X7 both use it.
+    /// </summary>
+    public static Dictionary<string, PendingState> NewestStates(SqliteConnection db, SqliteTransaction transaction, long expertId) =>
+        db.Query<PendingState>(
+            """
+            SELECT p.field AS Field, p.new_value AS NewValue, p.status AS Status, p.reason AS Reason
+            FROM ss_pending_changes p
+            WHERE p.candidate_id = @expertId
+              AND p.status IN ('pending', 'rejected')
+              AND p.id = (SELECT MAX(newest.id) FROM ss_pending_changes newest
+                          WHERE newest.candidate_id = @expertId AND newest.field = p.field)
+            """,
+            new { expertId },
+            transaction).ToDictionary(state => state.Field);
 
     // Sorted in C#, not SQL: SQLite sorts by bytes, which puts Å before Æ. The language's own order is used.
     private static List<string> SortedForLanguage(IEnumerable<string> names) =>
