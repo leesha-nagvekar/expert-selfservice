@@ -63,3 +63,12 @@ Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step:
 
 **Learned:**
 - A passing test can still miss the point. Breaking the code on purpose found a weak test for the second time (after E1's purpose filter).
+
+## 12 Nov – E4 Change email
+
+- **Asked:** Claude to build E4: a code sent to the new address only, the old email working until the code is confirmed, and the "already in use" check only after the right code. Then break-it checks and a manual click-through.
+
+- **Went wrong:** Break-it checks caught issues, (test The_right_code_clears_the_count passed) and the tests were fixed. 
+
+- **Learned:** a passing test isn't proof, so break the code to see if the test notices. 
+  
