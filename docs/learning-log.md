@@ -76,8 +76,15 @@ Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step:
 
 - **Asked:** Claude to build E5: a name change goes to the secretariat for approval, one pending row per changed field Candidates untouched until S2, and a pending field can't be changed again (the server refuses it too). The job title moved to E6, as SPEC says.
 
-- **Went wrong:** Claude's file tool wrote invisible Unicode line breaks into the test file, and VS Code warned me. They're now written as escapes (\u2028). The error page showed 404 instead of 400 for a form with a NUL character: the E4
-  fix ([FromRoute]) wasn't enough, so the page now reads the status only from the address. In the click-through, the
-  "Pending approval" box looked too big, so I made it smaller.
+- **Went wrong:** Claude's file tool wrote invisible Unicode line breaks into the test file, and VS Code warned me. They're now written as escapes (\u2028). The error page showed 404 instead of 400 for a form with a NUL character: the E4 fix ([FromRoute]) wasn't enough, so the page now reads the status only from the address. In the click-through, the
+"Pending approval" box looked too big, so I made it smaller.
 
 - **Learned:** a fix for one case can miss a related case, so a test for each case is what finds it. 
+
+## 12 Nov – E6 Company and job title
+
+- **Asked:** Claude to build E6: company, CVR and job title, saved at once, with roles shown as "Set by VBA". check_data py flagged a shared CVR as an error, so I decided that experts from the same company may share one CVR (CVR is the
+company's number, not the expert's; RegistrationId is the expert's own VBA number).
+- 
+**Went wrong:** 00000000 passed the modulus-11 check (the sum is 0), so I added "can't start with 0". Python's \d also accepts non-ASCII digits, so the rule is now [1-9][0-9]{7}. Claude's own test data had an invalid CVR (23456781); the code correctly refused it, and the test was fixed. 
+
