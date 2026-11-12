@@ -14,9 +14,28 @@ def test_valid_cvr(cvr):
     assert cvr_is_valid(cvr)
 
 
-@pytest.mark.parametrize("cvr", ["97663441", "1234567", "123456789", "abcdefgh", "", None])
+@pytest.mark.parametrize(
+    "cvr",
+    [
+        "97663441",
+        "1234567",
+        "123456789",
+        "abcdefgh",
+        "",
+        None,
+        # A CVR never starts with 0, even when the weighted sum is divisible by 11.
+        "00000000",
+        "00000019",
+    ],
+)
 def test_invalid_cvr(cvr):
     assert not cvr_is_valid(cvr)
+
+
+def test_digits_from_another_script_are_not_cvr_digits():
+    # 97663440 in Arabic-Indic digits: Python's \d and int() accept them, the rule doesn't.
+    arabic_indic = "".join(chr(0x0660 + int(d)) for d in "97663440")
+    assert not cvr_is_valid(arabic_indic)
 
 
 def test_catches_email_outside_example_com(db):
@@ -199,11 +218,12 @@ def test_catches_no_second_language(db):
     assert has_problem(db, "No expert has two languages")
 
 
-def test_catches_duplicate_cvr(db):
+def test_allows_a_shared_cvr(db):
+    # Two experts at one company share its CVR, which E6 allows (decisions.md, E6).
     # Anna (Id 1) and Carl (Id 3) both have a CVR number.
     (cvr,) = db.execute("SELECT cvr FROM ss_expert_company WHERE candidate_id = 1").fetchone()
     db.execute("UPDATE ss_expert_company SET cvr = ? WHERE candidate_id = 3", (cvr,))
-    assert has_problem(db, f"CVR {cvr} is used 2 times")
+    assert not has_problem(db, "CVR")
 
 
 def test_catches_duplicate_fags_id(db):

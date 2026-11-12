@@ -68,16 +68,7 @@ public sealed class ProfileService(Database database)
             "SELECT Skill FROM CandidateSkills WHERE CandidateId = @expertId AND Skill IS NOT NULL AND Skill <> ''",
             new { expertId },
             transaction);
-        var roles = db.Query<string>(
-            """
-            SELECT pt.Tag
-            FROM CandidateTags ct
-            JOIN ProfessionTags pt ON pt.Id = ct.TagId
-            WHERE ct.CandidateId = @expertId
-            """,
-            new { expertId },
-            transaction);
-
+        var roles = Roles(db, transaction, expertId);
         var states = NewestStates(db, transaction, expertId);
 
         transaction.Commit();
@@ -87,9 +78,21 @@ public sealed class ProfileService(Database database)
             row.PhoneMobile, row.PhoneWork, row.PhoneHome, row.Email, row.Company, row.Cvr, row.Designation,
             row.RegistrationId, row.Created, row.Status, row.UntilDate,
             SortedForLanguage(skills),
-            SortedForLanguage(roles),
+            roles,
             states);
     }
+
+    /// <summary>The expert's roles (ProfessionTags), sorted for the language. Read-only: set by VBA. X4 and X8 both use it.</summary>
+    public static List<string> Roles(SqliteConnection db, SqliteTransaction? transaction, long expertId) =>
+        SortedForLanguage(db.Query<string>(
+            """
+            SELECT pt.Tag
+            FROM CandidateTags ct
+            JOIN ProfessionTags pt ON pt.Id = ct.TagId
+            WHERE ct.CandidateId = @expertId
+            """,
+            new { expertId },
+            transaction));
 
     /// <summary>
     /// The state of each field that is pending or rejected. Only the newest row per field counts: a rejection shows

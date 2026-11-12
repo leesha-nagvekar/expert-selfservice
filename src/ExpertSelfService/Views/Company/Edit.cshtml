@@ -1,0 +1,64 @@
+@model CompanyPage
+@{
+    ViewData["Title"] = Text["company.title"];
+    var f = Model.Form;
+
+    // One labelled input. With an error, the input points at the message right below it (guide section 5).
+    async Task Field(string name, string id, string labelKey, string value, string autocomplete, string? inputmode = null)
+    {
+        var error = Model.Error(name);
+        <div class="field">
+          <label for="@id">@Text[labelKey]</label>
+          @if (error is null)
+          {
+            <input id="@id" name="@name" type="text" autocomplete="@autocomplete" inputmode="@inputmode" value="@value">
+          }
+          else
+          {
+            <input id="@id" name="@name" type="text" autocomplete="@autocomplete" inputmode="@inputmode" value="@value"
+                   aria-invalid="true" aria-describedby="@(id)-error">
+            <p class="field-error" id="@(id)-error">@error</p>
+          }
+        </div>
+    }
+}
+<h1>@Text["company.title"]</h1>
+
+<form method="post" action="/profile/company" novalidate>
+  @Html.AntiForgeryToken()
+  @{
+    await Field("Company", "company", "profile.company", f.Company, "organization");
+    await Field("Cvr", "cvr", "profile.cvr", f.Cvr, "off", "numeric");
+    await Field("Designation", "designation", "profile.designation", f.Designation, "organization-title");
+  }
+
+  <div class="actions">
+    <button type="submit">@Text["company.save"]</button>
+    <a href="/profile">@Text["address.back"]</a>
+  </div>
+</form>
+
+@* Roles are appointed by VBA: shown, never an input (SPEC X8). *@
+<section id="roles" class="profile-section readonly">
+  <h2>@Text["profile.section.vba"]</h2>
+  <dl>
+    <div class="row">
+      <dt>@Text["profile.roles"]</dt>
+      <dd>
+        @if (Model.Roles.Count == 0)
+        {
+          <span class="not-given">@Text["profile.not_given"]</span>
+        }
+        else
+        {
+          <ul class="plain-list">
+            @foreach (var role in Model.Roles)
+            {
+              <li>@role</li>
+            }
+          </ul>
+        }
+      </dd>
+    </div>
+  </dl>
+</section>

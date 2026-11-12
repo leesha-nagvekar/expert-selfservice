@@ -33,6 +33,7 @@ builder.Services.AddSingleton<ExpertChanges>();
 builder.Services.AddSingleton<AddressService>();
 builder.Services.AddSingleton<EmailChangeService>();
 builder.Services.AddSingleton<NameService>();
+builder.Services.AddSingleton<CompanyService>();
 
 // Login cookie. ASP.NET encrypts it with Data Protection keys kept in the Windows user profile,
 // outside the repo. It holds only expert_id or staff_id (SPEC section 2).

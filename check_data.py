@@ -223,10 +223,7 @@ def _check_company(conn):
     for candidate_id, cvr in rows:
         if not cvr_is_valid(cvr):
             problems.append(f"Expert {candidate_id} has an invalid CVR {cvr}")
-    counts = Counter(cvr for _, cvr in rows)
-    for cvr, count in sorted(counts.items()):
-        if count > 1:
-            problems.append(f"CVR {cvr} is used {count} times")
+    # No check for a shared CVR: colleagues at one company share it (decisions.md, E6).
     return problems
 
 

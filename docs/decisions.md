@@ -2,6 +2,20 @@
 
 Short records of choices made in the project and why.
 
+## E6 company and job title (12 Nov 2026)
+
+**A shared CVR is allowed (Leesha).** Two experts from the same company share its CVR, and SPEC X8 never said a CVR must be unique. So X8 accepts a CVR another expert already has, and `check_data.py` no longer reports "CVR … is used N times": data saved through the app could otherwise fail the check. The seed still draws a new CVR for each company, so the fake data is unchanged; `test_seed_gives_every_company_its_own_cvr` keeps it that way. Proved by `An_expert_without_a_cvr_gets_one_and_may_share_it_with_a_colleague` and `test_allows_a_shared_cvr`.
+
+**Spaces in a CVR are removed (Leesha).** CVR numbers are often written "12 34 56 74". All whitespace is removed before the check, the same rule as the code on X2, and the 8 digits are stored. Proved by `Spaces_in_a_cvr_are_removed`.
+
+**A CVR never starts with 0 (Leesha).** Real CVR numbers run from 10000000 to 99999999. SPEC X8's modulus-11 rule alone accepts some numbers starting with 0: 00000000 (the sum is 0) and 00000019 (1×2 + 9×1 = 11). The first digit must now be 1-9, in `CompanyRules.IsValidCvr`, `rules.cvr_is_valid` and SPEC X8. Such a number gets "This is not a valid CVR number". The seed already drew the first digit from 1-9, so no seeded CVR changed; `test_seed_cvrs_never_start_with_0` keeps it that way.
+
+**Only ASCII digits 0-9.** `rules.cvr_is_valid` used `\d`, which in Python also matches digits from other scripts (Arabic-Indic ٣ and so on), and `int()` reads them. It now uses `[1-9][0-9]{7}`, and C# uses `char.IsAsciiDigit`, the same kind of fix as the ASCII-only email rule. Proved by `Digits_from_another_script_are_not_digits_here` and `test_digits_from_another_script_are_not_cvr_digits`.
+
+**No line breaks in company or job title.** The same rule as the name (E5): a hand-made post could contain them, and they would break S1, S3 and the CSV export. The check and `Clean` moved from `NameRules` to `TextRules`, used by both screens. E3's Street doesn't have this check yet: a follow-up, not part of E6.
+
+**A cleared CVR deletes its row.** `ss_expert_company` holds only the CVR, so a row exists only when there is one, as the seed makes them. Setting a CVR is an upsert (`ON CONFLICT (candidate_id) DO UPDATE`). The change log uses the field names `Company`, `Cvr` and `Designation`, one row per changed field, through `ExpertChanges`. Roles are shown on X8 from `ProfileService.Roles`, the same query as X4, and never read from the form.
+
 ## E5 name (12 Nov 2026)
 
 **The job title is not part of E5 (Leesha).** The guide's build order says "E5 name and title", but it predates the 2 Nov decision: the title (`Designation`) is saved at once and the name goes to approval, so SPEC X8 puts the title on the company screen (E6), and one screen never mixes the two. E5 is the name only.
@@ -12,7 +26,7 @@ Short records of choices made in the project and why.
 
 **The newest row decides, in one place.** The query behind "only the newest row per field counts" (E2) moved into `ProfileService.NewestStates`, used by both X4 and X7. An approved newest row makes the field editable again, even over an older pending or rejected one (Leesha asked for the test). Proved by `When_the_newest_row_is_approved_the_field_is_editable_again`.
 
-**No line breaks or control characters in a name (Leesha).** Not in SPEC X7, added because a hand-made post can contain them, and a name with a line break would break S1, S3 and the CSV export. `NameRules.HasControlCharacter` refuses C0/C1 controls (`char.IsControl`) and the Unicode line and paragraph separators. Names are not ASCII-only: Søren, Ørsted, Åse, José (also with a combining accent), O'Brien and Jean-Luc are accepted (Leesha asked for these tests). A NUL character never reaches the app: ASP.NET refuses the whole form first, so the expert gets the "Page not found" refusal and nothing is written.
+**No line breaks or control characters in a name (Leesha).** Not in SPEC X7, added because a hand-made post can contain them, and a name with a line break would break S1, S3 and the CSV export. `NameRules.HasControlCharacter` *(moved to `TextRules` in E6)* refuses C0/C1 controls (`char.IsControl`) and the Unicode line and paragraph separators. Names are not ASCII-only: Søren, Ørsted, Åse, José (also with a combining accent), O'Brien and Jean-Luc are accepted (Leesha asked for these tests). A NUL character never reaches the app: ASP.NET refuses the whole form first, so the expert gets the "Page not found" refusal and nothing is written.
 
 **The error page lost its status on an unreadable form (found in E5).** E4's `[FromRoute]` wasn't enough: for a parameter, MVC still reads the posted form, and a form ASP.NET can't read (a NUL character) left `code` at 0, so a 400 showed as 404. `Show()` now has no parameter and reads the code from `RouteData`, so no form is read at all. Still "Page not found" on screen either way, as every 4xx. Proved by `A_refused_post_with_an_unreadable_form_keeps_its_own_status`, and the E4 tests still pass.
 

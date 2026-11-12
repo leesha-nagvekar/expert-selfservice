@@ -114,8 +114,10 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 | Field | Column | Rule |
 |---|---|---|
 | Company name | Company | Optional, max 250. |
-| CVR number | ss_expert_company.cvr | Optional. If filled in: exactly 8 digits, and the sum of the digits times 2-7-6-5-4-3-2-1 must be divisible by 11. Error: "CVR number must be 8 digits" / "This is not a valid CVR number". |
+| CVR number | ss_expert_company.cvr | Optional. Spaces are removed first ("12 34 56 74" is saved as 12345674). If filled in: exactly 8 digits (ASCII 0-9), the first not 0, and the sum of the digits times 2-7-6-5-4-3-2-1 must be divisible by 11. Error: "CVR number must be 8 digits" / "This is not a valid CVR number". Two experts may have the same CVR (colleagues at one company). |
 | Job title | Designation | Optional, max 250. |
+- No line breaks or other control characters in Company or Job title, the same rule as X7. *(Spaces, the first digit, ASCII digits, shared CVRs and line breaks added 12 Nov 2026 with E6, see `docs/decisions.md`.)*
+- A cleared CVR removes the expert's ss_expert_company row.
 - Roles are shown read-only here, marked "Set by VBA".
 - Button: "Save company and job title". Saved at once.
 - The job title sits here, not with the name, because it is saved at once and the name goes to approval. One screen never mixes the two.

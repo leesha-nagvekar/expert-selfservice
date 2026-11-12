@@ -51,6 +51,20 @@ def test_no_phone_count_matches_rule(db):
     assert count == NO_PHONE_EXPERTS
 
 
+def test_seed_gives_every_company_its_own_cvr(db):
+    # The app may share a CVR between colleagues (E6), so check_data allows it.
+    # The seed still draws a new one each time, so the fake data stays as it was.
+    shared = db.execute(
+        "SELECT cvr FROM ss_expert_company GROUP BY cvr HAVING COUNT(*) > 1"
+    ).fetchall()
+    assert shared == []
+
+
+def test_seed_cvrs_never_start_with_0(db):
+    starts = db.execute("SELECT DISTINCT substr(cvr, 1, 1) FROM ss_expert_company").fetchall()
+    assert ("0",) not in starts
+
+
 def test_standby_ends_after_demo(db):
     (earliest,) = db.execute(
         "SELECT MIN(UntilDate) FROM Candidates WHERE Status = ?", (STANDBY,)

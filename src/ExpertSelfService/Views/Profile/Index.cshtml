@@ -106,6 +106,8 @@
       await Row("profile.designation", p.Designation);
     }
   </dl>
+  @{ await Saved("company"); }
+  <p class="section-action"><a class="button-link" href="/profile/company">@Text["profile.edit_company"]</a></p>
 </section>
 
 <section id="skills" class="profile-section">

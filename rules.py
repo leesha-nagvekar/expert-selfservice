@@ -74,7 +74,11 @@ def is_valid_email(email: str | None) -> bool:
 
 
 def cvr_is_valid(cvr: str | None) -> bool:
-    """8 digits, and the weighted digit sum is divisible by 11."""
-    if not re.fullmatch(r"\d{8}", cvr or ""):
+    """8 digits, the first not 0, and the weighted digit sum is divisible by 11.
+
+    Only ASCII 0-9: Python's \\d would also take digits from other scripts.
+    A real CVR never starts with 0, and 00000000 would otherwise pass the sum.
+    """
+    if not re.fullmatch(r"[1-9][0-9]{7}", cvr or ""):
         return False
     return sum(int(d) * w for d, w in zip(cvr, CVR_WEIGHTS, strict=True)) % 11 == 0

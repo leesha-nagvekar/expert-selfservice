@@ -59,7 +59,7 @@ public sealed class NameService(Database database, TimeProvider clock)
                     errors[field] = "name.error.last_required";
                 }
             }
-            else if (NameRules.HasControlCharacter(value))
+            else if (TextRules.HasControlCharacter(value))
             {
                 errors[field] = "name.error.control";
             }
@@ -107,8 +107,8 @@ public sealed class NameService(Database database, TimeProvider clock)
             }
 
             // Exact comparison: "anna" -> "Anna" is a correction, so a change. Spaces around don't count.
-            var oldValue = NameRules.Clean(currentValues[field]);
-            var newValue = NameRules.Clean(form.Value(field));
+            var oldValue = TextRules.Clean(currentValues[field]);
+            var newValue = TextRules.Clean(form.Value(field));
             if (string.Equals(oldValue, newValue, StringComparison.Ordinal))
             {
                 continue;
