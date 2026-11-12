@@ -2,6 +2,23 @@
 
 Short records of choices made in the project and why.
 
+## E4 change email (11 Nov 2026)
+
+**"In use" is said only after the code (Leesha).** SPEC X6 says the new email must not belong to another expert or a staff user. Saying so straight away would let any logged-in expert test addresses and find out who is registered, which X1 was built to hide. So X6 always answers "code sent" and sends the code to the new address; only after the right code does it say "This email address can't be used". Only someone who controls that inbox learns anything, and they could learn it through login anyway. The check runs again inside the confirm transaction, against every Candidates row (Retired too) and every staff user, so two people can never get the same email. Proved by `An_address_in_use_gets_the_same_answer_as_a_free_one`, `An_address_in_use_cant_be_used_after_the_code` and `An_address_taken_between_request_and_confirm_cant_be_used`.
+
+**Wrong change codes count against the new email (Leesha).** 5 wrong codes lock that address for 15 minutes, in `ss_login_lockouts` like login; a right code clears the count. The expert's own login email is never locked by a mistyped change code. Proved by `Five_wrong_codes_lock_the_new_email_but_not_the_experts_own_login`.
+
+**Always @example.com (Leesha).** The app only ever runs on test data (ground rule 6), so X6 refuses any other domain. A real version would drop this rule. The limit 50 and the domain are the C# copy of `rules.MAX_LENGTHS["Email"]` and `rules.EMAIL_DOMAIN`, and the tests read `rules.py`.
+
+**One code service for login and email change.** The codes and the lock moved from `LoginService` into `Services/OneTimeCodes.cs`, with the purpose (`login` / `email_change`) as a parameter. The HMAC input is still `purpose:email:code`, so login codes hash exactly as before, and a change code can never log anyone in. `CodeInput` holds the X2 whitespace rule and the lock message for both code pages. All E1 tests passed unchanged after the move, before any E4 code was written. The change itself goes through `ExpertChanges` (Email old → new, LastUpdated), in the same transaction as `Candidates.Email`.
+
+**The error page read its code from the form (found in E4).** `ErrorController.Show(int code)` is reached by re-executing `/error/{code}` after a failure, and the failed POST's form is still there. A field named `Code` (X2 and X6b) won over the address, so a refused or crashed code form showed 404 and "Page not found" instead of 400 or 500. Now `[FromRoute] int code`. Proved by `A_refused_post_with_a_code_field_keeps_its_own_status` and `A_crash_on_a_post_with_a_code_field_still_shows_our_own_500`.
+
+**Known gaps, accepted for the MVP:**
+- No notice to the old address after a change (Leesha). A real version should send one, so a hijacked account is noticed.
+- Asking for a change sends a code to any @example.com address the expert types, the same "anyone can send codes" as E1.
+- Wrong change codes for an address that is someone's login can lock that person's login for 15 minutes, the same as E1's accepted "anyone can lock anyone out".
+
 ## E3 address and phone (11 Nov 2026)
 
 **Every change goes through `ExpertChanges` (Leesha).** SPEC section 3: saved at once means Candidates is updated, `LastUpdated` is set to today and one `ss_change_log` row per changed field is written, in the same transaction. E3 is the first story that writes expert data, so the rule lives in one helper, `Services/ExpertChanges.cs`, and E4, E6, E8 and S2 (approve) call it too. It runs in the caller's transaction, so a failed log row also undoes the change. Nothing changed means nothing is written and LastUpdated stays, and there is no "Saved" on the profile. LastUpdated is the date in Denmark, `yyyy-MM-dd`, the format the seed uses. Sending a change for approval (E5, E7) doesn't touch Candidates; LastUpdated and the log row come when it is approved. Proved by `The_change_log_gets_one_row_per_changed_field`, `Changing_only_one_phone_writes_one_row_and_sets_last_updated`, `Saving_with_nothing_changed_writes_nothing_and_says_nothing` and `If_the_change_log_fails_nothing_is_saved`.

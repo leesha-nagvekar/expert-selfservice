@@ -10,9 +10,6 @@ namespace ExpertSelfService.Controllers;
 [Authorize(Policy = SessionClaims.ExpertPolicy)]
 public class AddressController(AddressService addresses, TextService text) : Controller
 {
-    /// <summary>TempData key: the profile section that shows "Saved" once.</summary>
-    public const string SavedSectionKey = "saved_section";
-
     private const string EditView = "Edit";
 
     // No id in the route, the query or the form: the expert is always the one in the session (SPEC section 2).
@@ -61,7 +58,7 @@ public class AddressController(AddressService addresses, TextService text) : Con
             case SaveResult.ExpertNotFound:
                 return NotFound();
             case SaveResult.Saved:
-                TempData[SavedSectionKey] = "address";
+                TempData[ProfilePage.SavedSectionKey] = "address";
                 break;
         }
 

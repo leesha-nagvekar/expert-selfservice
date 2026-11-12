@@ -93,9 +93,10 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - Button: "Save address and phone". Saved at once.
 
 **X6 Change email (E4)**
-- Field: new email. Max 50 characters, a valid email format, not used by another expert or a staff user. In test data it must end in @example.com.
-- "Send code to new email" sends a 6-digit code to the **new** address (dev mailbox). Same rules as login: 10 minutes, 5 tries, 15-minute lock.
-- The old email keeps working for login until the code is confirmed. Then Email is updated and a change-log row is written.
+- Field: new email. Max 50 characters, a valid email format (ASCII, as `rules.py`), ends in @example.com (always: the app only runs on test data), not the expert's current email. Errors next to the field: "Enter your new email address", "The email address can be at most 50 characters", "Enter a valid email address", "Use an address ending in @example.com", "This is already your email address".
+- "Send code to new email" sends a 6-digit code to the **new** address (dev mailbox). Same rules as login: 10 minutes, 5 tries, 15-minute lock. The wrong tries count against the new email, so the expert's own login is never locked by a mistyped change code.
+- Not used by another expert (any status) or a staff user: checked only **after** the right code, and again inside the confirm transaction. Before that, an address in use gets the same "code sent" answer as a free one, so a logged-in expert can't find out who is registered. Error after the code: "This email address can't be used. Choose another." *(Settled 11 Nov 2026 with E4, see `docs/decisions.md`.)*
+- The old email keeps working for login until the code is confirmed. Then Email is updated, LastUpdated is set and a change-log row is written, in one transaction.
 - A new request cancels an older unconfirmed one.
 
 **X7 Edit name (E5)**

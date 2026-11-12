@@ -2,7 +2,7 @@
 
 Lets VBA's experts (skønsmænd) update their own details. Test data only: 100 fake experts, every email ends in @example.com. It runs on your own machine only.
 
-The app so far has the VBA top bar, the language switch, the error pages, login with a one-time code (story E1), the expert's own profile (story E2) and editing address and phone (story E3), where postcode 8000 fills in Aarhus C by itself and every change goes into the change log. Secretariat users land on a placeholder page after login.
+The app so far has the VBA top bar, the language switch, the error pages, login with a one-time code (story E1), the expert's own profile (story E2) editing address and phone (story E3), where postcode 8000 fills in Aarhus C by itself, and changing email with a code sent to the new address (story E4). Every change goes into the change log. Secretariat users land on a placeholder page after login.
 
 ## Install
 
@@ -48,7 +48,7 @@ With the virtual environment activated:
 python seed.py --reset
 ```
 
-This builds `data/expert_register.db` again with the same 100 fake experts every time, then checks the data. Run it before every demo. Close the app first: on Windows an open database can't be replaced, and the reset will tell you so. If a reset fails, or the new data fails the checks, the old database stays as it was. Without `--reset`, the script refuses to overwrite an existing database.
+This builds `data/expert_register.db` again with the same 100 fake experts every time, then checks the data. Run it before every demo. Close the app first, and disconnect any SQLite tool that has the database open, such as SQLTools in VS Code: on Windows an open database can't be replaced, and the reset will tell you so. If a reset fails, or the new data fails the checks, the old database stays as it was. Without `--reset`, the script refuses to overwrite an existing database.
 
 Demo logins:
 

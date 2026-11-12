@@ -41,7 +41,7 @@ public class LoginController(LoginService login, TextService text, IWebHostEnvir
 
         if (login.RequestCode(normalized) is TimeSpan lockedFor)
         {
-            return View(EmailView, new EmailPage(email, LockedText(lockedFor)));
+            return View(EmailView, new EmailPage(email, CodeInput.LockedText(text, lockedFor)));
         }
 
         // The same answer whether or not the email is registered (SPEC X1).
@@ -68,18 +68,16 @@ public class LoginController(LoginService login, TextService text, IWebHostEnvir
             return Redirect("/");
         }
 
-        // All whitespace goes, so "123 456" and pasted mail text with a non-breaking space work.
-        // Then ASCII digits only: .NET's \d and char.IsDigit also accept digits from other scripts.
-        code = string.Concat((code ?? "").Where(character => !char.IsWhiteSpace(character)));
-        if (code.Length != 6 || !code.All(char.IsAsciiDigit))
+        // Whitespace removed, then 6 ASCII digits (CodeInput).
+        if (CodeInput.Clean(code) is not string cleaned)
         {
             return View("Code", CodePage(text["login.code_format"]));
         }
 
-        var result = login.CheckCode(email, code);
+        var result = login.CheckCode(email, cleaned);
         if (result.LockedFor is TimeSpan lockedFor)
         {
-            return View("Code", CodePage(LockedText(lockedFor)));
+            return View("Code", CodePage(CodeInput.LockedText(text, lockedFor)));
         }
 
         if (result.Person is not Person person)
@@ -99,13 +97,5 @@ public class LoginController(LoginService login, TextService text, IWebHostEnvir
     {
         await HttpContext.SignOutAsync();
         return Redirect("/");
-    }
-
-    private string LockedText(TimeSpan lockedFor)
-    {
-        var minutes = (int)Math.Ceiling(lockedFor.TotalMinutes);
-        return minutes == 1
-            ? text["login.locked_one"]
-            : string.Format(CultureInfo.CurrentCulture, text["login.locked"], minutes);
     }
 }

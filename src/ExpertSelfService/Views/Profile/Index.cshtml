@@ -30,6 +30,17 @@
         </div>
     }
 
+    // "Saved", once, in the section an edit screen just saved (SPEC X4). Icon + colour + word.
+    async Task Saved(string section)
+    {
+        if (Model.SavedSection == section)
+        {
+            <p class="state state-saved">
+              <span class="state-word">@await Html.PartialAsync("_Icon", "check") @Text["profile.saved"]</span>
+            </p>
+        }
+    }
+
     async Task List(IReadOnlyList<string> items)
     {
         if (items.Count == 0)
@@ -72,12 +83,7 @@
       await Row("profile.phone_home", p.PhoneHome);
     }
   </dl>
-  @if (Model.SavedSection == "address")
-  {
-    <p class="state state-saved">
-      <span class="state-word">@await Html.PartialAsync("_Icon", "check") @Text["profile.saved"]</span>
-    </p>
-  }
+  @{ await Saved("address"); }
   <p class="section-action"><a class="button-link" href="/profile/address">@Text["profile.edit_address"]</a></p>
 </section>
 
@@ -86,6 +92,8 @@
   <dl>
     @{ await Row("profile.email", p.Email); }
   </dl>
+  @{ await Saved("email"); }
+  <p class="section-action"><a class="button-link" href="/profile/email">@Text["profile.edit_email"]</a></p>
 </section>
 
 <section id="company" class="profile-section">

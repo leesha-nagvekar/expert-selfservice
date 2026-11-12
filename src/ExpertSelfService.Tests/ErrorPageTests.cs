@@ -114,4 +114,25 @@ public class ErrorPageTests(AppFactory factory) : IClassFixture<AppFactory>
         AssertOwnPage(html, "Der skete en fejl");
         Assert.DoesNotContain(ThrowingController.Secret, html);
     }
+
+    // Found in E4: the error page took its status from a form field named "Code" (X2, X6b) instead of the
+    // address /error/{code}, so a refused or crashed code form showed 404 and "Page not found".
+    [Fact]
+    public async Task A_refused_post_with_a_code_field_keeps_its_own_status()
+    {
+        var response = await _client.PostAsync(
+            "/login/code", new FormUrlEncodedContent([KeyValuePair.Create("Code", "123456")])); // no antiforgery token
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task A_crash_on_a_post_with_a_code_field_still_shows_our_own_500()
+    {
+        var response = await ClientWithThrowingPage("Production").PostAsync(
+            "/test/boom", new FormUrlEncodedContent([KeyValuePair.Create("Code", "123456")]));
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        AssertOwnPage(await response.Content.ReadAsStringAsync(), "Der skete en fejl");
+    }
 }

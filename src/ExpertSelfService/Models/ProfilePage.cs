@@ -15,5 +15,8 @@ public sealed record ProfilePage(
     string? StatusUntil,
     string? SavedSection = null)
 {
+    /// <summary>TempData key: the section an edit screen just saved ("address", "email"). Shown once as "Saved".</summary>
+    public const string SavedSectionKey = "saved_section";
+
     public PendingState? State(string field) => Profile.States.GetValueOrDefault(field);
 }

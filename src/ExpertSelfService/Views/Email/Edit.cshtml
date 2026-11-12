@@ -1,0 +1,31 @@
+@model EmailChangePage
+@{
+    ViewData["Title"] = Text["email.title"];
+}
+<h1>@Text["email.title"]</h1>
+
+<dl>
+  <dt>@Text["email.current"]</dt>
+  <dd>@Model.CurrentEmail</dd>
+</dl>
+
+<form method="post" action="/profile/email" novalidate>
+  @Html.AntiForgeryToken()
+  <div class="field">
+    <label for="new-email">@Text["email.new"]</label>
+    @if (Model.Error is null)
+    {
+      <input id="new-email" name="NewEmail" type="email" autocomplete="email" value="@(Model.NewEmail ?? "")">
+    }
+    else
+    {
+      <input id="new-email" name="NewEmail" type="email" autocomplete="email" value="@(Model.NewEmail ?? "")"
+             aria-invalid="true" aria-describedby="new-email-error">
+      <p class="field-error" id="new-email-error">@Model.Error</p>
+    }
+  </div>
+  <div class="actions">
+    <button type="submit">@Text["email.send"]</button>
+    <a href="/profile">@Text["address.back"]</a>
+  </div>
+</form>
