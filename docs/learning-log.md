@@ -72,3 +72,12 @@ Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step:
 
 - **Learned:** a passing test isn't proof, so break the code to see if the test notices. 
   
+  ## 12 Nov – E5 Change name
+
+- **Asked:** Claude to build E5: a name change goes to the secretariat for approval, one pending row per changed field Candidates untouched until S2, and a pending field can't be changed again (the server refuses it too). The job title moved to E6, as SPEC says.
+
+- **Went wrong:** Claude's file tool wrote invisible Unicode line breaks into the test file, and VS Code warned me. They're now written as escapes (\u2028). The error page showed 404 instead of 400 for a form with a NUL character: the E4
+  fix ([FromRoute]) wasn't enough, so the page now reads the status only from the address. In the click-through, the
+  "Pending approval" box looked too big, so I made it smaller.
+
+- **Learned:** a fix for one case can miss a related case, so a test for each case is what finds it. 
