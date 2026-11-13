@@ -195,13 +195,20 @@ def test_catches_standby_without_until_date(db):
 
 def test_catches_expert_without_skills(db):
     db.execute("DELETE FROM CandidateSkills WHERE CandidateId = 4")
-    assert has_problem(db, "Expert 4 has 0 skills, expected 1-4")
+    assert has_problem(db, "Expert 4 has 0 skills, expected at least 1")
 
 
-def test_catches_five_skills(db):
+def test_allows_five_skills(db):
+    # The app has no maximum (SPEC X9, decisions.md E7); only the seed gives 1-4.
     # Carl (Id 3) has 4 fields of expertise, and EL is not one of them.
     db.execute("INSERT INTO CandidateSkills (CandidateId, Skill) VALUES (3, 'EL')")
-    assert has_problem(db, "Expert 3 has 5 skills, expected 1-4")
+    assert not has_problem(db, "Expert 3 has 5 skills")
+
+
+def test_catches_a_fags_name_with_a_semicolon(db):
+    # X9 stores a list joined with "; ", so a name with ";" would split in two at S2.
+    db.execute("INSERT INTO Fags (Id, Fag) VALUES (999, 'Tag; facade')")
+    assert has_problem(db, "Fags name 'Tag; facade' contains ';'")
 
 
 def test_catches_same_skill_twice(db):

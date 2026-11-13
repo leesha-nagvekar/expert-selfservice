@@ -12,6 +12,7 @@ from rules import (
     DEMO_BO,
     DEMO_CARL,
     NO_PHONE_EXPERTS,
+    SKILLS_PER_EXPERT,
     STANDBY,
 )
 
@@ -58,6 +59,16 @@ def test_seed_gives_every_company_its_own_cvr(db):
         "SELECT cvr FROM ss_expert_company GROUP BY cvr HAVING COUNT(*) > 1"
     ).fetchall()
     assert shared == []
+
+
+def test_seed_gives_each_expert_1_to_4_skills(db):
+    # check_data allows any number from 1 up (E7); the seed keeps to rules.SKILLS_PER_EXPERT.
+    low, high = SKILLS_PER_EXPERT
+    counts = db.execute(
+        "SELECT COUNT(s.Id) FROM Candidates c "
+        "LEFT JOIN CandidateSkills s ON s.CandidateId = c.Id GROUP BY c.Id"
+    ).fetchall()
+    assert all(low <= count <= high for (count,) in counts)
 
 
 def test_seed_cvrs_never_start_with_0(db):

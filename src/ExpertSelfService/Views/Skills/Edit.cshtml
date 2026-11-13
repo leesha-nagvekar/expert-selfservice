@@ -1,0 +1,55 @@
+@model SkillsPage
+@{
+    ViewData["Title"] = Text["skills.title"];
+}
+<h1>@Text["skills.title"]</h1>
+<p>@Text["skills.intro"]</p>
+
+@if (Model.IsLocked)
+{
+  @* Pending (SPEC section 3): the current fields and the waiting list, no tick boxes and no button. *@
+  <ul class="plain-list">
+    @foreach (var skill in Model.CurrentSorted)
+    {
+      <li>@skill</li>
+    }
+  </ul>
+  @await Html.PartialAsync("_SectionState", Model.State!)
+  <div class="actions">
+    <a href="/profile">@Text["address.back"]</a>
+  </div>
+}
+else
+{
+  @* A rejected change: the reason sits above the tick boxes, which can be changed again. *@
+  @if (Model.State is PendingState rejected)
+  {
+    @await Html.PartialAsync("_SectionState", rejected)
+  }
+
+  <form method="post" action="/profile/skills" novalidate>
+    @Html.AntiForgeryToken()
+    @* Razor leaves out an attribute whose value is null (aria-describedby) or false (checked). *@
+    <fieldset class="choices" aria-describedby="@(Model.Error is null ? null : "skills-error")">
+      <legend>@Text["profile.section.skills"]</legend>
+      @if (Model.Error is not null)
+      {
+        <p class="field-error" id="skills-error">@Model.Error</p>
+      }
+      @{ var i = 0; }
+      @foreach (var choice in Model.Choices)
+      {
+        var id = $"skill-{i++}";
+        <div class="choice">
+          <input id="@id" name="Skills" type="checkbox" value="@choice.Name" checked="@choice.IsChecked">
+          <label for="@id">@choice.Name @if (choice.IsOld) { <span class="hint">@Text["skills.no_longer_listed"]</span> }</label>
+        </div>
+      }
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit">@Text["skills.send"]</button>
+      <a href="/profile">@Text["address.back"]</a>
+    </div>
+  </form>
+}

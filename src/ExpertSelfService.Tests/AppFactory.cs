@@ -117,6 +117,11 @@ public sealed class AppFactory : WebApplicationFactory<Program>
                 (2001, 2001, '2100'), (2002, 2002, '5000'), (2003, 2003, '8000'),
                 (50, 50, '0150'); -- 4 digits, but Norwegian: not a Danish postcode (rules.DANISH_REGION_IDS)
             INSERT INTO ProfessionTags (Id, Tag) VALUES (35, 'Skønsmand'), (36, 'Sagkyndig');
+            -- VBA's list of fields of expertise, inserted unsorted. The last three are made up for the tests:
+            -- in Danish order Æ, Ø and Å come last, in that order (E7).
+            INSERT INTO Fags (Id, Fag) VALUES
+                (287, 'Varmepumpe'), (282, 'Fiber'), (284, 'EL'), (283, 'Netværk'), (285, 'Maskinanlæg'),
+                (903, 'Åbne arealer'), (901, 'Ældre bygninger'), (902, 'Øvrige anlæg');
 
             INSERT INTO Candidates
                 (Id, FirstName, LastName, Email, Status, OldStatus, UntilDate, RegistrationId, Created,

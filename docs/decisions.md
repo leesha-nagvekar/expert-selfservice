@@ -2,6 +2,20 @@
 
 Short records of choices made in the project and why.
 
+## E7 fields of expertise (12 Nov 2026)
+
+**No maximum (Leesha).** SPEC X9 says at least one field and no maximum, but `check_data.py` reported more than 4 as an error (`rules.SKILLS_PER_EXPERT`, a seed rule). Once S2 approves a 5th field, the check would fail on real use, the same clash as the shared CVR in E6. So X9 allows any number, and `check_data` keeps only "at least 1". The seed still gives 1-4 each; `test_seed_gives_each_expert_1_to_4_skills` keeps it that way. Proved by `test_allows_five_skills`.
+
+**A field no longer on VBA's list is kept unless the expert removes it (Leesha).** `CandidateSkills.Skill` is text with no foreign key, so a real expert can have a field VBA has since renamed or removed. X9 shows it ticked, marked "No longer on VBA's list", and the server accepts Fags names plus the expert's own current fields, never another expert's. So nothing disappears by accident, and nothing new can be invented. Proved by `A_field_no_longer_on_vbas_list_is_shown_ticked_and_marked`, `A_field_no_longer_on_the_list_can_be_kept`, `..._can_be_removed` and `Another_experts_old_field_is_not_a_choice`.
+
+**The stored list is in Danish order.** `SkillRules.Join` sorts with da-DK (Æ, Ø, Å last; ties broken by Ordinal) whatever the page's language, removes empties and duplicates, and joins with "; ". The same choice is therefore always the same text, so "no change" is a plain comparison, and S2 and S3 show one order. The tick boxes on screen follow the page's language, as the profile does. Proved by `The_list_is_stored_in_danish_order_even_from_the_english_page` (AppFactory has made-up Æ, Ø and Å names) and `The_same_fields_in_any_order_or_twice_are_no_change`.
+
+**A pending change locks the whole screen.** The list is one field (`Skills`), so while it is pending X9 shows the current fields and the waiting list with no tick boxes and no button. The controller redirects a post to the profile, and `SkillService.Send` reads the state again inside its write transaction, the same as a pending name field in E5. The second guard is the one that counts when two tabs (or a double click) both pass the controller before either writes; a test through the controller alone could never reach it, which Leesha's break-it check showed. Proved by `A_send_while_a_change_is_pending_writes_nothing` (the controller) and `The_service_refuses_a_send_when_a_change_became_pending_after_the_page_was_loaded` (the service, called directly).
+
+**A name from outside the list is a hand-made post.** The page only offers allowed names, so anything else (free text, `el` for `EL`, a trailing space, an empty value, a whole list in one value) gets 400, which shows as "Page not found", and nothing is written. Names are matched exactly (Ordinal). Nothing ticked is an ordinary mistake and gets the error next to the fieldset.
+
+**No ";" in a Fags name.** S2 will split the list on "; " to rebuild CandidateSkills, so `check_data.py` now reports a Fags name containing ";". None of the 10 does.
+
 ## E6 company and job title (12 Nov 2026)
 
 **A shared CVR is allowed (Leesha).** Two experts from the same company share its CVR, and SPEC X8 never said a CVR must be unique. So X8 accepts a CVR another expert already has, and `check_data.py` no longer reports "CVR … is used N times": data saved through the app could otherwise fail the check. The seed still draws a new CVR for each company, so the fake data is unchanged; `test_seed_gives_every_company_its_own_cvr` keeps it that way. Proved by `An_expert_without_a_cvr_gets_one_and_may_share_it_with_a_colleague` and `test_allows_a_shared_cvr`.

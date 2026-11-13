@@ -126,9 +126,13 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - A list of tick boxes with every Fags.Fag. No free text.
 - The server accepts only names that exist in Fags.
 - The expert can't create, rename or delete Fags. VBA maintains the list, and the app has no screen for that (no story asks for one).
-- At least one field must be chosen.
-- Button: "Send for approval". One pending change with the whole old list and the whole new list (names sorted and separated by "; ").
+- At least one field must be chosen. Error: "Choose at least one field of expertise". No maximum.
+- Button: "Send for approval". One pending change with the whole old list and the whole new list (names sorted and separated by "; "). The order is Danish (Æ, Ø, Å last) whatever the page's language. The lists are compared as sets: the same names in another order are no change, and nothing is written.
+- A field the expert has that is no longer in Fags is shown ticked, marked "No longer on VBA's list". The expert can keep or remove it, but not add a name that isn't in Fags.
+- While a change is pending, the screen shows the current fields and the pending list, with no tick boxes and no button, and the server refuses a send. A rejected change shows the reason above the tick boxes.
+- No Fags name may contain ";" (`check_data.py` checks it), so the list can be split again.
 - On approval the expert's CandidateSkills rows are replaced by the new list.
+- *(Details added 12 Nov 2026 with E7, see `docs/decisions.md`.)*
 
 **X10 About your data**
 - In plain words: what is stored about the expert, who can see it (the expert and VBA's secretariat), what needs approval, and how to contact the secretariat.

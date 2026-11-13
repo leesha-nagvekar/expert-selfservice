@@ -93,6 +93,10 @@ def _check_keys(conn):
         for (row_id,) in dupes:
             problems.append(f"{table}.Id {row_id} is used more than once")
 
+    # X9 stores a list of names joined with "; " (E7), so S2 splits on it.
+    for (fag,) in conn.execute("SELECT Fag FROM Fags WHERE instr(Fag, ';') > 0"):
+        problems.append(f"Fags name {fag!r} contains ';'")
+
     unknown_skills = conn.execute(
         "SELECT CandidateId, Skill FROM CandidateSkills "
         "WHERE Skill IS NULL OR Skill NOT IN (SELECT Fag FROM Fags)"
@@ -157,13 +161,15 @@ def _check_experts(conn):
         problems.append(f"{no_phone} experts have no phone, expected {NO_PHONE_EXPERTS}")
 
     # COUNT(s.Skill) leaves out NULLs, so an empty skill (reported as "not in
-    # Fags") isn't also reported as a duplicate.
+    # Fags") isn't also reported as a duplicate. At least one, but no maximum:
+    # the app allows any number (SPEC X9). SKILLS_PER_EXPERT is the seed's rule,
+    # and test_seed checks it.
     problems += _check_per_expert(
         conn,
         "skills",
         "SELECT c.Id, COUNT(s.Id), COUNT(s.Skill), COUNT(DISTINCT s.Skill) FROM Candidates c "
         "LEFT JOIN CandidateSkills s ON s.CandidateId = c.Id GROUP BY c.Id",
-        SKILLS_PER_EXPERT,
+        (SKILLS_PER_EXPERT[0], None),
     )
     problems += _check_per_expert(
         conn,
@@ -183,12 +189,16 @@ def _check_experts(conn):
 
 
 def _check_per_expert(conn, what, sql, allowed):
-    """sql gives per expert: Id, rows, filled-in values, different values."""
+    """sql gives per expert: Id, rows, filled-in values, different values.
+
+    allowed is (fewest, most); most None means no maximum.
+    """
     low, high = allowed
     problems = []
     for expert_id, rows, filled, distinct in conn.execute(sql):
-        if not low <= rows <= high:
-            problems.append(f"Expert {expert_id} has {rows} {what}, expected {low}-{high}")
+        if rows < low or (high is not None and rows > high):
+            expected = f"{low}-{high}" if high is not None else f"at least {low}"
+            problems.append(f"Expert {expert_id} has {rows} {what}, expected {expected}")
         if filled != distinct:
             problems.append(f"Expert {expert_id} has one of their {what} twice")
     return problems

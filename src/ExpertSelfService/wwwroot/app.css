@@ -154,6 +154,55 @@ input.code {
   font-weight: 600;
 }
 
+/* X9: tick boxes. Each row is at least 44 px high, and the whole row (box and label) can be clicked. */
+fieldset.choices {
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+fieldset.choices legend {
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+fieldset.choices[aria-describedby] .field-error {
+  margin: 0 0 8px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.choice input[type="checkbox"] {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+
+.choice label {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  min-height: 44px;
+  align-content: center;
+  margin: 0;
+  font-weight: 400;
+}
+
+.choice label .hint {
+  margin: 0;
+}
+
 button {
   min-height: 44px;
   padding: 8px 20px;
