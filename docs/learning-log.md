@@ -88,3 +88,11 @@ company's number, not the expert's; RegistrationId is the expert's own VBA numbe
 - 
 **Went wrong:** 00000000 passed the modulus-11 check (the sum is 0), so I added "can't start with 0". Python's \d also accepts non-ASCII digits, so the rule is now [1-9][0-9]{7}. Claude's own test data had an invalid CVR (23456781); the code correctly refused it, and the test was fixed. 
 
+## 12–13 Nov – E7 Fields of expertise
+
+- **Asked:** 
+Claude to build E7: tick boxes from VBA's fixed list, at least one field, sent for approval as one pending change with the whole old and new list in Danish order. The page is locked while a change is pending.
+
+- **Went wrong:** removing the pending check in SkillService.Send failed no test. Every test stopped at the controller first, so the service was never tested. Claude added a test that calls the service directly directly while a change is pending. 
+
+- **Learned:** when there are similar checks at two places then we must do the write the tests for both places checks. 
