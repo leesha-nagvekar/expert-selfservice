@@ -1,5 +1,153 @@
+@model StaffSearchPage
 @{
     ViewData["Title"] = Text["staff.title"];
+    ViewData["MainClass"] = "wide";
+    var ticked = Model.TickedCount;
 }
 <h1>@Text["staff.title"]</h1>
-<p>@Text["staff.placeholder"]</p>
+
+@* One GET form around the search box and the sidebar, so a tick keeps the search text (SPEC S-A). *@
+<form class="search" method="get" action="/staff" novalidate>
+  <div class="field search-box">
+    <label for="q">@Text["search.box.label"]</label>
+    <div class="search-row">
+      <input type="search" id="q" name="q" value="@Model.Query" maxlength="@SearchRules.MaxLength" autocomplete="off"
+             aria-invalid="@(Model.Error is null ? null : "true")" aria-describedby="@(Model.Error is null ? null : "q-error")">
+      <button type="submit">@Text["search.submit"]</button>
+    </div>
+    @if (Model.Error is not null)
+    {
+      <p class="field-error" id="q-error">@Model.Error</p>
+    }
+  </div>
+
+  <div class="search-layout">
+    @* Open by default, so the sidebar shows without JavaScript. On a phone the script closes it. *@
+    <details class="filters" open>
+      <summary>@(ticked > 0 ? string.Format(CultureInfo.CurrentCulture, Text["search.filters_ticked"], ticked) : Text["search.filters"])</summary>
+      <div class="filter-groups">
+        <div class="filter-head">
+          @* On a phone the folded box already says "Filters (N ticked)", so this title only shows on wide screens. *@
+          <h2 class="filter-title">@Text["search.filters"]</h2>
+          <a href="/staff">@Text["search.clear"]</a>
+        </div>
+        @foreach (var group in Model.Groups)
+        {
+          @await Html.PartialAsync("_FilterGroup", group)
+        }
+        <fieldset class="filter-group" data-group="pending">
+          <div class="choice">
+            <input type="checkbox" id="pending" name="pending" value="@SearchRules.PendingValue" checked="@Model.PendingOnly">
+            <label for="pending">@Text["search.pending_only"]</label>
+          </div>
+        </fieldset>
+        <div class="filter-actions">
+          @* Without JavaScript a tick only counts after a search; the script hides this button. *@
+          <button type="submit" class="secondary filters-apply">@Text["search.submit"]</button>
+        </div>
+      </div>
+    </details>
+
+    <section class="results" aria-labelledby="results-heading">
+      @if (Model.Results is { } results && Model.Total is { } total)
+      {
+        <h2 id="results-heading" aria-live="polite">@(total switch
+        {
+            0 => Text["search.none"],
+            1 => Text["search.found_one"],
+            _ => string.Format(CultureInfo.CurrentCulture, Text["search.found"], total),
+        })</h2>
+        @if (results.Count > 0)
+        {
+          @* Names are plain text until the expert page (S3) exists. *@
+          <div class="results-box">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th scope="col">@Text["search.column.name"]</th>
+                <th scope="col">@Text["search.column.vba_number"]</th>
+                <th scope="col">@Text["search.column.postcode_city"]</th>
+                <th scope="col">@Text["search.column.status"]</th>
+                <th scope="col">@Text["search.column.pending"]</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var row in results)
+              {
+                <tr class="result">
+                  <td data-label="@Text["search.column.name"]" class="result-name">@row.Name</td>
+                  <td data-label="@Text["search.column.vba_number"]" class="vba-no mono">@row.RegistrationId</td>
+                  <td data-label="@Text["search.column.postcode_city"]">
+                    @if (row.PostcodeCity is null)
+                    {
+                      <span class="not-given">@Text["profile.not_given"]</span>
+                    }
+                    else
+                    {
+                      @row.PostcodeCity
+                    }
+                  </td>
+                  <td data-label="@Text["search.column.status"]"><span class="status @row.StatusClass">@await Html.PartialAsync("_Icon", row.StatusIcon) @row.StatusText</span></td>
+                  <td data-label="@Text["search.column.pending"]" class="pending-count">@row.PendingCount</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (Model.Pager is { PageCount: > 1 } pager)
+          {
+            @* Links, not form buttons: a page keeps the search and the ticks; a new search or tick goes to page 1. *@
+            <div class="pager">
+              <p class="pager-range">@string.Format(CultureInfo.CurrentCulture, Text["search.showing"], pager.First, pager.Last, pager.Total)</p>
+              <nav aria-label="@Text["search.pages"]">
+                <ol>
+                  <li>
+                    @if (pager.PreviousUrl is null)
+                    {
+                      <span class="pager-off" aria-disabled="true">‹ @Text["search.previous"]</span>
+                    }
+                    else
+                    {
+                      <a href="@pager.PreviousUrl" rel="prev">‹ @Text["search.previous"]</a>
+                    }
+                  </li>
+                  @foreach (var link in pager.Links)
+                  {
+                    <li>
+                      @if (link.Number is null)
+                      {
+                        <span class="pager-gap" aria-hidden="true">…</span>
+                      }
+                      else if (link.IsCurrent)
+                      {
+                        <a href="@link.Url" aria-current="page">@link.Number</a>
+                      }
+                      else
+                      {
+                        <a href="@link.Url">@link.Number</a>
+                      }
+                    </li>
+                  }
+                  <li>
+                    @if (pager.NextUrl is null)
+                    {
+                      <span class="pager-off" aria-disabled="true">@Text["search.next"] ›</span>
+                    }
+                    else
+                    {
+                      <a href="@pager.NextUrl" rel="next">@Text["search.next"] ›</a>
+                    }
+                  </li>
+                </ol>
+              </nav>
+            </div>
+          }
+          </div>
+        }
+      }
+    </section>
+  </div>
+</form>
+
+@section scripts {
+  <script src="/staff-search.js"></script>
+}

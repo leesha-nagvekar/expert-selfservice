@@ -271,7 +271,8 @@ public sealed class SessionTests : IAsyncLifetime, IDisposable
         Assert.Equal(HttpStatusCode.OK, (await _browser.Get("/staff")).StatusCode);
     }
 
-    // The expert's /profile shows their own data since E2 (ProfileTests). The staff page stays a placeholder until S1.
+    // The expert's /profile shows their own data since E2 (ProfileTests). The staff page lists experts since S1
+    // (SearchTests), but never the staff user's own details.
     [Fact]
     public async Task The_staff_landing_page_shows_no_personal_data()
     {

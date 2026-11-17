@@ -37,6 +37,16 @@ main {
   padding: 24px 16px;
 }
 
+/* The secretariat's search: room for a sidebar and a table. */
+main.wide {
+  max-width: 1200px;
+}
+
+/* A hidden element stays hidden, even where a class sets display (the Find box, a filtered tick box). */
+[hidden] {
+  display: none !important;
+}
+
 /* Top bar: logo blue, white logo and white text in both themes. */
 .topbar {
   display: flex;
@@ -117,6 +127,7 @@ label,
 }
 
 input[type="email"],
+input[type="search"],
 input[type="text"],
 input[type="tel"] {
   width: 100%;
@@ -424,4 +435,333 @@ dd {
 
 .message-body {
   white-space: pre-wrap;
+}
+
+/* S-A: the secretariat's search. Mobile first: filters above the results, the table as stacked cards. */
+.search-row {
+  display: flex;
+  gap: 8px;
+}
+
+.search-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.filters {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.filters > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-groups {
+  padding: 0 16px 16px;
+}
+
+/* Read by screen readers, not shown (the group's legend, "2 ticked" in the badge). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.filter-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* A group folds open and closed: the name, a badge with the number ticked, and a chevron that turns. */
+.filter-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  color: var(--ink);
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.filter-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.filter-group > summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin: 0 4px 4px auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.filter-group[open] > summary::after {
+  margin-bottom: -4px;
+  transform: rotate(-135deg);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 14px;
+}
+
+.filter-group fieldset {
+  margin: 0;
+  padding: 0 0 12px;
+  border: 0;
+  min-width: 0;
+}
+
+.filter-find {
+  margin-bottom: 8px;
+}
+
+/* A big group: 8 rows of 44px, then it scrolls. */
+.filter-scroll {
+  max-height: calc(8 * 44px + 2px);
+  overflow-y: auto;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--background);
+}
+
+.filter-group[data-group="pending"] {
+  padding: 4px 0 0;
+}
+
+.filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+/* The top of the sidebar: "Filters" on the left, "Clear filters" on the right. */
+.filter-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+}
+
+.filter-head a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.filter-title {
+  display: none;
+  margin: 0;
+  color: var(--ink);
+  font-size: 18px;
+}
+
+/* The Search button is the no-JavaScript fallback; the script hides it, so the row goes with it. */
+.filter-actions:has(> [hidden]:only-child) {
+  display: none;
+}
+
+.results h2 {
+  margin-bottom: 12px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.result-table thead {
+  display: none;
+}
+
+.result-table tr {
+  display: block;
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.result-table td {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 8px;
+  padding: 4px 0;
+  overflow-wrap: anywhere;
+}
+
+.result-table td::before {
+  content: attr(data-label);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.result-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Page links under the results: "Showing 1–25 of 100", Previous, numbers, Next. */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 0;
+}
+
+.pager-range {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.pager ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pager a,
+.pager-off,
+.pager-gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 4px;
+}
+
+.pager a,
+.pager-off {
+  border: 1px solid var(--line);
+  background: var(--background);
+}
+
+.pager a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pager a[aria-current="page"] {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+.pager-off,
+.pager-gap {
+  color: var(--muted);
+}
+
+@media (min-width: 900px) {
+  .search-layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* Wide screens: the sidebar is always open, so no "Filters" toggle. */
+  .filters > summary {
+    display: none;
+  }
+
+  .filter-groups {
+    padding-top: 4px;
+  }
+
+  .filter-head {
+    justify-content: space-between;
+  }
+
+  .filter-title {
+    display: block;
+  }
+
+  /* The table in a bordered box: shaded header, striped rows, the page links at the bottom. */
+  .results-box {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .result-table thead {
+    display: table-header-group;
+    background: var(--surface);
+  }
+
+  .result-table tr {
+    display: table-row;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .result-table tbody tr:nth-child(even) {
+    background: var(--surface);
+  }
+
+  .result-table th,
+  .result-table td {
+    display: table-cell;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .result-table th {
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .pager {
+    padding: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .result-table td::before {
+    content: none;
+  }
 }

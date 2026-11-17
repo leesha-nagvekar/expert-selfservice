@@ -149,12 +149,27 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 ### Secretariat
 
 **S-A Search experts (S1)**
-- Filters, combined with AND, all optional:
-  - name: matches part of FirstName, MiddleName or LastName, case-insensitive
-  - email: matches part of the email
-  - postcode: exact 4 digits
-  - field of expertise: chosen from Fags
-- Results: name, VBA number, postcode + city, status, number of pending changes. Each result opens the expert page.
+*(Changed 16 Nov 2026 with S1: one search box instead of name, email and postcode; Region instead of a postcode range; Role added. See `docs/decisions.md`.)*
+- A GET form at `/staff`: everything is in the query string, so a search can be bookmarked.
+- **Search box** "Name, email or postcode", max 254 characters. Error: "The search text can be at most 254 characters." (no results are shown).
+  - Split on spaces. Every word must match at least one of: part of FirstName, MiddleName or LastName, part of the email, or the start of the postcode. Case-insensitive, also for æ, ø and å. "anna 2100" finds Anna in 2100; "21" finds 2100–2199.
+- **Sidebar**, tick boxes only, all optional. OR inside a group, AND between groups, no tick = all:
+  | Group | Values |
+  |---|---|
+  | Region | The five Danish regions (`AddressRules.DanishRegionIds`), in Regions.DisplayOrder. The expert's region comes from postcode → city → region. |
+  | Role | ProfessionTags (via CandidateTags), Danish order |
+  | Field of expertise | Fags (via CandidateSkills), Danish order |
+  | Status | The six statuses, Retired included |
+  | Only experts with pending changes | One tick box |
+  - Each group (Region, Role, Field of expertise, Status) folds open and closed, with a chevron. A badge shows the number ticked ("N ticked" for screen readers). A group with a tick starts open; one without starts closed. *(Changed 17 Nov 2026.)*
+  - A group with more than 8 values lists the ticked ones first, then the rest, all in a scroll box 8 rows high. A "Find a field" / "Find a role" box narrows the list as you type. *(Changed 17 Nov 2026: replaces "Show all N".)*
+  - "Clear filters" sits at the top of the sidebar, next to the "Filters" title. *(Changed 17 Nov 2026.)*
+  - A tick applies straight away (plain JavaScript) and keeps the search-box text. Without JavaScript the Search button applies everything.
+  - A value that isn't in its list gives 400 (a hand-made URL).
+  - On a phone the sidebar sits above the results, folded into "Filters (N ticked)".
+- **Results:** name (First Middle Last), VBA number, postcode + city, status (icon + colour + word), number of pending changes. Sorted by last name, then first name, in Danish order. Heading "N experts found" or "No experts match the filters." No filters shows every expert. Each result will open the expert page when S3 is built.
+  - 25 per page, with a shaded header and striped rows. Under the table: "Showing 1–25 of 100", page numbers, Previous and Next (when there are more than 7 pages: first, last, the current ±1 and "…"). The heading still counts every result. *(Added 17 Nov 2026.)*
+  - The page is `?page=N` in the query string. A page link keeps the search text and every tick. The form has no page field, so a new search or a tick goes to page 1. A page that isn't plain digits (`0`, `07`, `-1`, `abc`) or is past the last page gives 400.
 
 **S-B Pending changes (S2)**
 - A list of all pending changes, oldest first: expert, field, old value, new value, date.
@@ -168,7 +183,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 
 **The secretariat view**
 After logging in, a secretariat user lands on Search experts. The top bar has Search experts, pending approvals (with a count), Help, DA/EN and Log out.
-Experts can be searched by name, email or postcode, and a filter sidebar narrows the results by field of expertise (from Fags), status, postcode range, and pending changes (the filter sidebar can have more filters). Results appear in a table: name, job title, VBA no., email, postcode and city, fields of expertise and status.
+Experts are searched with one box (name, email or postcode), and a filter sidebar narrows the results by region, role, field of expertise, status and pending changes (the filter sidebar can have more filters). Results appear in a table: name, VBA no., postcode and city, status and pending changes. The details are in S-A above.
 Clicking a name opens the expert page: a read-only profile, pending changes to approve or reject (rejecting needs a reason the expert sees), and the change log, which can’t be edited.
 Pending approvals lists all waiting changes, oldest first, so I can approve or reject them there too.
 
@@ -225,7 +240,7 @@ The SQLite structure of all tables is in `db/schema_sqlite.sql`.
 | E6 company and job title | Candidates.Company, Designation; ss_expert_company; CandidateTags→ProfessionTags (read-only) | Candidates.Company, Designation, LastUpdated; ss_expert_company; ss_change_log |
 | E7 fields of expertise | Fags; CandidateSkills | ss_pending_changes |
 | E8 languages and education | ss_languages; ss_expert_languages; ss_expert_education; CandidateCourses (read-only) | ss_expert_languages; ss_expert_education; ss_change_log |
-| S1 search | Candidates; Zipcodes→Cities; CandidateSkills; Fags; ss_pending_changes | – |
+| S1 search | Candidates; Zipcodes→Cities→Regions; CandidateSkills; Fags; CandidateTags→ProfessionTags; ss_pending_changes | – |
 | S2 approve / reject | ss_pending_changes | ss_pending_changes; Candidates or CandidateSkills; ss_change_log |
 | S3 change log | ss_change_log; ss_staff_users; Candidates | – |
 

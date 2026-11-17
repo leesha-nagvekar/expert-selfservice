@@ -1,0 +1,34 @@
+@model FilterGroup
+@* One sidebar group (SPEC S-A). It folds open and closed, and starts open when something in it is ticked.
+   Ticking a box applies it straight away (staff-search.js); without JavaScript the Search button does.
+   A group over 8 values: every value in a scroll box 8 rows high, ticked first, and a Find box the script shows. *@
+@{
+    var i = 0;
+}
+<details class="filter-group" data-group="@Model.Name" open="@Model.IsOpen">
+  <summary>
+    <span>@Model.Legend</span>
+    @if (Model.TickedCount > 0)
+    {
+      <span class="badge"><span aria-hidden="true">@Model.TickedCount</span><span class="visually-hidden">@string.Format(CultureInfo.CurrentCulture, Text["search.ticked"], Model.TickedCount)</span></span>
+    }
+  </summary>
+  <fieldset>
+    <legend class="visually-hidden">@Model.Legend</legend>
+    @if (Model.HasScroll)
+    {
+      @* No name: the Find box only narrows the list on the page and is never sent with the form. *@
+      <input type="search" class="filter-find" aria-label="@Model.FindLabel" placeholder="@Model.FindLabel" autocomplete="off" hidden>
+    }
+    <div class="@(Model.HasScroll ? "filter-scroll" : "filter-list")">
+      @foreach (var option in Model.Options)
+      {
+        var id = $"{Model.Name}-{i++}";
+        <div class="choice">
+          <input type="checkbox" id="@id" name="@Model.Name" value="@option.Value" checked="@option.IsTicked">
+          <label for="@id">@option.Label</label>
+        </div>
+      }
+    </div>
+  </fieldset>
+</details>

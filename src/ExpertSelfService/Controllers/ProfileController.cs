@@ -24,14 +24,11 @@ public class ProfileController(ProfileService profiles, TextService text) : Cont
             return Redirect("/");
         }
 
-        var statusKey = ExpertStatus.TextKey(profile.Status);
         var until = profile.Status == ExpertStatus.Standby ? LocalDate.Format(profile.UntilDate) : null;
         return View(new ProfilePage(
             profile,
             LocalDate.Format(profile.Created),
-            statusKey is null
-                ? string.Format(CultureInfo.CurrentCulture, text["status.unknown"], profile.Status)
-                : text[statusKey],
+            ExpertStatus.Word(profile.Status, text),
             ExpertStatus.Icon(profile.Status),
             ExpertStatus.CssClass(profile.Status),
             until is null ? null : string.Format(CultureInfo.CurrentCulture, text["profile.until"], until),

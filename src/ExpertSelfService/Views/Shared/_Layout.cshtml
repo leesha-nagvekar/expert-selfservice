@@ -46,7 +46,8 @@
       }
     </div>
   </header>
-  <main>
+  @* A page can ask for a wider column, such as the secretariat's search with its sidebar and table. *@
+  <main class="@ViewData["MainClass"]">
     @RenderBody()
   </main>
   @await RenderSectionAsync("scripts", required: false)

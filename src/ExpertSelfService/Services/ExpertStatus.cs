@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ExpertSelfService.Services;
 
 /// <summary>
@@ -12,6 +14,15 @@ public static class ExpertStatus
     public const int Accepted = 2;
     public const int Observation = 3;
     public const int Evaluated = 4;
+
+    /// <summary>Every status the app knows, in the order the secretariat's Status filter lists them (S-A).</summary>
+    public static readonly IReadOnlyList<int> All = [Active, Accepted, Observation, Evaluated, Standby, Retired];
+
+    /// <summary>The status as a word in the page's language, or "Unknown (n)" for a number the app doesn't know.</summary>
+    public static string Word(int status, TextService text) =>
+        TextKey(status) is string key
+            ? text[key]
+            : string.Format(CultureInfo.CurrentCulture, text["status.unknown"], status);
 
     /// <summary>The i18n key of the status name, or null for a number the app doesn't know.</summary>
     public static string? TextKey(int status) => status switch

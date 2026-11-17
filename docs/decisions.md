@@ -2,6 +2,42 @@
 
 Short records of choices made in the project and why.
 
+## S1 rework: folding groups and pages (17 Nov 2026)
+
+**Paging is done in C#, not with SQL `LIMIT`.** The search box is matched in C# (see S1 below), so SQL can't know how many experts match. The service still returns every hit sorted, and the page cuts out 25. With a few hundred experts this costs nothing.
+
+**A bad page is a 400, not page 1.** The page links only offer pages that exist, so `page=0`, `page=07` or a page past the end comes from a hand-made URL, the same as a tick that isn't in its list.
+
+**Big groups: a scroll box in place of "Show all N".** Every value is in one box 8 rows high, with ticked values first. A closed group already hides its list, so a second fold inside it was one click too many.
+
+## S1 search experts (16 Nov 2026)
+
+**One search box and a sidebar, instead of S-A's four fields (Leesha).** SPEC had two versions of S1: S-A with name, email, postcode and field, and "The secretariat view" with a sidebar, a postcode range and more columns. They are merged into one: a box "Name, email or postcode" and tick-box groups Region, Role, Field of expertise and Status, then "Only experts with pending changes". The postcode range is replaced by Region, and Role (ProfessionTags) is added. The results are name, VBA no., postcode + city, status and the number of pending changes. SPEC S-A and "The secretariat view" now say the same.
+
+**Every word must match (Leesha).** The box is split on spaces. Each word must match part of the first, middle or last name, part of the email, or the start of the postcode. "anna 2100" finds Anna in 2100, "21" finds 2100-2199, and "100" finds nothing, because it is inside a postcode, not its start. The street is not searched. Proved by `Every_word_must_match_a_name_the_email_or_the_start_of_the_postcode`.
+
+**The words are matched in C#, not SQL.** A varying number of words would need SQL built from text, which the ground rules forbid. And SQLite's `LIKE` and `lower()` fold A-Z only, so "øster" would miss "Østergaard". So the SQL applies the sidebar (fixed text, every value a parameter; Dapper expands `IN @regions` into one parameter per value), and C# matches the words on the rows that come back, with `OrdinalIgnoreCase` after Unicode normalisation (NFC). OrdinalIgnoreCase folds Æ/æ, Ø/ø and Å/å, but never treats "aa" as "å" or "ae" as "æ", as a Danish culture comparison would. `%` and `_` are plain characters. Cost: every expert who passes the sidebar is read, which is fine at VBA's size (a few thousand experts at most). Proved by the `øSTER`, `SØREN`, `%` and `_` cases.
+
+**Tick boxes, OR inside a group, AND between groups (Leesha).** No tick in a group means all. A value that isn't in its list (Norge, a role id that doesn't exist, a made-up field, status 7, `pending=yes`) can only come from a hand-made URL and gets 400, like X9. The values are compared as text against the list, so "07" isn't read as 7. Proved by `Ticks_in_one_group_are_or`, `Groups_are_and` and `A_value_that_is_not_in_its_list_is_a_bad_request`.
+
+**Big groups: ticked first, 8 shown, "Show all N" and a Find box (Leesha).** A group with more than 8 values (Role has 12, Field 10) lists the ticked values first, then the rest, in Danish order whatever the page's language. The first 8 are shown, and every ticked value is shown even when more than 8 are ticked. The rest sit in a `<details>` "Show all N" with a scroll box, which works without JavaScript. A Find box narrows the list as you type; it has no `name`, so it is never sent, and it is hidden until the script shows it. Each heading shows "N ticked". *(Replaced 17 Nov 2026 by a scroll box and a count badge on a folding group, see "S1 rework" above.)* The Danish order moved from `SkillRules` to `DanishOrder.Comparer`, used by both.
+
+**Only the five Danish regions (Leesha).** Regions also holds Sverige, Norge and Andre, but an expert's postcode must be Danish (`AddressRules.DanishRegionIds`), so those would always give nothing. The five are listed in VBA's `DisplayOrder`.
+
+**Retired experts are shown (Leesha).** The secretariat owns their history too. The Status filter can narrow the list.
+
+**Sidebar ticks apply straight away (Leesha).** `wwwroot/staff-search.js`, plain JavaScript like `postcode.js`, sends the form when a tick box changes. The search box is in the same GET form, so its text is kept, and everything is in the URL, so a search can be bookmarked. Focus returns to the changed tick box after the reload. Without JavaScript the Search button applies everything (a second Search button at the bottom of the sidebar, which the script hides). On a phone (under 900 px) the sidebar is a `<details>` "Filters (N ticked)" above the results; the script closes it at the start unless it was open before the reload. On a wide screen it is always open. The results table becomes stacked cards on a phone.
+
+**No links to S2 or S3 yet (Leesha).** Names are plain text, and the top bar has no "Pending approvals". Those links come with the pages they lead to, as the edit buttons did in E2.
+
+**The search box is limited to 254 characters**, the same as an email on X1. A longer text shows "The search text can be at most 254 characters." next to the box and no results.
+
+**One read transaction per search (found in Leesha's review).** The first version loaded the sidebar lists and ran the search on two separate connections, although the plan said one read transaction like `ProfileService.Load`. Now `ExpertSearchService.Search` loads the lists, checks the query values against them (`SearchRules.Read`) and runs the search in one deferred transaction, which reads without taking the write lock. So a value is always checked against the same lists the search and the page use. Before, the worst case was harmless (a list changing between the two calls), but it went against the approved plan. No test can show the difference, because it needs a write to land between two reads of one request. The 69 search tests passed unchanged after the move.
+
+**Known trade-offs of "a tick applies straight away" (Leesha, after review).** Both accepted for the MVP, because Leesha asked for the behaviour and the secretariat is two users on one machine.
+- **Accessibility.** A tick reloads the page. WCAG 3.2.2 ("On Input") says changing a control shouldn't change the context unless the user is told first. Focus goes back to the ticked box after the reload, which helps a keyboard user, but a screen-reader user still hears a whole new page. A real version could say so in the sidebar ("Results update when you tick a box"), or update the results without a reload (`fetch`) and announce the new count in an `aria-live` region.
+- **Fast clicking.** Two ticks in quick succession start two submits. The second one can be lost while the page reloads, so the result shows only the first. A real version could wait a moment before submitting, or turn off the tick boxes until the new page has loaded. To try in the click-through.
+
 ## E7 fields of expertise (12 Nov 2026)
 
 **No maximum (Leesha).** SPEC X9 says at least one field and no maximum, but `check_data.py` reported more than 4 as an error (`rules.SKILLS_PER_EXPERT`, a seed rule). Once S2 approves a 5th field, the check would fail on real use, the same clash as the shared CVR in E6. So X9 allows any number, and `check_data` keeps only "at least 1". The seed still gives 1-4 each; `test_seed_gives_each_expert_1_to_4_skills` keeps it that way. Proved by `test_allows_five_skills`.
@@ -18,7 +54,7 @@ Short records of choices made in the project and why.
 
 ## E6 company and job title (12 Nov 2026)
 
-**A shared CVR is allowed (Leesha).** Two experts from the same company share its CVR, and SPEC X8 never said a CVR must be unique. So X8 accepts a CVR another expert already has, and `check_data.py` no longer reports "CVR … is used N times": data saved through the app could otherwise fail the check. The seed still draws a new CVR for each company, so the fake data is unchanged; `test_seed_gives_every_company_its_own_cvr` keeps it that way. Proved by `An_expert_without_a_cvr_gets_one_and_may_share_it_with_a_colleague` and `test_allows_a_shared_cvr`.
+**A shared CVR is allowed** Two experts from the same company share its CVR, and SPEC X8 never said a CVR must be unique. So X8 accepts a CVR another expert already has, and `check_data.py` no longer reports "CVR … is used N times": data saved through the app could otherwise fail the check. The seed still draws a new CVR for each company, so the fake data is unchanged; `test_seed_gives_every_company_its_own_cvr` keeps it that way. Proved by `An_expert_without_a_cvr_gets_one_and_may_share_it_with_a_colleague` and `test_allows_a_shared_cvr`.
 
 **Spaces in a CVR are removed (Leesha).** CVR numbers are often written "12 34 56 74". All whitespace is removed before the check, the same rule as the code on X2, and the 8 digits are stored. Proved by `Spaces_in_a_cvr_are_removed`.
 
