@@ -55,10 +55,10 @@ Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step:
 
 ## 11 Nov 2026 – E3 address and phone (T4)
 
-**Asked:** Built E3 in one session. The expert can edit street, postcode and three phones; typing a 4-digit postcode fills in the city by itself (with "Find city" when JavaScript is off). Every change is saved at once, with LastUpdated and one change-log row per changed field, in one transaction. Reviewed the diff, did three break-it checks, and clicked through in both languages, at 360 px and in dark mode.
+**Asked:** Built E3 in one session. The expert can edit street, postcode and three phones; typing a 4-digit postcode fills in the city by itself (with "Find city" when JavaScript is off). Every change is saved at once, with LastUpdated and one change-log row per changed field, in one transaction. Did three break-it checks, and clicked through in both languages, at 360 px and in dark mode.
 
 **Went wrong:**
-- Removing Commit() turned most saving tests red, but one stayed green: it only checked the redirect after saving, not that the phone was really stored. I asked for the missing check.
+- Removing Commit() turned most saving tests red, but one stayed green: it only checked the redirect after saving, not that the phone was really stored. Claude wrote missing check.
 - The Danish texts didn't match ("Gade" vs "Vej", "Ret" vs "Rediger"). I made them consistent.
 
 **Learned:**
@@ -96,3 +96,15 @@ Claude to build E7: tick boxes from VBA's fixed list, at least one field, sent f
 - **Went wrong:** removing the pending check in SkillService.Send failed no test. Every test stopped at the controller first, so the service was never tested. Claude added a test that calls the service directly directly while a change is pending. 
 
 - **Learned:** when there are similar checks at two places then we must do the write the tests for both places checks. 
+
+## 16–17 Nov – S1 Search experts
+
+- **Asked:** 
+Claude to build S1: the secretariat searches by name, email, postcode and field of expertise. I made few changes in the plan: one search box (every word must match, so "anna 2100" works), tick-box filters for Region (region replaced the postcode range), Rolletype, Status (OR within a group, AND between groups). Layout: each filter group folds open and closed with a count badge, long groups get a find box and an 8-row scroll box, results show in table 25 per page with pagination.
+
+- **Went wrong:** 
+Claude's review found the code didn't follow the plan (two database connections instead of one read transaction), claude fixed it.
+The view according to plan didnt have the filters with group folds and no table, it listed the whole list on one page which made it too long and improper. I fixed the view with adding the table with 25 per page and side filters folds. Also added the 'clear filter' at the top instead of at bottom.
+
+- **Learned:** 
+The layout choices can be made according to the view and how data loads and these go in decisions.md.
