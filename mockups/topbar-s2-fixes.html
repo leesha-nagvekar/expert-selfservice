@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top bar and S2 mockup</title>
+<!-- Mockup only: not part of the app. Colours copied from wwwroot/tokens.css. Fake data. -->
+<style>
+:root {
+  color-scheme: light dark;
+  --brand: #00437C; --topbar: #00437C; --on-topbar: #FFFFFF; --secondary: #1F5F8B;
+  --ink: #1E2B39; --text: #34495E; --muted: #6C7C8D; --accent: #E96900; --accent-text: #B05407;
+  --ok: #0E7C55; --surface: #F4F6F9; --background: #FFFFFF; --line: #E7ECF1;
+  --brand-soft: #E8EFF6; --accent-soft: #FCF0E4; --on-brand: #FFFFFF;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand: #3D7FBF; --secondary: #7FB0DC; --ink: #EDF3F9; --text: #D6DEE6; --muted: #8A99A8;
+    --accent: #F0952F; --accent-text: #F0952F; --ok: #4FBF95; --surface: #1E2833; --background: #151C24;
+    --line: #2A3644; --brand-soft: #17293A; --accent-soft: #33251A; --on-brand: #0B131B;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px 48px; background: var(--surface); color: var(--text);
+  font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 32px; }
+h1 { margin: 0; color: var(--ink); font-size: 24px; }
+h2.panel-title { margin: 0 0 4px; color: var(--ink); font-size: 18px; }
+.panel-note { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+.frame { border: 1px solid var(--line); border-radius: 8px; background: var(--background); overflow: hidden; }
+.icon { width: 20px; height: 20px; flex: none; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Top bar, desktop */
+.topbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between;
+  gap: 8px 16px; padding: 8px 16px; background: var(--topbar); color: var(--on-topbar); }
+.topbar a, .topbar span { color: var(--on-topbar); }
+.logo { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; letter-spacing: 0.04em; }
+.logo-mark { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+  border-radius: 50%; background: var(--on-topbar); color: var(--topbar) !important; font-size: 11px; font-weight: 700; }
+.staff-nav { display: flex; gap: 4px; margin-right: auto; }
+.staff-nav a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; }
+.staff-nav a[aria-current] { font-weight: 600; text-decoration: underline; text-underline-offset: 6px; }
+.actions { display: flex; align-items: center; gap: 12px; }
+.lang { display: flex; align-items: center; }
+.lang a, .lang span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; }
+.lang span.on { font-weight: 600; text-decoration: underline; text-underline-offset: 6px; }
+.logout { min-height: 44px; padding: 8px 20px; border: 1px solid var(--on-topbar); border-radius: 4px;
+  background: transparent; color: var(--on-topbar); font: inherit; font-weight: 600; }
+
+/* Top bar, phone: one line, 44 px */
+.phone { width: 360px; max-width: 100%; border: 10px solid var(--ink); border-radius: 28px; overflow: hidden; background: var(--background); }
+.phone .topbar { padding: 0 4px 0 12px; gap: 0; min-height: 44px; flex-wrap: nowrap; }
+.phone .staff-nav { gap: 0; margin: 0 auto 0 4px; }
+.phone .staff-nav a { flex-direction: column; justify-content: center; gap: 0; min-width: 44px; padding: 0 6px;
+  font-size: 12px; line-height: 1.2; text-underline-offset: 3px; }
+.phone .staff-nav .icon { width: 18px; height: 18px; }
+.phone .lang { margin-left: auto; font-size: 14px; }
+.phone .lang a, .phone .lang span { min-width: 44px; justify-content: center; padding: 0; }
+.phone .lang .dot { min-width: 0; }
+.phone .logout-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+  border: 0; background: transparent; color: var(--on-topbar); padding: 0; }
+.skeleton { padding: 16px; display: grid; gap: 10px; }
+.skeleton i { display: block; height: 12px; border-radius: 6px; background: var(--surface); }
+.phones { display: flex; flex-wrap: wrap; gap: 24px; }
+.phone-label { margin: 0 0 6px; color: var(--muted); font-size: 14px; }
+
+/* Desktop scroll demo */
+.scroller { height: 360px; overflow-y: auto; scroll-padding-top: 112px; }
+.page { padding: 24px 16px; }
+.page h3 { margin: 0 0 16px; color: var(--ink); font-size: 24px; }
+
+/* S2 */
+label { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+input[type="search"], textarea { width: 100%; min-height: 44px; padding: 8px 12px; font: inherit; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
+button.primary { min-height: 44px; padding: 8px 20px; border: 0; border-radius: 4px; background: var(--brand);
+  color: var(--on-brand); font: inherit; font-weight: 600; }
+.search-row { display: flex; align-items: center; gap: 8px 16px; }
+.search-row input { flex: 1; min-width: 0; }
+.search-row a { display: inline-flex; align-items: center; min-height: 44px; color: var(--brand); }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+th { padding: 10px 12px; text-align: left; font-size: 14px; color: var(--ink); background: var(--surface); border-bottom: 1px solid var(--line); }
+td { padding: 10px 12px; vertical-align: top; border-bottom: 1px solid var(--line); }
+tbody tr:nth-child(even) { background: var(--surface); }
+.name { color: var(--ink); font-weight: 600; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.old { text-decoration: line-through; color: var(--muted); }
+.decision-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.btn-sm { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 4px;
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-approve { border: 0; background: var(--brand); color: var(--on-brand); }
+.reject { display: contents; }
+.reject > summary { list-style: none; border: 1px solid var(--brand); color: var(--brand); background: var(--background); }
+.reject > summary::-webkit-details-marker { display: none; }
+.reject-form { flex-basis: 100%; display: grid; gap: 8px; margin-top: 4px; }
+.reject:not([open]) .reject-form { display: none; }
+.reject-form button { justify-self: start; border: 1px solid var(--brand); color: var(--brand); background: var(--background); }
+.field-error { margin: 0; color: var(--accent-text); font-weight: 600; font-size: 14px; }
+.field-error::before { content: "! "; }
+textarea[aria-invalid] { border: 2px solid var(--accent); }
+.before { opacity: 0.75; }
+.compare { display: grid; gap: 12px; }
+.compare-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.compare-row strong { min-width: 70px; color: var(--ink); font-size: 14px; }
+.old-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 4px; font-weight: 600; }
+.old-approve { background: var(--brand); color: var(--on-brand); }
+.old-reject { border: 1px solid var(--brand); color: var(--brand); width: 200px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M16 16l4-4-4-4M20 12H9"/></symbol>
+</svg>
+
+<div class="wrap">
+  <h1>Top bar and S2: mockup</h1>
+
+  <!-- 1. Sticky top bar -->
+  <section>
+    <h2 class="panel-title">1 · Top bar stays at the top (desktop)</h2>
+    <p class="panel-note">Scroll inside the box. The bar stays on top of everything. Click "Afvis…" and then "Afvis" with an empty reason: the page scrolls to the error, and the error stops below the bar instead of behind it.</p>
+    <div class="frame scroller" id="scroller">
+      <header class="topbar">
+        <span class="logo">[VBA logo]</span>
+        <nav class="staff-nav" aria-label="Sekretariat">
+          <a href="#">Søg skønsmænd</a>
+          <a href="#" aria-current="page">Afventer godkendelse (4)</a>
+        </nav>
+        <div class="actions">
+          <nav class="lang" aria-label="Sprog"><span class="on">Dansk</span><a href="#">English</a></nav>
+          <button class="logout" type="button">Log ud</button>
+        </div>
+      </header>
+      <div class="page">
+        <h3>Afventer godkendelse</h3>
+        <div class="skeleton" style="padding:0 0 16px"><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i><i></i><i style="width:70%"></i><i></i><i style="width:90%"></i><i></i><i style="width:50%"></i><i></i><i style="width:75%"></i></div>
+        <div class="decision-actions">
+          <button class="btn-sm btn-approve" type="button">Godkend</button>
+          <details class="reject" id="demo-reject">
+            <summary class="btn-sm">Afvis…</summary>
+            <div class="reject-form">
+              <p class="field-error" id="demo-error" hidden>Skriv en begrundelse for afvisningen</p>
+              <label for="demo-reason">Begrundelse, som skønsmanden ser</label>
+              <textarea id="demo-reason" rows="3"></textarea>
+              <button class="btn-sm" type="button" id="demo-send">Afvis</button>
+            </div>
+          </details>
+        </div>
+        <div class="skeleton" style="padding:16px 0 0"><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i><i></i><i style="width:70%"></i><i></i><i style="width:90%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Phone top bar -->
+  <section>
+    <h2 class="panel-title">2 · Phones (under 600 px): one line, 44 px high</h2>
+    <p class="panel-note">Short words with icons. Log out is an icon; screen readers hear "Log ud". The current page and language are underlined. Every tap target is at least 44 px wide.</p>
+    <div class="phones">
+      <div>
+        <p class="phone-label">Staff, on "Afventer"</p>
+        <div class="phone">
+          <header class="topbar">
+            <span class="logo-mark">VBA</span>
+            <nav class="staff-nav" aria-label="Sekretariat">
+              <a href="#"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>Søg</a>
+              <a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>Afventer (4)</a>
+            </nav>
+            <nav class="lang" aria-label="Sprog"><span class="on">DA</span><span class="dot" aria-hidden="true">·</span><a href="#">EN</a></nav>
+            <button class="logout-icon" type="button"><svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg><span class="visually-hidden">Log ud</span></button>
+          </header>
+          <div class="skeleton"><i></i><i style="width:70%"></i><i></i></div>
+        </div>
+      </div>
+      <div>
+        <p class="phone-label">Expert</p>
+        <div class="phone">
+          <header class="topbar">
+            <span class="logo-mark">VBA</span>
+            <nav class="lang" aria-label="Sprog"><span class="on">DA</span><span class="dot" aria-hidden="true">·</span><a href="#">EN</a></nav>
+            <button class="logout-icon" type="button"><svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg><span class="visually-hidden">Log ud</span></button>
+          </header>
+          <div class="skeleton"><i></i><i style="width:70%"></i><i></i></div>
+        </div>
+      </div>
+      <div>
+        <p class="phone-label">Staff, in English</p>
+        <div class="phone">
+          <header class="topbar">
+            <span class="logo-mark">VBA</span>
+            <nav class="staff-nav" aria-label="Secretariat">
+              <a href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>Search</a>
+              <a href="#"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>Pending (4)</a>
+            </nav>
+            <nav class="lang" aria-label="Language"><a href="#">DA</a><span class="dot" aria-hidden="true">·</span><span class="on">EN</span></nav>
+            <button class="logout-icon" type="button"><svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg><span class="visually-hidden">Log out</span></button>
+          </header>
+          <div class="skeleton"><i></i><i style="width:70%"></i><i></i></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. S2 row -->
+  <section>
+    <h2 class="panel-title">3 · S2: buttons side by side, smaller, and the "Ryd" link</h2>
+    <p class="panel-note">"Ryd" shows only after a search with text. Type in the box and press Søg to see it; Ryd empties the search. The buttons have 14 px text and less padding, and keep 44 px height (guide: touch targets 44 px).</p>
+    <div class="frame page">
+      <label for="q">Navn, e-mail eller VBA-nr.</label>
+      <div class="search-row">
+        <input type="search" id="q" value="anna">
+        <button class="primary" type="button" id="go">Søg</button>
+        <a href="#" id="clear">Ryd</a>
+      </div>
+      <table>
+        <thead><tr><th>Skønsmand</th><th>VBA-nr.</th><th>Felt</th><th>Ændring</th><th>Sendt</th><th>Afgørelse</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="name">Anna Holm</td><td class="mono">915614</td><td>Mellemnavn</td>
+            <td><span class="old">Ikke angivet</span> → Møller</td><td>17/11 08:01</td>
+            <td><div class="decision-actions">
+              <button class="btn-sm btn-approve" type="button">Godkend</button>
+              <details class="reject"><summary class="btn-sm">Afvis…</summary>
+                <div class="reject-form"><label for="r2">Begrundelse, som skønsmanden ser</label><textarea id="r2" rows="3"></textarea><button class="btn-sm" type="button">Afvis</button></div>
+              </details>
+            </div></td>
+          </tr>
+          <tr>
+            <td class="name">Bo Lund</td><td class="mono">941876</td><td>Fagområder</td>
+            <td>Tilføjet: Fiber, Netværk</td><td>18/11 10:58</td>
+            <td><div class="decision-actions">
+              <button class="btn-sm btn-approve" type="button">Godkend</button>
+              <details class="reject"><summary class="btn-sm">Afvis…</summary>
+                <div class="reject-form"><label for="r3">Begrundelse, som skønsmanden ser</label><textarea id="r3" rows="3"></textarea><button class="btn-sm" type="button">Afvis</button></div>
+              </details>
+            </div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. Before / after -->
+  <section>
+    <h2 class="panel-title">4 · Buttons: today and after</h2>
+    <div class="frame page compare">
+      <div class="compare-row before"><strong>Today</strong><span class="old-btn old-approve">Godkend</span><span class="old-btn old-reject">Afvis…</span></div>
+      <div class="compare-row"><strong>After</strong><span class="btn-sm btn-approve">Godkend</span><span class="btn-sm" style="border:1px solid var(--brand);color:var(--brand)">Afvis…</span></div>
+    </div>
+  </section>
+
+  <p class="panel-note">Mockup only, with fake data. Make the browser window narrow or switch to dark mode to check the colours.</p>
+</div>
+
+<script>
+// Sticky demo: an empty reason shows the error and scrolls to it; scroll-padding keeps it below the bar.
+document.getElementById("demo-send").addEventListener("click", function () {
+  var error = document.getElementById("demo-error");
+  var reason = document.getElementById("demo-reason");
+  if (reason.value.trim() === "") {
+    error.hidden = false;
+    reason.setAttribute("aria-invalid", "true");
+    document.getElementById("scroller").scrollTop = 0;
+    reason.focus();
+  }
+});
+// Ryd shows only when the box had text at the last search.
+var q = document.getElementById("q"), clear = document.getElementById("clear");
+document.getElementById("go").addEventListener("click", function () { clear.hidden = q.value.trim() === ""; });
+clear.addEventListener("click", function (e) { e.preventDefault(); q.value = ""; clear.hidden = true; });
+</script>
+</body>
+</html>

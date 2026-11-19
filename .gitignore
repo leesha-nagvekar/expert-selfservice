@@ -29,7 +29,3 @@ obj/
 .vscode/
 *.user
 TestResults/
-
-
-# Design mockups, kept on this machine only
-mockups/

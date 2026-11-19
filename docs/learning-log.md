@@ -83,7 +83,7 @@ Built the ASP.NET Core skeleton (phase 3) with Claude, test first at every step:
 
 ## 12 Nov – E6 Company and job title
 
-- **Asked:** Claude to build E6: company, CVR and job title, saved at once, with roles shown as "Set by VBA". check_data py flagged a shared CVR as an error, so I decided that experts from the same company may share one CVR (CVR is the
+- **Asked:** Claude to build E6: company, CVR and job title, saved at once, with roles shown as "Set by VBA". check_data py flagged a shared CVR as an error, so Claude decided that experts from the same company may share one CVR (CVR is the
 company's number, not the expert's; RegistrationId is the expert's own VBA number).
 - 
 **Went wrong:** 00000000 passed the modulus-11 check (the sum is 0), so I added "can't start with 0". Python's \d also accepts non-ASCII digits, so the rule is now [1-9][0-9]{7}. Claude's own test data had an invalid CVR (23456781); the code correctly refused it, and the test was fixed. 
@@ -108,3 +108,11 @@ The view according to plan didnt have the filters with group folds and no table,
 
 - **Learned:** 
 The layout choices can be made according to the view and how data loads and these go in decisions.md.
+
+## 18–19 Nov – S2 Approve or reject
+
+- **Asked:** 
+Claude to build S2: a "Pending approvals" page where the secretariat approves or rejects changes, with a search box and a reason required for rejecting. The expert then sees "Approved" or "Rejected" with the reason. Fields of expertise show as Added / Removed.
+
+- **Went wrong:** Claude's self-review found that approving skills used the current list instead of what Sofie saw, and that the "decide once" check didn't check its own result. Both were fixed, with tests.
+In my break-it checks, I removed a check in PendingController (the one that says "already decided" when Sofie rejects with an empty reason on a change that was already decided). No test failed, so Claude added two tests for that.

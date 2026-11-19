@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-A mockup</title>
+<!-- Mockup only: not part of the app. Colours copied from wwwroot/tokens.css. Fake data. -->
+<style>
+:root {
+  color-scheme: light dark;
+  --brand: #00437C; --topbar: #00437C; --on-topbar: #FFFFFF; --secondary: #1F5F8B;
+  --ink: #1E2B39; --text: #34495E; --muted: #6C7C8D; --accent: #E96900; --accent-text: #B05407;
+  --ok: #0E7C55; --surface: #F4F6F9; --background: #FFFFFF; --line: #E7ECF1;
+  --brand-soft: #E8EFF6; --accent-soft: #FCF0E4; --on-brand: #FFFFFF;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand: #3D7FBF; --secondary: #7FB0DC; --ink: #EDF3F9; --text: #D6DEE6; --muted: #8A99A8;
+    --accent: #F0952F; --accent-text: #F0952F; --ok: #4FBF95; --surface: #1E2833; --background: #151C24;
+    --line: #2A3644; --brand-soft: #17293A; --accent-soft: #33251A; --on-brand: #0B131B;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--background); color: var(--text);
+  font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+h1 { margin: 0 0 16px; color: var(--ink); font-size: 24px; }
+h2 { margin: 0 0 12px; color: var(--ink); font-size: 18px; }
+a { color: var(--brand); }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px;
+  background: var(--topbar); color: var(--on-topbar); }
+.topbar .logo { border: 1px dashed var(--on-topbar); padding: 4px 10px; font-weight: 600; }
+.topbar nav { display: flex; gap: 16px; align-items: center; }
+.topbar nav span { font-weight: 600; text-decoration: underline; text-underline-offset: 6px; }
+.topbar button { background: transparent; color: var(--on-topbar); border: 1px solid var(--on-topbar); }
+main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+label { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+input[type="search"] { width: 100%; min-height: 44px; padding: 8px 12px; font: inherit; color: var(--ink);
+  background: var(--background); border: 1px solid var(--muted); border-radius: 4px; }
+button { min-height: 44px; padding: 8px 20px; border: 0; border-radius: 4px; background: var(--brand);
+  color: var(--on-brand); font: inherit; font-weight: 600; cursor: pointer; }
+.search-row { display: flex; gap: 8px; margin-bottom: 24px; }
+.search-row input { flex: 1; min-width: 0; }
+.search-layout { display: grid; gap: 24px; }
+
+/* Sidebar */
+.filters { border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+.filters > summary { min-height: 44px; display: flex; align-items: center; padding: 0 16px;
+  color: var(--ink); font-weight: 600; cursor: pointer; }
+.filter-groups { padding: 0 16px 16px; }
+.filter-head { display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+.filter-head a { display: inline-flex; align-items: center; min-height: 44px; }
+details.filter-group { border-top: 1px solid var(--line); }
+details.filter-group > summary { list-style: none; display: flex; align-items: center; gap: 8px;
+  min-height: 48px; color: var(--ink); font-weight: 600; cursor: pointer; }
+details.filter-group > summary::-webkit-details-marker { display: none; }
+details.filter-group > summary::after { content: ""; margin-left: auto; width: 8px; height: 8px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); transition: transform 0.15s; }
+details.filter-group[open] > summary::after { transform: rotate(-135deg); }
+.badge { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px;
+  padding: 0 8px; border-radius: 12px; background: var(--brand-soft); color: var(--brand);
+  font-size: 14px; font-weight: 600; }
+fieldset { margin: 0; padding: 0 0 12px; border: 0; }
+.choice { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.choice input { width: 22px; height: 22px; margin: 0; accent-color: var(--brand); flex: none; }
+.choice label { margin: 0; font-weight: 400; color: var(--text); }
+.filter-find { margin-bottom: 8px; }
+.filter-scroll { max-height: calc(8 * 44px); overflow-y: auto; padding: 0 8px;
+  border: 1px solid var(--line); border-radius: 4px; background: var(--background); }
+.pending-group { border-top: 1px solid var(--line); padding-top: 4px; }
+
+/* Results */
+.results-box { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { display: none; }
+tr.result { display: block; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+td { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px; padding: 4px 0; }
+td::before { content: attr(data-label); color: var(--muted); font-size: 14px; }
+.name { color: var(--ink); font-weight: 600; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.status { font-weight: 600; }
+.status-ok { color: var(--ok); } .status-info { color: var(--secondary); }
+.status-standby { color: var(--accent-text); } .status-unknown { color: var(--muted); }
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+  padding: 12px 16px; background: var(--surface); }
+.pager p { margin: 0; color: var(--muted); font-size: 14px; }
+.pager ol { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.pager a, .pager span.off { display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 4px;
+  background: var(--background); color: var(--brand); text-decoration: none; font-weight: 600; }
+.pager a[aria-current] { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.pager span.off { color: var(--muted); font-weight: 400; }
+.note { max-width: 1200px; margin: 0 auto 32px; padding: 0 16px; color: var(--muted); font-size: 14px; }
+
+@media (min-width: 900px) {
+  .search-layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+  .filters > summary { display: none; }
+  thead { display: table-header-group; background: var(--surface); }
+  th { padding: 12px; text-align: left; color: var(--ink); font-size: 14px; font-weight: 600;
+    border-bottom: 1px solid var(--line); }
+  tr.result { display: table-row; padding: 0; }
+  tr.result:nth-child(even) { background: var(--surface); }
+  td { display: table-cell; padding: 10px 12px; vertical-align: top; }
+  td::before { content: none; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="logo">[VBA logo]</span>
+  <nav><span>Dansk</span><a style="color: var(--on-topbar)">English</a><button type="button">Log ud</button></nav>
+</header>
+
+<main>
+  <h1>Søg skønsmænd</h1>
+  <form onsubmit="return false">
+    <label for="q">Navn, e-mail eller postnummer</label>
+    <div class="search-row">
+      <input type="search" id="q" placeholder="fx anna holm eller 2100">
+      <button type="button" id="go">Søg</button>
+    </div>
+
+    <div class="search-layout">
+      <details class="filters" open>
+        <summary id="filters-summary">Filtre</summary>
+        <div class="filter-groups">
+          <div class="filter-head"><strong style="color: var(--ink)">Filtre</strong><a href="#" id="clear">Ryd filtre</a></div>
+          <div id="groups"></div>
+          <div class="pending-group">
+            <div class="choice"><input type="checkbox" id="pending"><label for="pending">Kun skønsmænd med ændringer, der venter</label></div>
+          </div>
+        </div>
+      </details>
+
+      <section>
+        <h2 id="heading"></h2>
+        <div class="results-box">
+          <table>
+            <thead><tr><th>Navn</th><th>VBA-nr.</th><th>Postnummer og by</th><th>Status</th><th>Ændringer, der venter</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+          <div class="pager" id="pager"></div>
+        </div>
+      </section>
+    </div>
+  </form>
+</main>
+<p class="note">Mockup only, with fake data. Try opening and closing the groups, ticking boxes (the badge updates and you go back to page 1) and the page links. Rolletype starts open because 2 boxes are ticked. Results are not really filtered here. Make the window narrow to see the phone layout, and use dark mode to check the colours.</p>
+
+<script>
+var groups = [
+  { name: "region", legend: "Område", values: ["Hovedstaden", "Sjælland", "Nordjylland", "Midtjylland", "Syddanmark"], ticked: [] },
+  { name: "role", legend: "Rolletype", find: "Find en rolletype",
+    values: ["Bisidder", "Enedommer", "Faglig dommer", "Mediator", "Mentor", "Mægler", "Opmand", "Sagkyndig", "Skønsmand", "Staderegistrant", "Tilsynsførende", "Voldgiftsdommer"],
+    ticked: ["Mediator", "Opmand"] },
+  { name: "field", legend: "Fagområde", find: "Find et fagområde",
+    values: ["Beton", "EL", "Fiber", "Maskinanlæg", "Murværk", "Netværk", "Tagdækning", "Tømrer", "VVS", "Varmepumpe", "Ældre bygninger", "Øvrige anlæg", "Åbne arealer"], ticked: [] },
+  { name: "status", legend: "Status", values: ["Aktiv", "Standby", "Under observation", "Evalueret", "Godkendt", "Udtrådt"], ticked: [] }
+];
+
+function el(tag, attrs, text) {
+  var e = document.createElement(tag);
+  for (var k in attrs || {}) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function renderGroups(keepOpen) {
+  var host = document.getElementById("groups");
+  var openNow = {};
+  host.querySelectorAll("details").forEach(function (d) { openNow[d.dataset.group] = d.open; });
+  host.innerHTML = "";
+  groups.forEach(function (g) {
+    var d = el("details", { "class": "filter-group", "data-group": g.name });
+    d.open = keepOpen && g.name in openNow ? openNow[g.name] || g.ticked.length > 0 : g.ticked.length > 0;
+    var s = el("summary", {}, g.legend + " ");
+    if (g.ticked.length) {
+      var b = el("span", { "class": "badge" }, String(g.ticked.length));
+      b.appendChild(el("span", { "class": "visually-hidden" }, " valgt"));
+      s.appendChild(b);
+    }
+    d.appendChild(s);
+    var fs = el("fieldset");
+    fs.appendChild(el("legend", { "class": "visually-hidden" }, g.legend));
+    var big = g.values.length > 8;
+    var list = fs;
+    var ordered = g.values;
+    if (big) {
+      var find = el("input", { type: "search", "class": "filter-find", placeholder: g.find, "aria-label": g.find });
+      fs.appendChild(find);
+      list = el("div", { "class": "filter-scroll" });
+      fs.appendChild(list);
+      ordered = g.values.filter(function (v) { return g.ticked.indexOf(v) >= 0; })
+        .concat(g.values.filter(function (v) { return g.ticked.indexOf(v) < 0; }));
+      find.addEventListener("input", function () {
+        var t = find.value.trim().toLocaleLowerCase();
+        list.querySelectorAll(".choice").forEach(function (c) {
+          c.hidden = t !== "" && c.textContent.toLocaleLowerCase().indexOf(t) < 0;
+        });
+      });
+    }
+    ordered.forEach(function (v, i) {
+      var id = g.name + "-" + i;
+      var c = el("div", { "class": "choice" });
+      var box = el("input", { type: "checkbox", id: id });
+      box.checked = g.ticked.indexOf(v) >= 0;
+      box.addEventListener("change", function () {
+        if (box.checked) g.ticked.push(v); else g.ticked.splice(g.ticked.indexOf(v), 1);
+        page = 1;
+        renderGroups(true);
+        render();
+        document.getElementById(id) && document.getElementById(id).focus();
+      });
+      c.appendChild(box);
+      c.appendChild(el("label", { "for": id }, v));
+      list.appendChild(c);
+    });
+    d.appendChild(fs);
+    host.appendChild(d);
+  });
+  var total = groups.reduce(function (n, g) { return n + g.ticked.length; }, 0) + (document.getElementById("pending").checked ? 1 : 0);
+  document.getElementById("filters-summary").textContent = total ? "Filtre (" + total + " valgt)" : "Filtre";
+}
+
+// 100 fake experts, sorted by last name then first name.
+var first = ["Anna", "Bo", "Inga", "Jens", "Pia", "Ragna", "Søren", "Mette", "Lars", "Karen", "Ole", "Helle", "Niels", "Tove", "Erik"];
+var last = ["Andreasen", "Bach", "Berg", "Brandt", "Christensen", "Clausen", "Dahl", "Eriksen", "Frost", "Holm", "Jensen", "Kjær", "Lund", "Madsen", "Nielsen", "Olsen", "Poulsen", "Rasmussen", "Sørensen", "Østergaard"];
+var towns = ["2100 København Ø", "9000 Aalborg", "6000 Kolding", "2625 Vallensbæk", "5000 Odense C", "8600 Silkeborg", "8000 Aarhus C", "4000 Roskilde"];
+var statuses = [["Aktiv", "status-ok"], ["Standby", "status-standby"], ["Under observation", "status-info"], ["Evalueret", "status-ok"], ["Godkendt", "status-ok"], ["Udtrådt", "status-unknown"]];
+var experts = [];
+for (var i = 0; i < 100; i++) {
+  experts.push({
+    first: first[(i * 7) % first.length], last: last[i % last.length],
+    vba: String(900000 + ((i * 21379) % 99999)).slice(0, 6),
+    town: towns[(i * 3) % towns.length], status: statuses[(i * 5) % statuses.length],
+    pending: i % 11 === 3 ? (i % 3) + 1 : 0
+  });
+}
+var collator = new Intl.Collator("da");
+experts.sort(function (a, b) { return collator.compare(a.last, b.last) || collator.compare(a.first, b.first); });
+
+var size = 25, page = 1;
+
+function render() {
+  var total = experts.length, pages = Math.max(1, Math.ceil(total / size));
+  var from = (page - 1) * size;
+  var slice = experts.slice(from, from + size);
+  document.getElementById("heading").textContent = total + " skønsmænd fundet";
+  var tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+  slice.forEach(function (x) {
+    var tr = el("tr", { "class": "result" });
+    tr.appendChild(el("td", { "data-label": "Navn", "class": "name" }, x.first + " " + x.last));
+    tr.appendChild(el("td", { "data-label": "VBA-nr.", "class": "mono" }, x.vba));
+    tr.appendChild(el("td", { "data-label": "Postnummer og by" }, x.town));
+    var st = el("td", { "data-label": "Status" });
+    st.appendChild(el("span", { "class": "status " + x.status[1] }, x.status[0]));
+    tr.appendChild(st);
+    tr.appendChild(el("td", { "data-label": "Ændringer, der venter" }, String(x.pending)));
+    tbody.appendChild(tr);
+  });
+
+  var pager = document.getElementById("pager");
+  pager.innerHTML = "";
+  pager.appendChild(el("p", {}, "Viser " + (from + 1) + "–" + (from + slice.length) + " af " + total));
+  var nav = el("nav", { "aria-label": "Sider" });
+  var ol = el("ol");
+  function item(label, target, current) {
+    var li = el("li");
+    if (target === null) {
+      li.appendChild(el("span", { "class": "off", "aria-disabled": "true" }, label));
+    } else {
+      var a = el("a", { href: "?page=" + target }, label);
+      if (current) a.setAttribute("aria-current", "page");
+      a.addEventListener("click", function (e) { e.preventDefault(); page = target; render(); window.scrollTo(0, 0); });
+      li.appendChild(a);
+    }
+    ol.appendChild(li);
+  }
+  item("‹ Forrige", page > 1 ? page - 1 : null);
+  for (var p = 1; p <= pages; p++) item(String(p), p, p === page);
+  item("Næste ›", page < pages ? page + 1 : null);
+  nav.appendChild(ol);
+  pager.appendChild(nav);
+}
+
+document.getElementById("pending").addEventListener("change", function () { page = 1; renderGroups(true); render(); });
+document.getElementById("go").addEventListener("click", function () { page = 1; render(); });
+document.getElementById("clear").addEventListener("click", function (e) {
+  e.preventDefault();
+  groups.forEach(function (g) { g.ticked = []; });
+  document.getElementById("pending").checked = false;
+  page = 1; renderGroups(false); render();
+});
+renderGroups(false);
+render();
+</script>
+</body>
+</html>
