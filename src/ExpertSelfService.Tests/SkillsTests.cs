@@ -420,6 +420,7 @@ public sealed class SkillsTests : IAsyncLifetime, IDisposable
 
         var html = await _browser.Html(Page);
         Assert.True(HasCheckboxes(html));
+        Assert.Contains("Approved", Decoded(html)); // since S2: the expert sees the outcome
         Assert.DoesNotContain("Pending approval", Decoded(html));
         Assert.DoesNotContain("Rejected", Decoded(html));
 

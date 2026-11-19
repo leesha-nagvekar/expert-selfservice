@@ -1,4 +1,3 @@
-using System.Text;
 using Dapper;
 using Microsoft.Data.Sqlite;
 
@@ -140,12 +139,10 @@ public sealed class ExpertSearchService(Database database)
             },
             transaction);
 
-        // The search box: matched here, not in SQL. A varying number of words would mean SQL built from text, and
-        // SQLite's LIKE and lower() only fold A-Z, so "øster" would miss "Østergaard" (decisions.md, S1).
-        var words = filters.Words.Select(word => word.Normalize(NormalizationForm.FormC)).ToList();
-
+        // The search box: matched here, not in SQL (SearchRules.AllWordsMatch).
         return [.. rows
-            .Where(row => words.All(word => Matches(row, word)))
+            .Where(row => SearchRules.AllWordsMatch(
+                filters.Words, row.Postcode, row.FirstName, row.MiddleName, row.LastName, row.Email))
             .OrderBy(row => row.LastName, DanishOrder.Comparer)
             .ThenBy(row => row.FirstName, DanishOrder.Comparer)
             .ThenBy(row => row.Id)
@@ -153,22 +150,7 @@ public sealed class ExpertSearchService(Database database)
                 row.Id, FullName(row), row.RegistrationId, row.Postcode, row.City, row.Status, row.PendingCount))];
     }
 
-    /// <summary>
-    /// A word matches part of a name or of the email, or the start of the postcode. OrdinalIgnoreCase folds Æ/æ, Ø/ø
-    /// and Å/å, but never treats "aa" as "å" or "ae" as "æ", as a Danish culture comparison would.
-    /// </summary>
-    private static bool Matches(HitRow row, string word) =>
-        Contains(row.FirstName, word)
-        || Contains(row.MiddleName, word)
-        || Contains(row.LastName, word)
-        || Contains(row.Email, word)
-        || (row.Postcode?.StartsWith(word, StringComparison.Ordinal) ?? false);
-
-    private static bool Contains(string? text, string word) =>
-        text is not null && text.Normalize(NormalizationForm.FormC).Contains(word, StringComparison.OrdinalIgnoreCase);
-
-    private static string FullName(HitRow row) =>
-        string.Join(' ', new[] { row.FirstName, row.MiddleName, row.LastName }.Where(part => !string.IsNullOrWhiteSpace(part)));
+    private static string FullName(HitRow row) => ExpertName.Full(row.FirstName, row.MiddleName, row.LastName);
 
     private sealed class ListRow
     {

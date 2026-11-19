@@ -11,6 +11,7 @@ public sealed class ProfileTests : IAsyncLifetime, IDisposable
 {
     private const string PendingApproval = "Pending approval";
     private const string Rejected = "Rejected";
+    private const string Approved = "Approved";
     private const string NotGiven = "Not given";
 
     // A new app and database per test, because some tests change the data.
@@ -262,15 +263,63 @@ public sealed class ProfileTests : IAsyncLifetime, IDisposable
     }
 
     [Fact]
-    public async Task An_approved_change_shows_no_state()
+    public async Task An_approved_change_shows_approved_without_repeating_the_value()
     {
+        // Changed with S2: the expert sees the outcome (demo step 6). The badge shows the word only, because the
+        // field already shows the new value (here the test row's value was never written to Candidates).
         Pending(1, "FirstName", "Annie", status: "approved");
 
         var html = await ProfileOf(Anna);
 
+        var name = Section(html, "name");
+        Assert.Contains(Approved, name);
+        Assert.DoesNotContain("Annie", name);
         Assert.DoesNotContain(PendingApproval, html);
         Assert.DoesNotContain(Rejected, html);
-        Assert.DoesNotContain("Annie", html);
+        Assert.DoesNotContain(Approved, Section(html, "skills"));
+    }
+
+    [Fact]
+    public async Task A_newer_pending_change_replaces_an_approval()
+    {
+        Pending(1, "LastName", "Demosen", status: "approved");
+        Pending(1, "LastName", "Holm");
+
+        var name = Section(await ProfileOf(Anna), "name");
+
+        Assert.Contains(PendingApproval, name);
+        Assert.DoesNotContain(Approved, name);
+    }
+
+    [Fact]
+    public async Task Without_a_middle_name_or_a_change_to_it_there_is_no_middle_name_row()
+    {
+        // Anna has no middle name in the test data.
+        var name = Section(await ProfileOf(Anna), "name");
+
+        Assert.DoesNotContain("Middle name", name);
+    }
+
+    [Fact]
+    public async Task An_approved_middle_name_removal_keeps_the_row_with_not_given_and_approved()
+    {
+        // After the approval Candidates has no middle name, and the newest MiddleName row is approved with an empty
+        // new value. The row stays until the next name change (SPEC section 3), so the expert sees the outcome
+        // instead of a row that silently disappeared.
+        using (var db = _app.Open())
+        {
+            db.Execute("UPDATE Candidates SET MiddleName = NULL WHERE Id = 1");
+        }
+
+        Pending(1, "MiddleName", "", status: "approved");
+
+        var name = Section(await ProfileOf(Anna), "name");
+
+        Assert.Contains("Middle name", name);
+        Assert.Contains(NotGiven, name);
+        Assert.Contains(Approved, name);
+        Assert.DoesNotContain(PendingApproval, name);
+        Assert.DoesNotContain(Rejected, name);
     }
 
     [Fact]

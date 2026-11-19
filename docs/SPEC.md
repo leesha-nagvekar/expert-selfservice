@@ -47,10 +47,14 @@ Status: Approved at Gate 1 (28 Oct 2026). Updated 2 Nov 2026 for the new guide (
 - While a change to a field is pending, the expert can't edit that field again. The screen shows the pending value and "Pending approval".
 - On approval the new value is written to Candidates (or CandidateSkills), `LastUpdated` is set, and a change-log row is written. Who = the secretariat user, plus a link to the pending change, which shows which expert asked for it.
 - On rejection nothing in Candidates changes. The expert sees "Rejected" and the reason on the profile until they make a new change to that field.
+- On approval the expert sees "Approved" (green, icon + colour + word) on that field until they make a new change to it. The badge shows the word only, because the field already shows the new value. *(Added 18 Nov 2026 with S2, for demo step 6.)*
+- Approving fields of expertise changes only what differs: rows of removed fields are deleted, added fields get a new row, and unchanged CandidateSkills rows keep their Id. *(Added 18 Nov 2026.)*
 
 ## 4. Screens
 
 Every screen has the top bar: the white VBA logo on the left (the mark on narrow screens) and the language switch (Dansk / English) on the right. Help and "Contact the secretariat" are reachable from every screen. Status is always shown as icon + colour + word. Errors appear next to the field.
+- The top bar stays at the top while scrolling, above everything else. A page scrolled to a field, an error or the reject box stops below it, so nothing is hidden behind the bar. *(Added 19 Nov 2026.)*
+- Phones under 600 px: one line, 44 px high. Staff: logo, search icon + "Search", clock icon + "Pending (N)", "DA · EN", and a log-out icon whose label "Log out" is read by screen readers. An expert: logo, "DA · EN" and the log-out icon. Wider screens keep the long labels. *(Added 19 Nov 2026.)*
 
 ### Expert
 
@@ -172,10 +176,19 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
   - The page is `?page=N` in the query string. A page link keeps the search text and every tick. The form has no page field, so a new search or a tick goes to page 1. A page that isn't plain digits (`0`, `07`, `-1`, `abc`) or is past the last page gives 400.
 
 **S-B Pending changes (S2)**
-- A list of all pending changes, oldest first: expert, field, old value, new value, date.
-- "Approve" applies the change (section 3).
-- "Reject" requires a reason, max 500 characters. Error: "Write a reason for rejecting".
-- A change that has already been decided can't be decided again.
+*(Changed 18 Nov 2026 with S2: search box, Added/Removed, the top-bar link. See `docs/decisions.md`.)*
+- GET `/staff/pending`, reached from "Pending approvals (N)" in the top bar.
+- **Search box** "Name, email or VBA no.", max 254 characters (the same error as S-A). Every word must match part of FirstName, MiddleName or LastName, part of the email, or the start of the VBA no. Case-insensitive, also for æ, ø and å.
+  - A "Clear" link next to Search, shown only after a search with text. It goes back to the full list. *(Added 19 Nov 2026.)*
+- Approve and "Reject…" sit side by side, with smaller text but still 44 px high. "Reject…" stays next to Approve when opened; the reason box and the Reject button sit below both, full width. *(Changed 19 Nov 2026.)*
+- **List**: all pending changes, oldest first. Columns: expert (First Middle Last), VBA no., field (First name, Middle name, Last name, Fields of expertise), change, sent (local date and time), decision. Heading "N changes waiting", "No changes are waiting." or, after a search, "No waiting changes match the search." No paging.
+  - A name change shows old → new; an empty value shows "Not given". Two name fields of one expert are two rows, decided one at a time.
+  - A fields-of-expertise change shows "Added: …" and "Removed: …", worked out from the stored old and new lists.
+- **"Approve"** applies the change (section 3). No confirmation step.
+- **"Reject…"** opens a reason box in the row. The reason is required, max 500 characters, line breaks allowed. Errors next to the box: "Write a reason for rejecting", "The reason can be at most 500 characters.", "The reason can't contain control characters." The box stays open with the text kept.
+- After a decision the list comes back with the search text kept and one message: "Approved: Anna Demo – Fields of expertise", "Rejected: …".
+- A change that has already been decided can't be decided again: "This change has already been decided." An unknown change gives "Page not found".
+- Names are plain text until S-C exists.
 
 **S-C Expert page and change log (S3)**
 - The expert's details (read-only) and their change log, newest first: when, who (expert or secretariat user), field, old value, new value.
@@ -185,7 +198,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 After logging in, a secretariat user lands on Search experts. The top bar has Search experts, pending approvals (with a count), Help, DA/EN and Log out.
 Experts are searched with one box (name, email or postcode), and a filter sidebar narrows the results by region, role, field of expertise, status and pending changes (the filter sidebar can have more filters). Results appear in a table: name, VBA no., postcode and city, status and pending changes. The details are in S-A above.
 Clicking a name opens the expert page: a read-only profile, pending changes to approve or reject (rejecting needs a reason the expert sees), and the change log, which can’t be edited.
-Pending approvals lists all waiting changes, oldest first, so I can approve or reject them there too.
+Pending approvals lists all waiting changes, oldest first, with a search box (name, email or VBA no.), so I can approve or reject them there too. The details are in S-B above.
 
 
 ## 5. New tables (prefix ss_)
@@ -241,7 +254,7 @@ The SQLite structure of all tables is in `db/schema_sqlite.sql`.
 | E7 fields of expertise | Fags; CandidateSkills | ss_pending_changes |
 | E8 languages and education | ss_languages; ss_expert_languages; ss_expert_education; CandidateCourses (read-only) | ss_expert_languages; ss_expert_education; ss_change_log |
 | S1 search | Candidates; Zipcodes→Cities→Regions; CandidateSkills; Fags; CandidateTags→ProfessionTags; ss_pending_changes | – |
-| S2 approve / reject | ss_pending_changes | ss_pending_changes; Candidates or CandidateSkills; ss_change_log |
+| S2 approve / reject | ss_pending_changes; Candidates (FirstName, MiddleName, LastName, Email, RegistrationId); CandidateSkills | ss_pending_changes; Candidates or CandidateSkills; Candidates.LastUpdated; ss_change_log |
 | S3 change log | ss_change_log; ss_staff_users; Candidates | – |
 
 Should and Could stories (E9–E11, S4) are specified after Gate 3.

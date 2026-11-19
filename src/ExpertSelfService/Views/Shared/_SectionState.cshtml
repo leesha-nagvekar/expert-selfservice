@@ -1,6 +1,7 @@
 @model PendingState
-@* "Pending approval" or "Rejected" next to a field (SPEC section 3, X4, X7). Icon + colour + word.
-   An empty new value (a removed middle name) says "Not given", so it never looks like a gap. *@
+@* "Pending approval", "Rejected" or "Approved" next to a field (SPEC section 3, X4, X7, X9). Icon + colour + word.
+   An empty new value (a removed middle name) says "Not given", so it never looks like a gap.
+   "Approved" shows the word only: the field above it already shows the new value. *@
 @{
     async Task Value()
     {
@@ -19,6 +20,12 @@
   <p class="state state-pending">
     <span class="state-word">@await Html.PartialAsync("_Icon", "clock") @Text["profile.pending"]</span>
     @{ await Value(); }
+  </p>
+}
+else if (Model.IsApproved)
+{
+  <p class="state state-saved state-approved">
+    <span class="state-word">@await Html.PartialAsync("_Icon", "check") @Text["profile.approved"]</span>
   </p>
 }
 else

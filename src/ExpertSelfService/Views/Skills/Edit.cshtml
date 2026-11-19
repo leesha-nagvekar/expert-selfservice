@@ -21,10 +21,10 @@
 }
 else
 {
-  @* A rejected change: the reason sits above the tick boxes, which can be changed again. *@
-  @if (Model.State is PendingState rejected)
+  @* A rejected change (with its reason) or an approved one sits above the tick boxes, which can be changed again. *@
+  @if (Model.State is PendingState decided)
   {
-    @await Html.PartialAsync("_SectionState", rejected)
+    @await Html.PartialAsync("_SectionState", decided)
   }
 
   <form method="post" action="/profile/skills" novalidate>

@@ -5,6 +5,12 @@
   box-sizing: border-box;
 }
 
+/* The top bar stays at the top (sticky). When the browser scrolls to a field, an error or the reject box,
+   it stops this far down, so nothing ends up behind the bar. */
+html {
+  scroll-padding-top: 112px;
+}
+
 body {
   margin: 0;
   background: var(--background);
@@ -49,6 +55,9 @@ main.wide {
 
 /* Top bar: logo blue, white logo and white text in both themes. */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -88,13 +97,16 @@ main.wide {
 }
 
 .topbar-logout button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   color: var(--on-topbar);
   border: 1px solid var(--on-topbar);
 }
 
-.topbar-language a,
-.topbar-language span {
+.topbar-language > a,
+.topbar-language > span {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -102,10 +114,128 @@ main.wide {
   color: var(--on-topbar);
 }
 
-.topbar-language span {
+.topbar-language > span[aria-current] {
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 6px;
+}
+
+/* Wider screens: the long labels, no icons in the bar. Phones swap them (below). */
+.topbar .label-short,
+.topbar-staff .icon,
+.topbar-logout .icon {
+  display: none;
+}
+
+/* Staff only: Search experts and Pending approvals (N). The current page is underlined, like the language. */
+.topbar-staff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.topbar-staff a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--on-topbar);
+  text-decoration: none;
+}
+
+.topbar-staff a[aria-current="page"] {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+/* Phones under 600 px: one line, 44 px high. Short words with icons; log out is an icon whose label stays
+   for screen readers. Every tap target is at least 44 px (guide section 5). */
+@media (max-width: 599px) {
+  html {
+    scroll-padding-top: 64px;
+  }
+
+  .topbar {
+    flex-wrap: nowrap;
+    gap: 0;
+    min-height: 44px;
+    padding: 0 4px 0 12px;
+  }
+
+  .topbar .label-long {
+    display: none;
+  }
+
+  .topbar .label-short,
+  .topbar-staff .icon,
+  .topbar-logout .icon {
+    display: inline;
+  }
+
+  .topbar-logo {
+    flex: none;
+  }
+
+  .topbar-logo img {
+    height: 32px;
+  }
+
+  .topbar-staff {
+    flex-wrap: nowrap;
+    gap: 0;
+    margin: 0 auto 0 4px;
+  }
+
+  .topbar-staff a {
+    flex-direction: column;
+    justify-content: center;
+    min-width: 44px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-underline-offset: 3px;
+  }
+
+  .topbar-actions {
+    flex-wrap: nowrap;
+    gap: 0;
+    margin-left: auto;
+  }
+
+  .topbar-language {
+    gap: 0;
+    font-size: 14px;
+  }
+
+  .topbar-language > a,
+  .topbar-language > span {
+    justify-content: center;
+    min-width: 44px;
+    padding: 0;
+  }
+
+  .topbar-language > .topbar-dot {
+    min-width: 0;
+  }
+
+  .topbar-logout button {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+  }
+
+  .logout-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 /* Forms: one field per row, errors next to the field (guide section 5). */
@@ -140,7 +270,22 @@ input[type="tel"] {
   font: inherit;
 }
 
-input[aria-invalid="true"] {
+/* S-B: the reason for a rejection. Line breaks are allowed. */
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 88px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
   border: 2px solid var(--accent);
 }
 
@@ -634,6 +779,78 @@ dd {
   font-weight: 600;
 }
 
+/* S-B: the message after a decision, and each row's Approve button and "Reject…" box. */
+.decision-message {
+  margin: 0 0 16px;
+}
+
+.decision-message.state-rejected .state-word {
+  color: var(--accent-text);
+}
+
+.change-line {
+  margin: 0;
+}
+
+/* Approve and "Reject…" side by side, smaller text and padding; still 44 px high (guide section 5).
+   Approve floats left, so "Reject…" stays next to it also when open; the reason box drops below both
+   (clear), full width. Plain CSS, no JavaScript. */
+.decision-actions {
+  display: flow-root;
+}
+
+.decision-actions form {
+  margin: 0;
+}
+
+.decision-actions > form {
+  float: left;
+  margin-right: 8px;
+}
+
+.reject form {
+  clear: both;
+}
+
+.decision-actions button,
+.reject > summary {
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.reject > summary {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--brand);
+  border-radius: 4px;
+  color: var(--brand);
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.reject > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* S-B: "Clear" next to Search, only after a search with text. */
+.search-clear {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+}
+
+.reject[open] > summary {
+  margin-bottom: 8px;
+}
+
+.reject form button {
+  margin-top: 8px;
+}
+
 /* Page links under the results: "Showing 1–25 of 100", Previous, numbers, Next. */
 .pager {
   display: flex;
@@ -695,6 +912,12 @@ dd {
 }
 
 @media (min-width: 900px) {
+  /* S-B: the table sizes the decision column to its widest single button, so "Reject…" would drop below
+     Approve while the box is closed. Room for both side by side (rem: grows with the text size). */
+  .decision-actions {
+    min-width: 12.5rem;
+  }
+
   .search-layout {
     grid-template-columns: 280px minmax(0, 1fr);
     align-items: start;

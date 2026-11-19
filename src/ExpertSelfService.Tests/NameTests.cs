@@ -252,6 +252,7 @@ public sealed class NameTests : IAsyncLifetime, IDisposable
 
         AssertInput(html, "LastName", "Demo");
         var block = FieldBlock(html, "last-name");
+        Assert.Contains("Approved", block); // since S2: the expert sees the outcome
         Assert.DoesNotContain("Pending approval", block);
         Assert.DoesNotContain("Rejected", block);
 
@@ -260,7 +261,7 @@ public sealed class NameTests : IAsyncLifetime, IDisposable
         Assert.Equal(("LastName", "Demo-Hansen", "pending"), (row.Field, row.NewValue, row.Status));
     }
 
-    // An approved row alone proves little here: the query skips approved rows anyway. The rejected row in between
+    // Since S2 the query reads approved rows too, so the oldest approved row must not show either. The rejected row in between
     // is what makes the newest-row rule decide: without it, the field would show "Rejected" and the old reason,
     // or have two states at once.
     [Fact]
@@ -278,6 +279,7 @@ public sealed class NameTests : IAsyncLifetime, IDisposable
         var block = FieldBlock(html, "last-name");
         Assert.Contains("Pending approval", block);
         Assert.Contains("Demo-Jensen", block);
+        Assert.DoesNotContain("Approved", block);
         Assert.DoesNotContain("Rejected", block);
         Assert.DoesNotContain("Demo-Old", block);
         Assert.DoesNotContain("No proof of the name change.", block);

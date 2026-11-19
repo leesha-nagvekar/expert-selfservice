@@ -2,6 +2,32 @@
 
 Short records of choices made in the project and why.
 
+## S2 approve or reject (18 Nov 2026)
+
+**A page of its own, linked from the top bar.** S-B is `/staff/pending`. Staff pages now have "Search experts" and "Pending approvals (N)" in the top bar; expert pages don't. The expert page S-C gets its own approve and reject with S3. A search box "Name, email or VBA no." sits above the list, with the same every-word rule as S1. The word matching moved from `ExpertSearchService` to `SearchRules.AllWordsMatch`, so both pages use the same code; on S-B the start of the VBA no. takes the place of the postcode.
+
+**The expert sees "Approved".** Demo step 6 says Anna's window "shows as approved", but an approved change showed nothing. Now `ProfileService.NewestStates` also returns approved rows, and the field shows a green "Approved" until the expert makes a new change to it, the same way "Rejected" works. It shows the word only, because the field already shows the new value. SPEC section 3 updated.
+
+**Fields of expertise: Added / Removed.** The stored change is the whole old and new list. The list page shows only what differs, so the secretariat doesn't have to compare two lists by eye.
+
+**Approving fields of expertise changes only what differs (Leesha, after the plan).** The first plan deleted all of the expert's CandidateSkills rows and inserted the new list. Now only the rows of removed fields are deleted and only added fields are inserted; unchanged rows keep their Id. Proved by `Approving_skills_changes_only_the_added_and_removed_rows` (+ Netværk − Maskinanlæg: EL and Varmepumpe keep their Ids).
+
+**Approving applies exactly the Added / Removed the page shows (Leesha, after the S2 review, 19 Nov).** Approving used to make CandidateSkills equal the whole sent list, so a skill that came in after the expert sent would be deleted without being on screen. Now `SkillRules.Diff(old_value, new_value)` gives the Added and Removed for both the page and the approval, and nothing else is touched. A removed skill already gone, or an added one already there, is skipped. The log holds the real list before and after, not the sent list. Proved by `Approving_skills_keeps_a_skill_added_after_the_change_was_sent` and the two "already gone / already there" tests.
+
+**The log's old value is what Candidates held at approval.** The pending row's old value is from when the expert sent it. If something else changed the name in between, the log must show what was really replaced. Proved by `The_log_holds_the_value_candidates_had_when_it_was_approved`.
+
+**Decided once only.** Approve and reject read the row again inside a write transaction (not deferred, like `NameService.Send`), and the update has `AND status = 'pending'`. Two tabs or a double click give one decision and one log row, and the second says "This change has already been decided." *(Added 19 Nov, after the S2 review:)* the update's row count is checked too. If it changed no row, nothing is committed (the name or skills write and the log row are undone) and the answer is "already decided". It is a second guard should the transaction ever become deferred; proved with a test trigger that makes the update change no row (`If_the_approve_update_changes_no_row_…`, `If_the_reject_update_changes_no_row_…`).
+
+**The column name is never glued in.** Approving a name field picks one of three fixed `UPDATE Candidates SET FirstName/MiddleName/LastName` statements with a `switch`; the value is a parameter.
+
+**Rejecting writes no change-log row.** Nothing changed, so there is nothing to log (SPEC section 3). The reason is on the pending row, which the expert sees.
+
+**A reason may have line breaks**, unlike the one-line fields, so other control characters are refused but CR and LF are allowed.
+
+**A Retired expert's pending change can still be decided.** The secretariat owns the record; the expert can't log in to see it, but the history stays right.
+
+**No seed changes and no paging (Leesha).** After `seed.py --reset` the list is empty until demo step 5 creates a change live. The list is expected to be short; paging can come later like S1's.
+
 ## S1 rework: folding groups and pages (17 Nov 2026)
 
 **Paging is done in C#, not with SQL `LIMIT`.** The search box is matched in C# (see S1 below), so SQL can't know how many experts match. The service still returns every hit sorted, and the page cuts out 25. With a few hundred experts this costs nothing.
@@ -24,7 +50,7 @@ Short records of choices made in the project and why.
 
 **Only the five Danish regions (Leesha).** Regions also holds Sverige, Norge and Andre, but an expert's postcode must be Danish (`AddressRules.DanishRegionIds`), so those would always give nothing. The five are listed in VBA's `DisplayOrder`.
 
-**Retired experts are shown (Leesha).** The secretariat owns their history too. The Status filter can narrow the list.
+**Retired experts are shown (Claude).** The secretariat owns their history too. The Status filter can narrow the list.
 
 **Sidebar ticks apply straight away (Leesha).** `wwwroot/staff-search.js`, plain JavaScript like `postcode.js`, sends the form when a tick box changes. The search box is in the same GET form, so its text is kept, and everything is in the URL, so a search can be bookmarked. Focus returns to the changed tick box after the reload. Without JavaScript the Search button applies everything (a second Search button at the bottom of the sidebar, which the script hides). On a phone (under 900 px) the sidebar is a `<details>` "Filters (N ticked)" above the results; the script closes it at the start unless it was open before the reload. On a wide screen it is always open. The results table becomes stacked cards on a phone.
 
@@ -32,7 +58,7 @@ Short records of choices made in the project and why.
 
 **The search box is limited to 254 characters**, the same as an email on X1. A longer text shows "The search text can be at most 254 characters." next to the box and no results.
 
-**One read transaction per search (found in Leesha's review).** The first version loaded the sidebar lists and ran the search on two separate connections, although the plan said one read transaction like `ProfileService.Load`. Now `ExpertSearchService.Search` loads the lists, checks the query values against them (`SearchRules.Read`) and runs the search in one deferred transaction, which reads without taking the write lock. So a value is always checked against the same lists the search and the page use. Before, the worst case was harmless (a list changing between the two calls), but it went against the approved plan. No test can show the difference, because it needs a write to land between two reads of one request. The 69 search tests passed unchanged after the move.
+**One read transaction per search (found in Claude review).** The first version loaded the sidebar lists and ran the search on two separate connections, although the plan said one read transaction like `ProfileService.Load`. Now `ExpertSearchService.Search` loads the lists, checks the query values against them (`SearchRules.Read`) and runs the search in one deferred transaction, which reads without taking the write lock. So a value is always checked against the same lists the search and the page use. Before, the worst case was harmless (a list changing between the two calls), but it went against the approved plan. No test can show the difference, because it needs a write to land between two reads of one request. The 69 search tests passed unchanged after the move.
 
 **Known trade-offs of "a tick applies straight away" (Leesha, after review).** Both accepted for the MVP, because Leesha asked for the behaviour and the secretariat is two users on one machine.
 - **Accessibility.** A tick reloads the page. WCAG 3.2.2 ("On Input") says changing a control shouldn't change the context unless the user is told first. Focus goes back to the ticked box after the reload, which helps a keyboard user, but a screen-reader user still hears a whole new page. A real version could say so in the sidebar ("Results update when you tick a box"), or update the results without a reload (`fetch`) and announce the new count in an `aria-live` region.

@@ -4,10 +4,12 @@ using Microsoft.Data.Sqlite;
 
 namespace ExpertSelfService.Services;
 
-/// <summary>The newest ss_pending_changes row for one field, when it is pending or rejected.</summary>
+/// <summary>The newest ss_pending_changes row for one field: pending, rejected or (since S2) approved.</summary>
 public sealed record PendingState(string Field, string? NewValue, string Status, string? Reason)
 {
     public bool IsPending => Status == "pending";
+
+    public bool IsApproved => Status == "approved";
 }
 
 /// <summary>Everything screen X4 shows. Read-only: E2 writes nothing (SPEC section 6).</summary>
@@ -95,8 +97,8 @@ public sealed class ProfileService(Database database)
             transaction));
 
     /// <summary>
-    /// The state of each field that is pending or rejected. Only the newest row per field counts: a rejection shows
-    /// until a new change to that field, and an approved change shows nothing (SPEC section 3). X4 and X7 both use it.
+    /// The state of each field with a change: pending, rejected or approved. Only the newest row per field counts:
+    /// "Rejected" or "Approved" shows until a new change to that field (SPEC section 3). X4, X7 and X9 use it.
     /// </summary>
     public static Dictionary<string, PendingState> NewestStates(SqliteConnection db, SqliteTransaction transaction, long expertId) =>
         db.Query<PendingState>(
@@ -104,7 +106,6 @@ public sealed class ProfileService(Database database)
             SELECT p.field AS Field, p.new_value AS NewValue, p.status AS Status, p.reason AS Reason
             FROM ss_pending_changes p
             WHERE p.candidate_id = @expertId
-              AND p.status IN ('pending', 'rejected')
               AND p.id = (SELECT MAX(newest.id) FROM ss_pending_changes newest
                           WHERE newest.candidate_id = @expertId AND newest.field = p.field)
             """,

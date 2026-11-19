@@ -5,7 +5,11 @@
         ? "/"
         : $"{Context.Request.Path}{Context.Request.QueryString}";
     var next = Uri.EscapeDataString(page);
+    // Staff only: links to S-A and S-B, with the number of waiting changes (SPEC "The secretariat view").
+    var isStaff = User.HasClaim(claim => claim.Type == SessionClaims.StaffId);
+    var path = Context.Request.Path.Value ?? "";
 }
+@inject PendingListService PendingList
 <!doctype html>
 <html lang="@language">
 <head>
@@ -24,24 +28,37 @@
         <img src="/img/vn-logo-white.png" alt="@Text["topbar.logo_alt"]">
       </picture>
     </a>
+    @* Each label is written twice: label-long on wider screens, label-short with an icon on phones under 600 px
+       (SPEC "The secretariat view"). CSS hides the other with display: none, so screen readers hear only one. *@
+    @if (isStaff)
+    {
+      var pendingCount = PendingList.Count();
+      <nav class="topbar-staff" aria-label="@Text["topbar.staff_nav"]">
+        <a href="/staff" aria-current="@(path == "/staff" ? "page" : null)">@await Html.PartialAsync("_Icon", "search")<span class="label-long">@Text["staff.title"]</span><span class="label-short">@Text["topbar.search_short"]</span></a>
+        <a href="/staff/pending" aria-current="@(path == "/staff/pending" ? "page" : null)">@await Html.PartialAsync("_Icon", "clock")<span class="label-long">@string.Format(CultureInfo.CurrentCulture, Text["topbar.pending"], pendingCount)</span><span class="label-short">@string.Format(CultureInfo.CurrentCulture, Text["topbar.pending_short"], pendingCount)</span></a>
+      </nav>
+    }
     <div class="topbar-actions">
       <nav class="topbar-language" aria-label="@Text["topbar.language"]">
         @if (language == "da")
         {
-          <span aria-current="true" lang="da">@Text["language.da"]</span>
-          <a href="/language/en?next=@next" lang="en">@Text["language.en"]</a>
+          <span aria-current="true" lang="da"><span class="label-long">@Text["language.da"]</span><span class="label-short">@Text["language.da_short"]</span></span>
+          <span class="topbar-dot label-short" aria-hidden="true">·</span>
+          <a href="/language/en?next=@next" lang="en"><span class="label-long">@Text["language.en"]</span><span class="label-short">@Text["language.en_short"]</span></a>
         }
         else
         {
-          <a href="/language/da?next=@next" lang="da">@Text["language.da"]</a>
-          <span aria-current="true" lang="en">@Text["language.en"]</span>
+          <a href="/language/da?next=@next" lang="da"><span class="label-long">@Text["language.da"]</span><span class="label-short">@Text["language.da_short"]</span></a>
+          <span class="topbar-dot label-short" aria-hidden="true">·</span>
+          <span aria-current="true" lang="en"><span class="label-long">@Text["language.en"]</span><span class="label-short">@Text["language.en_short"]</span></span>
         }
       </nav>
       @if (User.Identity?.IsAuthenticated == true)
       {
+        @* On a phone only the icon shows; the label stays for screen readers (visually hidden, not display: none). *@
         <form class="topbar-logout" method="post" action="/logout">
           @Html.AntiForgeryToken()
-          <button type="submit">@Text["topbar.logout"]</button>
+          <button type="submit">@await Html.PartialAsync("_Icon", "logout")<span class="logout-label">@Text["topbar.logout"]</span></button>
         </form>
       }
     </div>

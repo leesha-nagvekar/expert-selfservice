@@ -23,4 +23,19 @@ public static class SkillRules
 
     /// <summary>The list as stored: "EL; Fiber; Varmepumpe".</summary>
     public static string Join(IEnumerable<string?> names) => string.Join(Separator, Sorted(names));
+
+    /// <summary>The opposite of <see cref="Join"/>: "EL; Fiber" gives EL and Fiber. Empty or null gives none.</summary>
+    public static List<string> Split(string? list) =>
+        Sorted((list ?? "").Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+
+    /// <summary>
+    /// What a change adds and removes, from the list the expert had when sending to the list they sent. S-B shows
+    /// it and approving applies exactly it (S2), so the screen and the database can't disagree.
+    /// </summary>
+    public static (List<string> Added, List<string> Removed) Diff(string? oldList, string? newList)
+    {
+        var before = Split(oldList);
+        var after = Split(newList);
+        return ([.. after.Except(before, StringComparer.Ordinal)], [.. before.Except(after, StringComparer.Ordinal)]);
+    }
 }

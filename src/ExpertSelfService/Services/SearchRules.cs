@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace ExpertSelfService.Services;
 
@@ -41,6 +42,22 @@ public static class SearchRules
     /// <summary>The search box split into words. Spaces around and between words don't count.</summary>
     public static List<string> Words(string? query) =>
         [.. (query ?? "").Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)];
+
+    /// <summary>
+    /// True when every word matches part of one of <paramref name="contains"/>, or the start of
+    /// <paramref name="startsWith"/> (the postcode on S-A, the VBA no. on S-B). Matched in C#, not SQL: a varying
+    /// number of words would mean SQL built from text, and SQLite's LIKE and lower() only fold A-Z, so "øster" would
+    /// miss "Østergaard" (decisions.md, S1). OrdinalIgnoreCase after NFC folds Æ/æ, Ø/ø and Å/å, but never treats
+    /// "aa" as "å" or "ae" as "æ", as a Danish culture comparison would.
+    /// </summary>
+    public static bool AllWordsMatch(IReadOnlyList<string> words, string? startsWith, params string?[] contains) =>
+        words.All(word =>
+        {
+            var normalized = word.Normalize(NormalizationForm.FormC);
+            return contains.Any(text => text is not null
+                    && text.Normalize(NormalizationForm.FormC).Contains(normalized, StringComparison.OrdinalIgnoreCase))
+                || (startsWith?.StartsWith(normalized, StringComparison.Ordinal) ?? false);
+        });
 
     /// <summary>
     /// The ticked values as filters, or null when a value isn't in its list. The page only offers listed values,

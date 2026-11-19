@@ -28,6 +28,11 @@ public static class SessionClaims
         long.TryParse(user.FindFirst(ExpertId)?.Value, System.Globalization.NumberStyles.None,
             System.Globalization.CultureInfo.InvariantCulture, out var id) ? id : null;
 
+    /// <summary>The secretariat user's id from the session, or null when the user isn't staff. Recorded as decided_by (S2).</summary>
+    public static long? StaffIdOf(ClaimsPrincipal user) =>
+        long.TryParse(user.FindFirst(StaffId)?.Value, System.Globalization.NumberStyles.None,
+            System.Globalization.CultureInfo.InvariantCulture, out var id) ? id : null;
+
     /// <summary>The landing page of whoever is logged in, or null when nobody is.</summary>
     public static string? Landing(ClaimsPrincipal user) =>
         user.HasClaim(claim => claim.Type == ExpertId) ? ExpertLanding

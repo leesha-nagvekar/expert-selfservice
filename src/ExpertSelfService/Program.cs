@@ -36,6 +36,8 @@ builder.Services.AddSingleton<NameService>();
 builder.Services.AddSingleton<CompanyService>();
 builder.Services.AddSingleton<SkillService>();
 builder.Services.AddSingleton<ExpertSearchService>();
+builder.Services.AddSingleton<PendingListService>();
+builder.Services.AddSingleton<DecisionService>();
 
 // Login cookie. ASP.NET encrypts it with Data Protection keys kept in the Windows user profile,
 // outside the repo. It holds only expert_id or staff_id (SPEC section 2).

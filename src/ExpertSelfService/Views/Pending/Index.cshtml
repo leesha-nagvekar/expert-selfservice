@@ -1,0 +1,147 @@
+@model PendingPage
+@{
+    ViewData["Title"] = Text["pending.title"];
+    ViewData["MainClass"] = "wide";
+
+    async Task Value(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            <span class="not-given">@Text["profile.not_given"]</span>
+        }
+        else
+        {
+            <span>@value</span>
+        }
+    }
+
+    // Every form posts the search text back, so the list comes back as it was after a decision.
+    void KeepQuery()
+    {
+        if (!string.IsNullOrEmpty(Model.Query))
+        {
+            <input type="hidden" name="q" value="@Model.Query">
+        }
+    }
+}
+<h1>@Text["pending.title"]</h1>
+
+@if (Model.Message is { } message)
+{
+  var (css, icon) = message.Kind switch
+  {
+      DecisionMessage.Approved => ("state-saved", "check"),
+      DecisionMessage.Rejected => ("state-rejected", "cross"),
+      _ => ("state-pending", "info"),
+  };
+  <p class="decision-message state @css" role="status">
+    <span class="state-word">@await Html.PartialAsync("_Icon", icon) @message.Text</span>
+  </p>
+}
+
+<form class="search" method="get" action="/staff/pending" novalidate>
+  <div class="field search-box">
+    <label for="q">@Text["pending.box.label"]</label>
+    <div class="search-row">
+      <input type="search" id="q" name="q" value="@Model.Query" maxlength="@SearchRules.MaxLength" autocomplete="off"
+             aria-invalid="@(Model.QueryError is null ? null : "true")" aria-describedby="@(Model.QueryError is null ? null : "q-error")">
+      <button type="submit">@Text["search.submit"]</button>
+      @if (!string.IsNullOrWhiteSpace(Model.Query))
+      {
+        @* Only after a search with text: there is nothing to clear otherwise. *@
+        <a class="search-clear" href="/staff/pending">@Text["pending.clear"]</a>
+      }
+    </div>
+    @if (Model.QueryError is not null)
+    {
+      <p class="field-error" id="q-error">@Model.QueryError</p>
+    }
+  </div>
+</form>
+
+@if (Model.Rows is { } rows)
+{
+  <section class="results" aria-labelledby="results-heading">
+    <h2 id="results-heading">@(rows.Count switch
+    {
+        0 when !string.IsNullOrWhiteSpace(Model.Query) => Text["pending.none_match"],
+        0 => Text["pending.none"],
+        1 => Text["pending.count_one"],
+        _ => string.Format(CultureInfo.CurrentCulture, Text["pending.count"], rows.Count),
+    })</h2>
+    @if (rows.Count > 0)
+    {
+      @* Oldest first (SPEC S-B). Names are plain text until the expert page (S3) exists. *@
+      <div class="results-box">
+      <table class="result-table pending-table">
+        <thead>
+          <tr>
+            <th scope="col">@Text["pending.column.expert"]</th>
+            <th scope="col">@Text["search.column.vba_number"]</th>
+            <th scope="col">@Text["pending.column.field"]</th>
+            <th scope="col">@Text["pending.column.change"]</th>
+            <th scope="col">@Text["pending.column.sent"]</th>
+            <th scope="col">@Text["pending.column.decision"]</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var row in rows)
+          {
+            var hasError = Model.ErrorRowId == row.Id;
+            var reasonId = $"reason-{row.Id}";
+            <tr class="change" data-id="@row.Id">
+              <td class="expert result-name" data-label="@Text["pending.column.expert"]">@row.ExpertName</td>
+              <td class="vba-no mono" data-label="@Text["search.column.vba_number"]">@row.RegistrationId</td>
+              <td class="field" data-label="@Text["pending.column.field"]">@row.FieldLabel</td>
+              <td class="change-text" data-label="@Text["pending.column.change"]">
+                @if (row.IsSkills)
+                {
+                  <div>
+                    @if (row.Added.Count > 0)
+                    {
+                      <p class="change-line">@Text["pending.added"] @string.Join(", ", row.Added)</p>
+                    }
+                    @if (row.Removed.Count > 0)
+                    {
+                      <p class="change-line">@Text["pending.removed"] @string.Join(", ", row.Removed)</p>
+                    }
+                  </div>
+                }
+                else
+                {
+                  <p class="change-line">@{ await Value(row.OldValue); } <span aria-hidden="true">→</span> @{ await Value(row.NewValue); }</p>
+                }
+              </td>
+              <td class="sent" data-label="@Text["pending.column.sent"]">@row.Sent</td>
+              <td class="decision" data-label="@Text["pending.column.decision"]">
+                <div class="decision-actions">
+                  <form method="post" action="/staff/pending/@row.Id/approve">
+                    @Html.AntiForgeryToken()
+                    @{ KeepQuery(); }
+                    <button type="submit">@Text["pending.approve"]</button>
+                  </form>
+                  <details class="reject" open="@hasError">
+                    <summary>@Text["pending.reject_open"]</summary>
+                    <form method="post" action="/staff/pending/@row.Id/reject" novalidate>
+                      @Html.AntiForgeryToken()
+                      @{ KeepQuery(); }
+                      <label for="@reasonId">@Text["pending.reason"]</label>
+                      @if (hasError)
+                      {
+                        <p class="field-error" id="@reasonId-error">@Model.ReasonError</p>
+                      }
+                      <textarea id="@reasonId" name="Reason" maxlength="@DecisionService.MaxReason" rows="3"
+                                aria-invalid="@(hasError ? "true" : null)" aria-describedby="@(hasError ? $"{reasonId}-error" : null)">@(hasError ? Model.Reason : null)</textarea>
+                      <button type="submit" class="secondary">@Text["pending.reject"]</button>
+                    </form>
+                  </details>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      </div>
+    }
+  </section>
+}

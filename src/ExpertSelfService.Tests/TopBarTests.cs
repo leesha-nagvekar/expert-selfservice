@@ -45,6 +45,41 @@ public class TopBarTests(AppFactory factory) : IClassFixture<AppFactory>
         Assert.Matches("""<source media="\(max-width: 479px\)" srcset="[^"]*img/vn-mark-white\.png">""", html);
     }
 
+    [Fact]
+    public async Task On_a_phone_the_language_switch_says_da_and_en()
+    {
+        var html = await FrontPage();
+
+        Assert.Contains("""<span class="label-short">DA</span>""", html);
+        Assert.Contains("""<span class="label-short">EN</span>""", html);
+        Assert.Contains("""<span class="label-long">Dansk</span>""", html);
+        Assert.Contains("""<span class="label-long">English</span>""", html);
+    }
+
+    [Fact]
+    public void The_top_bar_stays_at_the_top_and_nothing_scrolls_behind_it()
+    {
+        var css = RepoFiles.Read("src", "ExpertSelfService", "wwwroot", "app.css");
+
+        var topbar = Regex.Match(css, @"(?m)^\.topbar \{[^}]*\}").Value;
+        Assert.Contains("position: sticky;", topbar);
+        Assert.Contains("top: 0;", topbar);
+        Assert.Contains("z-index:", topbar);
+
+        // Scrolling to a field, an error or the reject box stops below the bar.
+        Assert.Matches(@"(?m)^html \{[^}]*scroll-padding-top:", css);
+    }
+
+    [Fact]
+    public void Phones_under_600px_get_the_one_line_bar()
+    {
+        var css = RepoFiles.Read("src", "ExpertSelfService", "wwwroot", "app.css");
+
+        var phone = css.IndexOf("@media (max-width: 599px)", StringComparison.Ordinal);
+        Assert.True(phone >= 0, "No phone rules for the top bar");
+        Assert.Contains(".label-short", css[phone..]);
+    }
+
     [Theory]
     [InlineData("tokens.css")]
     [InlineData("fonts.css")]
