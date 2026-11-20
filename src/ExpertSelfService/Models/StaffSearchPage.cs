@@ -101,8 +101,12 @@ public sealed record StaffSearchPage(
     bool PendingOnly,
     int? Total,
     IReadOnlyList<SearchRow>? Results,
-    Pager? Pager)
+    Pager? Pager,
+    string BackUrl = BackLink.Search)
 {
+    /// <summary>The name link to an expert, carrying this search (text, ticks and page) for S-C's back link.</summary>
+    public string ExpertLink(long expertId) => ExpertPage.LinkFrom(expertId, BackUrl);
+
     /// <summary>Every tick on the page, for "Filters (N ticked)" on a phone.</summary>
     public int TickedCount => Groups.Sum(group => group.TickedCount) + (PendingOnly ? 1 : 0);
 
@@ -149,7 +153,8 @@ public sealed record StaffSearchPage(
             .ToList();
 
         var pager = Pager.Build(page, hits.Count, number => PageUrl(query, filters, number));
-        return new StaffSearchPage(query, error, groups, filters.PendingOnly, hits.Count, rows, pager);
+        return new StaffSearchPage(
+            query, error, groups, filters.PendingOnly, hits.Count, rows, pager, PageUrl(query, filters, page));
     }
 
     /// <summary>/staff with the search text, every tick and the page (left out for page 1), properly encoded.</summary>

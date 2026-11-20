@@ -185,6 +185,8 @@
   "expert.log.by_staff": "{0} (sekretariatet)",
   "expert.log.none": "Ingen ændringer endnu.",
   "expert.log.readonly": "Ændringsloggen kan ikke ændres eller slettes.",
+  "expert.back.search": "Tilbage til søgningen",
+  "expert.back.pending": "Tilbage til Afventer godkendelse",
   "error.not_found.title": "Siden findes ikke",
   "error.not_found.text": "Siden findes ikke, eller du har ikke adgang til den.",
   "error.server.title": "Der skete en fejl",

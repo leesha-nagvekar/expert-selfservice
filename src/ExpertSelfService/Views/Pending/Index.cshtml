@@ -77,7 +77,7 @@
           {
             var hasError = Model.ErrorRowId == row.Id;
             <tr class="change" data-id="@row.Id">
-              <td class="expert result-name" data-label="@Text["pending.column.expert"]"><a href="/staff/experts/@row.ExpertId">@row.ExpertName</a></td>
+              <td class="expert result-name" data-label="@Text["pending.column.expert"]"><a href="@Model.ExpertLink(row.ExpertId)">@row.ExpertName</a></td>
               <td class="vba-no mono" data-label="@Text["search.column.vba_number"]">@row.RegistrationId</td>
               <td class="field" data-label="@Text["pending.column.field"]">@row.FieldLabel</td>
               <td class="change-text" data-label="@Text["pending.column.change"]">

@@ -48,6 +48,8 @@
     }
 }
 @* Screen S-C (SPEC section 4). The details and the log are read-only; the only forms are the decisions on pending changes. *@
+@* Back to the list as it was left (S-A or S-B); Model.Back is already checked by BackLink.Safe. *@
+<p class="back"><a class="back-link" href="@Model.Back"><span aria-hidden="true">←</span> @Text[Model.BackTextKey]</a></p>
 <h1>@Model.Name</h1>
 <p class="expert-summary">
   <span class="status @Model.StatusClass">@await Html.PartialAsync("_Icon", Model.StatusIcon) @Model.StatusText</span>

@@ -793,6 +793,18 @@ dd {
 }
 
 /* S-C: the expert page. Details and "Set by VBA" one under the other, side by side on wide screens (below). */
+/* The back link above the name: a 44 px tap target, in the normal link colour. */
+.back {
+  margin: 0;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
 .expert-summary {
   display: flex;
   flex-wrap: wrap;

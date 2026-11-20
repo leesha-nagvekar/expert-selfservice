@@ -74,7 +74,7 @@
               @foreach (var row in results)
               {
                 <tr class="result">
-                  <td data-label="@Text["search.column.name"]" class="result-name"><a href="/staff/experts/@row.ExpertId">@row.Name</a></td>
+                  <td data-label="@Text["search.column.name"]" class="result-name"><a href="@Model.ExpertLink(row.ExpertId)">@row.Name</a></td>
                   <td data-label="@Text["search.column.vba_number"]" class="vba-no mono">@row.RegistrationId</td>
                   <td data-label="@Text["search.column.postcode_city"]">
                     @if (row.PostcodeCity is null)

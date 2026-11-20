@@ -10,6 +10,7 @@ namespace ExpertSelfService.Controllers;
 /// Story S3, screen S-C: one expert's details, pending changes and change log, for the secretariat, who can approve
 /// or reject the expert's pending changes here as on S-B. Staff only: unlike the expert pages, the expert id comes
 /// from the URL, and a decision only counts for a change that belongs to that expert.
+/// The back link to the list as it was left arrives as "back" (query or form) and is checked once, by BackLink.Safe.
 /// </summary>
 [Authorize(Policy = SessionClaims.StaffPolicy)]
 public class ExpertController(
@@ -20,7 +21,7 @@ public class ExpertController(
     TextService text) : Controller
 {
     [HttpGet("/staff/experts/{id:long}")]
-    public IActionResult Index(long id, [FromQuery] string? page)
+    public IActionResult Index(long id, [FromQuery] string? page, [FromQuery] string? back)
     {
         // The expert first: an unknown expert is "Page not found" whatever the page says.
         if (experts.Load(id) is not { } profile)
@@ -35,27 +36,32 @@ public class ExpertController(
             return BadRequest();
         }
 
-        return View(Build(id, profile, pageNumber, ReadMessage()));
+        // A bad back is no error: the link simply goes to the search.
+        return View(Build(id, profile, pageNumber, BackLink.Safe(back), ReadMessage()));
     }
 
     [HttpPost("/staff/experts/{id:long}/changes/{changeId:long}/approve")]
-    public IActionResult Approve(long id, long changeId) =>
-        After(id, decisions.Approve(changeId, StaffId(), expertId: id), DecisionMessage.Approved, "pending.approved_message");
+    public IActionResult Approve(long id, long changeId, [FromForm] string? back) =>
+        After(
+            id, BackLink.Safe(back), decisions.Approve(changeId, StaffId(), expertId: id),
+            DecisionMessage.Approved, "pending.approved_message");
 
     [HttpPost("/staff/experts/{id:long}/changes/{changeId:long}/reject")]
-    public IActionResult Reject(long id, long changeId, [FromForm] string? reason)
+    public IActionResult Reject(long id, long changeId, [FromForm] string? reason, [FromForm] string? back)
     {
+        var safeBack = BackLink.Safe(back);
         if (DecisionService.ReasonError(reason) is not { } errorKey)
         {
             return After(
-                id, decisions.Reject(changeId, StaffId(), reason!, expertId: id), DecisionMessage.Rejected, "pending.rejected_message");
+                id, safeBack, decisions.Reject(changeId, StaffId(), reason!, expertId: id),
+                DecisionMessage.Rejected, "pending.rejected_message");
         }
 
         // A bad reason decides nothing. Unknown, another expert's or already decided still says so, as a good reason would.
         var status = decisions.StatusOf(changeId, expertId: id);
         if (status != DecisionOutcome.Done)
         {
-            return After(id, new DecisionResult(status), DecisionMessage.Rejected, "pending.rejected_message");
+            return After(id, safeBack, new DecisionResult(status), DecisionMessage.Rejected, "pending.rejected_message");
         }
 
         // StatusOf found the change under this expert, so the expert exists; the null check is only for the compiler.
@@ -64,12 +70,13 @@ public class ExpertController(
             return NotFound();
         }
 
-        // The page again (log page 1), with the error in that row and the reason kept.
+        // The page again (log page 1), with the error in that row, the reason and the back link kept.
         var error = string.Format(CultureInfo.CurrentCulture, text[errorKey], DecisionService.MaxReason);
-        return View("Index", Build(id, profile, 1, null) with { ErrorRowId = changeId, ReasonError = error, Reason = reason });
+        var page = Build(id, profile, 1, safeBack, null);
+        return View("Index", page with { ErrorRowId = changeId, ReasonError = error, Reason = reason });
     }
 
-    private IActionResult After(long id, DecisionResult result, string kind, string messageKey)
+    private IActionResult After(long id, string back, DecisionResult result, string kind, string messageKey)
     {
         switch (result.Outcome)
         {
@@ -86,14 +93,17 @@ public class ExpertController(
                 break;
         }
 
-        // Back to the expert page, log page 1: the newest entry (an approval) is at the top.
-        return Redirect(ExpertPage.Url(id));
+        // Back to the expert page, log page 1 (the newest entry, an approval, is at the top), keeping the back link.
+        // The redirect is always to S-C itself; back only ever travels inside its query.
+        return Redirect(ExpertPage.PageUrl(id, 1, back));
     }
 
-    private ExpertPage Build(long id, ExpertProfile profile, int pageNumber, DecisionMessage? message) =>
-        ExpertPage.Build(text, id, profile, pending.ForExpert(id), changeLog.Page(id, pageNumber), pageNumber)
-            with
-        { Message = message };
+    private ExpertPage Build(long id, ExpertProfile profile, int pageNumber, string back, DecisionMessage? message)
+    {
+        var page = ExpertPage.Build(
+            text, id, profile, pending.ForExpert(id), changeLog.Page(id, pageNumber), pageNumber, back);
+        return page with { Message = message };
+    }
 
     private DecisionMessage? ReadMessage() =>
         TempData[DecisionMessage.KindKey] is string kind && TempData[DecisionMessage.TextKey] is string messageText

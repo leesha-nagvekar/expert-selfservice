@@ -55,6 +55,14 @@ public sealed record PendingPage(
     string? ReasonError = null,
     string? Reason = null)
 {
+    /// <summary>This list as it is, with its search text: where S-C's back link returns to.</summary>
+    public string BackUrl => string.IsNullOrEmpty(Query)
+        ? BackLink.Pending
+        : $"{BackLink.Pending}?q={Uri.EscapeDataString(Query)}";
+
+    /// <summary>The name link to an expert, carrying this list for S-C's back link.</summary>
+    public string ExpertLink(long expertId) => ExpertPage.LinkFrom(expertId, BackUrl);
+
     public static PendingPage Build(TextService text, string? query, string? queryError, IEnumerable<PendingItem>? items, DecisionMessage? message) =>
         new(query, queryError, items?.Select(item => Row(text, item)).ToList(), message);
 

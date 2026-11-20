@@ -185,6 +185,8 @@
   "expert.log.by_staff": "{0} (secretariat)",
   "expert.log.none": "No changes yet.",
   "expert.log.readonly": "The change log can't be changed or deleted.",
+  "expert.back.search": "Back to search",
+  "expert.back.pending": "Back to pending approvals",
   "error.not_found.title": "Page not found",
   "error.not_found.text": "The page does not exist, or you do not have access to it.",
   "error.server.title": "Something went wrong",

@@ -23,28 +23,52 @@ public sealed record ExpertPage(
     IReadOnlyList<PendingRowView> Pending,
     IReadOnlyList<LogRowView> Log,
     Pager Pager,
+    string Back = BackLink.Search,
     DecisionMessage? Message = null,
     long? ErrorRowId = null,
     string? ReasonError = null,
     string? Reason = null)
 {
-    public static string Url(long expertId) => $"/staff/experts/{expertId}";
+    public static string Url(long expertId) => $"/staff/experts/{expertId.ToString(CultureInfo.InvariantCulture)}";
 
     /// <summary>Where S-C's Decision cell posts: always under this expert, so the change is checked against it.</summary>
     public static string DecisionUrl(long expertId, long changeId, string action) =>
         $"{Url(expertId)}/changes/{changeId.ToString(CultureInfo.InvariantCulture)}/{action}";
 
-    /// <summary>The Decision cell for one pending row (no hidden fields yet; step C adds the back link).</summary>
+    /// <summary>"Back to pending approvals" when the link goes to S-B, else "Back to search".</summary>
+    public string BackTextKey => BackLink.IsPending(Back) ? "expert.back.pending" : "expert.back.search";
+
+    /// <summary>The Decision cell for one pending row. The forms send the back link along, unless it is plain /staff.</summary>
     public DecisionCell Cell(PendingRowView row) =>
-        new(row.Id, DecisionUrl(ExpertId, row.Id, "approve"), DecisionUrl(ExpertId, row.Id, "reject"), [],
+        new(row.Id, DecisionUrl(ExpertId, row.Id, "approve"), DecisionUrl(ExpertId, row.Id, "reject"),
+            Back == BackLink.Search ? [] : [KeyValuePair.Create("back", Back)],
             ErrorRowId == row.Id ? ReasonError : null, ErrorRowId == row.Id ? Reason : null);
 
-    /// <summary>The page's URL for a log page (page 1 has no ?page, as on S-A).</summary>
-    public static string PageUrl(long expertId, int page) =>
-        page > 1 ? $"{Url(expertId)}?page={page.ToString(CultureInfo.InvariantCulture)}" : Url(expertId);
+    /// <summary>
+    /// The page's URL for a log page, keeping the back link (page 1 has no ?page, as on S-A; plain /staff has no ?back).
+    /// <paramref name="back"/> must already be safe (<see cref="BackLink.Safe"/>).
+    /// </summary>
+    public static string PageUrl(long expertId, int page, string back = BackLink.Search)
+    {
+        string?[] parts = [page > 1 ? $"page={page.ToString(CultureInfo.InvariantCulture)}" : null, BackLink.Query(back)];
+        var query = string.Join("&", parts.Where(part => part is not null));
+        return query.Length == 0 ? Url(expertId) : $"{Url(expertId)}?{query}";
+    }
+
+    /// <summary>
+    /// A name link from a list (S-A or S-B) to the expert page, carrying the list's URL so S-C can link back to it as
+    /// it was. A list URL the back link would not accept (for example one over 2000 characters) is simply left out.
+    /// </summary>
+    public static string LinkFrom(long expertId, string listUrl) => PageUrl(expertId, 1, BackLink.Safe(listUrl));
 
     public static ExpertPage Build(
-        TextService text, long expertId, ExpertProfile profile, IEnumerable<PendingItem> pending, ChangeLogPage log, int page)
+        TextService text,
+        long expertId,
+        ExpertProfile profile,
+        IEnumerable<PendingItem> pending,
+        ChangeLogPage log,
+        int page,
+        string back = BackLink.Search)
     {
         var until = profile.Status == ExpertStatus.Standby ? LocalDate.Format(profile.UntilDate) : null;
         return new ExpertPage(
@@ -58,7 +82,8 @@ public sealed record ExpertPage(
             until is null ? null : string.Format(CultureInfo.CurrentCulture, text["profile.until"], until),
             [.. pending.Select(item => PendingPage.Row(text, item))],
             [.. log.Entries.Select(entry => LogRow(text, entry))],
-            Pager.Build(page, log.Total, number => PageUrl(expertId, number), ChangeLogService.PageSize));
+            Pager.Build(page, log.Total, number => PageUrl(expertId, number, back), ChangeLogService.PageSize),
+            back);
     }
 
     private static LogRowView LogRow(TextService text, ChangeLogEntry entry)
