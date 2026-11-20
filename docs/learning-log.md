@@ -116,3 +116,16 @@ Claude to build S2: a "Pending approvals" page where the secretariat approves or
 
 - **Went wrong:** Claude's self-review found that approving skills used the current list instead of what Sofie saw, and that the "decide once" check didn't check its own result. Both were fixed, with tests.
 In my break-it checks, I removed a check in PendingController (the one that says "already decided" when Sofie rejects with an empty reason on a change that was already decided). No test failed, so Claude added two tests for that.
+
+## 19–20 Nov – S3 step A: expert page and change log (S-C)
+- **Asked:** 
+Claude to plan S3 in three steps and build step A first: the expert page with read-only details, pending changes and the change log (newest first, 10 per page).
+
+- **Went wrong:** 
+In my break-it checks, removing the expert filter from the skills query showed one experts skill on anothers page and no test failed, so Claude added two tests.
+
+## 20 Nov – S3 step B: approve or reject on the expert page (S-C)
+- **Asked:** 
+Claude to add Approve and Reject to the pending changes on S-C. One rule: a change can only be decided from the page of the expert it belongs to.
+
+- **Learned:** Breaking a check in two directions proves the tests cover two sides.
