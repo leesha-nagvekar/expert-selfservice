@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S3 expert page mockup</title>
+<!-- Mockup only: not part of the app. Colours copied from wwwroot/tokens.css. Fake data from the tests. -->
+<style>
+:root, .light {
+  color-scheme: light;
+  --brand: #00437C; --topbar: #00437C; --on-topbar: #FFFFFF; --ink: #1E2B39; --text: #34495E; --muted: #6C7C8D;
+  --accent: #E96900; --accent-text: #B05407; --ok: #0E7C55; --surface: #F4F6F9; --background: #FFFFFF;
+  --line: #E7ECF1; --brand-soft: #E8EFF6; --accent-soft: #FCF0E4; --on-brand: #FFFFFF;
+}
+.dark {
+  color-scheme: dark;
+  --brand: #3D7FBF; --ink: #EDF3F9; --text: #D6DEE6; --muted: #8A99A8; --accent: #F0952F; --accent-text: #F0952F;
+  --ok: #4FBF95; --surface: #1E2833; --background: #151C24; --line: #2A3644; --brand-soft: #17293A;
+  --accent-soft: #33251A; --on-brand: #0B131B;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px 48px; background: #D9DEE4; font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 16px; line-height: 1.5; color: #1E2B39; }
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 32px; }
+.wrap > h1 { margin: 0; font-size: 24px; }
+.note { margin: 0 0 8px; font-size: 14px; color: #34495E; }
+.icon { width: 20px; height: 20px; flex: none; vertical-align: -4px; }
+
+/* One screen */
+.screen { background: var(--background); color: var(--text); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.topbar { display: flex; align-items: center; gap: 8px 16px; padding: 8px 16px; background: var(--topbar); color: var(--on-topbar); }
+.topbar a, .topbar span { color: var(--on-topbar); text-decoration: none; }
+.logo { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; letter-spacing: 0.04em; }
+.staff-nav { display: flex; gap: 4px; margin-right: auto; }
+.staff-nav a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; }
+.actions { display: flex; align-items: center; gap: 12px; }
+.logout { min-height: 44px; padding: 8px 20px; border: 1px solid var(--on-topbar); border-radius: 4px; background: transparent;
+  color: var(--on-topbar); font: inherit; font-weight: 600; }
+main { padding: 24px 16px 40px; max-width: 1200px; margin: 0 auto; }
+.back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--brand); font-weight: 600; }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 4px 0 24px; }
+h2.page-title { margin: 0; color: var(--ink); font-size: 28px; }
+.status { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--ok); }
+.vba { color: var(--muted); }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+/* Details: two cards side by side on desktop */
+.details { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 32px; }
+.card { border: 1px solid var(--line); border-radius: 8px; padding: 16px; background: var(--background); }
+.card h3 { margin: 0 0 8px; color: var(--ink); font-size: 18px; }
+.card .intro { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+.group + .group { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; }
+.group h4 { margin: 0 0 4px; color: var(--muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+dl { margin: 0; display: grid; grid-template-columns: minmax(140px, max-content) 1fr; gap: 4px 16px; }
+dt { color: var(--muted); }
+dd { margin: 0; color: var(--ink); }
+.not-given { color: var(--muted); font-style: italic; }
+ul.plain { margin: 0; padding: 0; list-style: none; }
+.state { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; font-size: 14px; font-weight: 600; color: var(--accent-text); }
+
+/* Sections and tables */
+section { margin-bottom: 32px; }
+section > h3 { margin: 0 0 8px; color: var(--ink); font-size: 20px; }
+.box { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 10px 12px; text-align: left; font-size: 14px; color: var(--ink); background: var(--surface); border-bottom: 1px solid var(--line); }
+td { padding: 10px 12px; vertical-align: top; border-bottom: 1px solid var(--line); }
+tbody tr:nth-child(even) { background: var(--surface); }
+tbody tr:last-child td { border-bottom: 0; }
+.who-staff { color: var(--ink); font-weight: 600; }
+.arrow { color: var(--muted); }
+.decision-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-sm { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 4px; font: inherit;
+  font-size: 14px; font-weight: 600; }
+.btn-approve { border: 0; background: var(--brand); color: var(--on-brand); }
+.btn-reject { border: 1px solid var(--brand); background: var(--background); color: var(--brand); }
+.message { display: flex; align-items: center; gap: 6px; margin: 0 0 16px; padding: 10px 12px; border-left: 4px solid var(--ok);
+  background: var(--surface); color: var(--ok); font-weight: 600; }
+.readonly-note { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+.step { display: inline-block; margin-left: 8px; padding: 0 8px; border-radius: 10px; background: var(--brand-soft);
+  color: var(--brand); font-size: 12px; font-weight: 600; vertical-align: middle; }
+
+/* Pager, as on S-A */
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 12px; }
+.pager-range { margin: 0; color: var(--muted); font-size: 14px; }
+.pager ol { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.pager a, .pager span { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px;
+  padding: 0 10px; border-radius: 4px; color: var(--brand); }
+.pager a[aria-current] { background: var(--brand); color: var(--on-brand); font-weight: 600; }
+.pager .pager-off { color: var(--muted); }
+
+/* Phone: 360 px, one column, tables as cards */
+.phones { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.phone { width: 360px; max-width: 100%; border: 10px solid #1E2B39; border-radius: 28px; }
+.phone .screen { border: 0; border-radius: 18px; }
+.phone .topbar { padding: 0 4px 0 12px; gap: 0; min-height: 44px; flex-wrap: nowrap; font-size: 12px; }
+.phone .staff-nav { gap: 0; margin: 0 auto 0 4px; }
+.phone .staff-nav a { flex-direction: column; justify-content: center; gap: 0; min-width: 44px; padding: 0 6px; line-height: 1.2; }
+.phone .staff-nav .icon { width: 18px; height: 18px; }
+.phone .actions { gap: 0; font-size: 14px; }
+.phone .actions span, .phone .actions a { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; min-height: 44px; }
+.phone .logout-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: var(--on-topbar); }
+.phone main { padding: 16px; }
+.phone h2.page-title { font-size: 22px; }
+.phone .details { grid-template-columns: 1fr; }
+.phone dl { grid-template-columns: 1fr; gap: 0; }
+.phone dd { margin-bottom: 8px; }
+.phone table, .phone tbody, .phone tr, .phone td { display: block; }
+.phone thead { display: none; }
+.phone tbody tr { padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.phone td { padding: 2px 0; border: 0; display: grid; grid-template-columns: 96px 1fr; gap: 8px; }
+.phone td::before { content: attr(data-label); color: var(--muted); font-size: 14px; }
+.phone-label { margin: 0 0 6px; font-size: 14px; color: #34495E; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M16 16l4-4-4-4M20 12H9"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></symbol>
+</svg>
+
+<div class="wrap">
+  <h1>S3: expert page (S-C), mockup</h1>
+  <p class="note">Desktop (light), then 360 px phones in light and dark. Fake data from the tests. Badges like
+    <span class="step" style="background:#E8EFF6;color:#00437C">Step B</span> show which build step adds a part.</p>
+
+  <!-- ===================== DESKTOP ===================== -->
+  <div class="screen light">
+    <header class="topbar">
+      <span class="logo">VOLDGIFTSNÆVNET</span>
+      <nav class="staff-nav">
+        <a href="#"><svg class="icon"><use href="#i-search"/></svg>Search experts</a>
+        <a href="#"><svg class="icon"><use href="#i-clock"/></svg>Pending approvals (3)</a>
+      </nav>
+      <div class="actions"><span>Dansk</span><span style="font-weight:600;text-decoration:underline;text-underline-offset:6px">English</span>
+        <button class="logout">Log out</button></div>
+    </header>
+    <main>
+      <a class="back" href="#"><svg class="icon"><use href="#i-back"/></svg>Back to search</a><span class="step">Step C</span>
+      <div class="title-row">
+        <h2 class="page-title">Anna Demo</h2>
+        <span class="status"><svg class="icon"><use href="#i-check"/></svg>Active</span>
+        <span class="vba">VBA no. <span class="mono">900001</span></span>
+      </div>
+
+      <p class="message"><svg class="icon"><use href="#i-check"/></svg>Approved: Anna Demo – Last name <span class="step">Step B</span></p>
+
+      <div class="details">
+        <div class="card">
+          <h3>Details</h3>
+          <div class="group"><h4>Name</h4>
+            <dl><dt>First name</dt><dd>Anna</dd><dt>Last name</dt><dd>Holm</dd></dl></div>
+          <div class="group"><h4>Address and phone</h4>
+            <dl><dt>Street and number</dt><dd>Østerbrogade 64</dd>
+              <dt>Postcode and city</dt><dd>2100 København Ø</dd>
+              <dt>Mobile phone</dt><dd class="mono">+45 20 11 22 33</dd>
+              <dt>Work phone</dt><dd class="mono">33 44 55 66</dd>
+              <dt>Home phone</dt><dd><span class="not-given">Not given</span></dd></dl></div>
+          <div class="group"><h4>Email</h4>
+            <dl><dt>Email address</dt><dd>anna.demo@example.com</dd></dl></div>
+          <div class="group"><h4>Company and job title</h4>
+            <dl><dt>Company</dt><dd>Holm Rådgivning ApS</dd><dt>CVR number</dt><dd class="mono">12345674</dd>
+              <dt>Job title</dt><dd>Rådgivende ingeniør</dd></dl></div>
+          <div class="group"><h4>Fields of expertise</h4>
+            <dl><dt>Fields</dt><dd>EL, Maskinanlæg, Varmepumpe <span class="state"><svg class="icon"><use href="#i-clock"/></svg>Pending approval</span></dd></dl></div>
+        </div>
+        <div class="card">
+          <h3>Set by VBA</h3>
+          <dl><dt>VBA number</dt><dd class="mono">900001</dd>
+            <dt>Created</dt><dd>02/03/2015</dd>
+            <dt>Status</dt><dd><span class="status"><svg class="icon"><use href="#i-check"/></svg>Active</span></dd>
+            <dt>Roles</dt><dd><ul class="plain"><li>Skønsmand</li><li>Voldgiftsdommer</li></ul></dd></dl>
+        </div>
+      </div>
+
+      <section>
+        <h3>Pending changes (1)</h3>
+        <div class="box"><table>
+          <thead><tr><th>Field</th><th>Change</th><th>Sent</th><th>Decision <span class="step">Step B</span></th></tr></thead>
+          <tbody><tr>
+            <td>Fields of expertise</td>
+            <td>Added: Netværk<br>Removed: Maskinanlæg</td>
+            <td>08/11/2026 11:00</td>
+            <td><div class="decision-actions"><button class="btn-sm btn-approve">Approve</button><button class="btn-sm btn-reject">Reject…</button></div></td>
+          </tr></tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <h3>Change log</h3>
+        <div class="box"><table>
+          <thead><tr><th>When</th><th>Who</th><th>Field</th><th>Old value</th><th>New value</th></tr></thead>
+          <tbody>
+            <tr><td>09/11/2026 10:00</td><td class="who-staff">Sofie Demo (secretariat)</td><td>Last name</td><td>Demo</td><td>Holm</td></tr>
+            <tr><td>07/11/2026 14:12</td><td>The expert</td><td>Mobile phone</td><td><span class="not-given">Not given</span></td><td class="mono">+45 20 11 22 33</td></tr>
+            <tr><td>07/11/2026 14:12</td><td>The expert</td><td>Postcode and city</td><td>8000 Aarhus C</td><td>2100 København Ø</td></tr>
+            <tr><td>05/11/2026 09:30</td><td>The expert</td><td>Job title</td><td><span class="not-given">Not given</span></td><td>Rådgivende ingeniør</td></tr>
+          </tbody>
+        </table></div>
+        <div class="pager">
+          <p class="pager-range">Showing 1–10 of 23</p>
+          <nav aria-label="Pages"><ol>
+            <li><span class="pager-off">‹ Previous</span></li>
+            <li><a href="#" aria-current="page">1</a></li><li><a href="#">2</a></li><li><a href="#">3</a></li>
+            <li><a href="#">Next ›</a></li>
+          </ol></nav>
+        </div>
+        <p class="readonly-note">10 per page, newest first. The change log can't be edited or deleted.</p>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===================== PHONES ===================== -->
+  <div class="phones">
+    <div>
+      <p class="phone-label">360 px, light</p>
+      <div class="phone"><div class="screen light" id="phone-light"></div></div>
+    </div>
+    <div>
+      <p class="phone-label">360 px, dark</p>
+      <div class="phone"><div class="screen dark" id="phone-dark"></div></div>
+    </div>
+  </div>
+</div>
+
+<template id="phone-content">
+  <header class="topbar">
+    <span class="logo" style="font-size:11px">VN</span>
+    <nav class="staff-nav">
+      <a href="#"><svg class="icon"><use href="#i-search"/></svg>Search</a>
+      <a href="#"><svg class="icon"><use href="#i-clock"/></svg>Pending (3)</a>
+    </nav>
+    <div class="actions"><span>DA</span><span>·</span><span style="font-weight:600;text-decoration:underline">EN</span>
+      <span class="logout-icon"><svg class="icon"><use href="#i-logout"/></svg></span></div>
+  </header>
+  <main>
+    <a class="back" href="#"><svg class="icon"><use href="#i-back"/></svg>Back to search</a>
+    <div class="title-row">
+      <h2 class="page-title">Anna Demo</h2>
+      <span class="status"><svg class="icon"><use href="#i-check"/></svg>Active</span>
+      <span class="vba">VBA no. <span class="mono">900001</span></span>
+    </div>
+    <div class="details">
+      <div class="card">
+        <h3>Details</h3>
+        <div class="group"><h4>Name</h4><dl><dt>First name</dt><dd>Anna</dd><dt>Last name</dt><dd>Holm</dd></dl></div>
+        <div class="group"><h4>Address and phone</h4><dl><dt>Street and number</dt><dd>Østerbrogade 64</dd>
+          <dt>Postcode and city</dt><dd>2100 København Ø</dd><dt>Home phone</dt><dd><span class="not-given">Not given</span></dd></dl></div>
+        <div class="group"><h4>…</h4></div>
+      </div>
+      <div class="card"><h3>Set by VBA</h3><dl><dt>VBA number</dt><dd class="mono">900001</dd><dt>Status</dt><dd>Active</dd></dl></div>
+    </div>
+    <section>
+      <h3>Pending changes (1)</h3>
+      <div class="box"><table><tbody><tr>
+        <td data-label="Field">Fields of expertise</td>
+        <td data-label="Change">Added: Netværk<br>Removed: Maskinanlæg</td>
+        <td data-label="Sent">08/11/2026 11:00</td>
+        <td data-label="Decision"><div class="decision-actions"><button class="btn-sm btn-approve">Approve</button><button class="btn-sm btn-reject">Reject…</button></div></td>
+      </tr></tbody></table></div>
+    </section>
+    <section>
+      <h3>Change log</h3>
+      <div class="box"><table><tbody>
+        <tr><td data-label="When">09/11/2026 10:00</td><td data-label="Who"><span class="who-staff">Sofie Demo (secretariat)</span></td>
+          <td data-label="Field">Last name</td><td data-label="Old value">Demo</td><td data-label="New value">Holm</td></tr>
+        <tr><td data-label="When">07/11/2026 14:12</td><td data-label="Who">The expert</td>
+          <td data-label="Field">Mobile phone</td><td data-label="Old value"><span class="not-given">Not given</span></td><td data-label="New value">+45 20 11 22 33</td></tr>
+      </tbody></table></div>
+    </section>
+  </main>
+</template>
+<script>
+  // Mockup only: copies the phone content into both phone frames.
+  for (const id of ["phone-light", "phone-dark"]) {
+    document.getElementById(id).append(document.getElementById("phone-content").content.cloneNode(true));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+@model Pager
+@* The page links under a table (S-A results, S-C change log): "Showing 1–25 of 100", Previous, the numbers and Next.
+   Links, not form buttons: a page keeps the search and the ticks; a new search or tick goes to page 1.
+   The caller shows it only when there is more than one page. *@
+<div class="pager">
+  <p class="pager-range">@string.Format(CultureInfo.CurrentCulture, Text["search.showing"], Model.First, Model.Last, Model.Total)</p>
+  <nav aria-label="@Text["search.pages"]">
+    <ol>
+      <li>
+        @if (Model.PreviousUrl is null)
+        {
+          <span class="pager-off" aria-disabled="true">‹ @Text["search.previous"]</span>
+        }
+        else
+        {
+          <a href="@Model.PreviousUrl" rel="prev">‹ @Text["search.previous"]</a>
+        }
+      </li>
+      @foreach (var link in Model.Links)
+      {
+        <li>
+          @if (link.Number is null)
+          {
+            <span class="pager-gap" aria-hidden="true">…</span>
+          }
+          else if (link.IsCurrent)
+          {
+            <a href="@link.Url" aria-current="page">@link.Number</a>
+          }
+          else
+          {
+            <a href="@link.Url">@link.Number</a>
+          }
+        </li>
+      }
+      <li>
+        @if (Model.NextUrl is null)
+        {
+          <span class="pager-off" aria-disabled="true">@Text["search.next"] ›</span>
+        }
+        else
+        {
+          <a href="@Model.NextUrl" rel="next">@Text["search.next"] ›</a>
+        }
+      </li>
+    </ol>
+  </nav>
+</div>

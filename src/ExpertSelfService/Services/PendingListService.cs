@@ -23,8 +23,20 @@ public sealed class PendingListService(Database database)
     public List<PendingItem> List(string? query)
     {
         var words = SearchRules.Words(query);
+        return [.. Pending(null)
+            .Where(row => SearchRules.AllWordsMatch(
+                words, row.RegistrationId, row.FirstName, row.MiddleName, row.LastName, row.Email))
+            .Select(Item)];
+    }
+
+    /// <summary>One expert's pending changes, oldest first, for the expert page (S-C).</summary>
+    public List<PendingItem> ForExpert(long expertId) => [.. Pending(expertId).Select(Item)];
+
+    /// <summary>The pending rows, oldest first: every expert's, or one expert's.</summary>
+    private IEnumerable<Row> Pending(long? expertId)
+    {
         using var db = database.Open();
-        var rows = db.Query<Row>(
+        return db.Query<Row>(
             """
             SELECT p.id AS Id, p.candidate_id AS ExpertId, c.FirstName, c.MiddleName, c.LastName, c.Email,
                    c.RegistrationId, p.field AS Field, p.old_value AS OldValue, p.new_value AS NewValue,
@@ -32,22 +44,22 @@ public sealed class PendingListService(Database database)
             FROM ss_pending_changes p
             JOIN Candidates c ON c.Id = p.candidate_id
             WHERE p.status = 'pending'
+              AND (@expertId IS NULL OR p.candidate_id = @expertId)
             ORDER BY p.created_at, p.id
-            """);
-
-        return [.. rows
-            .Where(row => SearchRules.AllWordsMatch(
-                words, row.RegistrationId, row.FirstName, row.MiddleName, row.LastName, row.Email))
-            .Select(row => new PendingItem(
-                row.Id,
-                row.ExpertId,
-                ExpertName.Full(row.FirstName, row.MiddleName, row.LastName),
-                row.RegistrationId,
-                row.Field,
-                row.OldValue,
-                row.NewValue,
-                row.CreatedAt))];
+            """,
+            new { expertId });
     }
+
+    private static PendingItem Item(Row row) =>
+        new(
+            row.Id,
+            row.ExpertId,
+            ExpertName.Full(row.FirstName, row.MiddleName, row.LastName),
+            row.RegistrationId,
+            row.Field,
+            row.OldValue,
+            row.NewValue,
+            row.CreatedAt);
 
     /// <summary>How many changes are waiting, for "Pending approvals (N)" in the top bar.</summary>
     public int Count()

@@ -5,6 +5,7 @@ namespace ExpertSelfService.Models;
 /// <summary>One waiting change as S-B shows it. A name change has Old and New; a skills change has Added and Removed.</summary>
 public sealed record PendingRowView(
     long Id,
+    long ExpertId,
     string ExpertName,
     string? RegistrationId,
     string FieldLabel,
@@ -39,23 +40,18 @@ public sealed record PendingPage(
     public static PendingPage Build(TextService text, string? query, string? queryError, IEnumerable<PendingItem>? items, DecisionMessage? message) =>
         new(query, queryError, items?.Select(item => Row(text, item)).ToList(), message);
 
-    /// <summary>The field's name as the expert's own pages call it.</summary>
-    public static string FieldLabel(TextService text, string field) => field switch
-    {
-        NameRules.FirstName => text["profile.first_name"],
-        NameRules.MiddleName => text["profile.middle_name"],
-        NameRules.LastName => text["profile.last_name"],
-        SkillRules.Field => text["profile.section.skills"],
-        _ => field,
-    };
+    /// <summary>The field's name as the expert's own pages call it (one map, shared with the change log on S-C).</summary>
+    public static string FieldLabel(TextService text, string field) => FieldLabels.For(text, field);
 
-    private static PendingRowView Row(TextService text, PendingItem item)
+    /// <summary>One row as S-B shows it. S-C shows the same rows for one expert.</summary>
+    public static PendingRowView Row(TextService text, PendingItem item)
     {
         var isSkills = item.Field == SkillRules.Field;
         var (added, removed) = isSkills ? SkillRules.Diff(item.OldValue, item.NewValue) : ([], []);
 
         return new PendingRowView(
             item.Id,
+            item.ExpertId,
             item.ExpertName,
             item.RegistrationId,
             FieldLabel(text, item.Field),

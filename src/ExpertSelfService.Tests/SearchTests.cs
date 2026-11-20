@@ -300,11 +300,16 @@ public sealed partial class SearchTests : IAsyncLifetime, IDisposable
     }
 
     [Fact]
-    public async Task Results_have_no_links_until_the_expert_page_exists()
+    public async Task Each_result_has_one_link_its_name_to_the_expert_page()
     {
+        // Changed with S3: before S-C existed, results had no links at all.
         var html = await _browser.Html(Page);
 
-        Assert.All(Rows(html), row => Assert.DoesNotContain("<a ", row));
+        Assert.All(Rows(html), row =>
+        {
+            Assert.Single(Regex.Matches(row, "<a "));
+            Assert.Matches("""<td[^>]*class="result-name"[^>]*><a href="/staff/experts/\d+">""", row);
+        });
     }
 
     [Fact]

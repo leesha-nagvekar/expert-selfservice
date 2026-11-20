@@ -59,7 +59,6 @@
         })</h2>
         @if (results.Count > 0)
         {
-          @* Names are plain text until the expert page (S3) exists. *@
           <div class="results-box">
           <table class="result-table">
             <thead>
@@ -75,7 +74,7 @@
               @foreach (var row in results)
               {
                 <tr class="result">
-                  <td data-label="@Text["search.column.name"]" class="result-name">@row.Name</td>
+                  <td data-label="@Text["search.column.name"]" class="result-name"><a href="/staff/experts/@row.ExpertId">@row.Name</a></td>
                   <td data-label="@Text["search.column.vba_number"]" class="vba-no mono">@row.RegistrationId</td>
                   <td data-label="@Text["search.column.postcode_city"]">
                     @if (row.PostcodeCity is null)
@@ -95,51 +94,7 @@
           </table>
           @if (Model.Pager is { PageCount: > 1 } pager)
           {
-            @* Links, not form buttons: a page keeps the search and the ticks; a new search or tick goes to page 1. *@
-            <div class="pager">
-              <p class="pager-range">@string.Format(CultureInfo.CurrentCulture, Text["search.showing"], pager.First, pager.Last, pager.Total)</p>
-              <nav aria-label="@Text["search.pages"]">
-                <ol>
-                  <li>
-                    @if (pager.PreviousUrl is null)
-                    {
-                      <span class="pager-off" aria-disabled="true">‹ @Text["search.previous"]</span>
-                    }
-                    else
-                    {
-                      <a href="@pager.PreviousUrl" rel="prev">‹ @Text["search.previous"]</a>
-                    }
-                  </li>
-                  @foreach (var link in pager.Links)
-                  {
-                    <li>
-                      @if (link.Number is null)
-                      {
-                        <span class="pager-gap" aria-hidden="true">…</span>
-                      }
-                      else if (link.IsCurrent)
-                      {
-                        <a href="@link.Url" aria-current="page">@link.Number</a>
-                      }
-                      else
-                      {
-                        <a href="@link.Url">@link.Number</a>
-                      }
-                    </li>
-                  }
-                  <li>
-                    @if (pager.NextUrl is null)
-                    {
-                      <span class="pager-off" aria-disabled="true">@Text["search.next"] ›</span>
-                    }
-                    else
-                    {
-                      <a href="@pager.NextUrl" rel="next">@Text["search.next"] ›</a>
-                    }
-                  </li>
-                </ol>
-              </nav>
-            </div>
+            @await Html.PartialAsync("_Pager", pager)
           }
           </div>
         }

@@ -1,0 +1,211 @@
+@model ExpertPage
+@{
+    ViewData["Title"] = Model.Name;
+    ViewData["MainClass"] = "wide";
+    var p = Model.Profile;
+    var postcodeAndCity = $"{p.Postcode} {p.City}".Trim();
+
+    // A value, or "Not given" when it is empty, so a gap never looks like a broken page.
+    async Task Value(string? value, bool mono = false)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            <span class="not-given">@Text["profile.not_given"]</span>
+        }
+        else if (mono)
+        {
+            <span class="mono">@value</span>
+        }
+        else
+        {
+            @value
+        }
+    }
+
+    async Task Row(string labelKey, string? value, bool mono = false)
+    {
+        <div class="row">
+          <dt>@Text[labelKey]</dt>
+          <dd>@{ await Value(value, mono); }</dd>
+        </div>
+    }
+
+    async Task List(IReadOnlyList<string> items)
+    {
+        if (items.Count == 0)
+        {
+            <span class="not-given">@Text["profile.not_given"]</span>
+        }
+        else
+        {
+            <ul class="plain-list">
+              @foreach (var item in items)
+              {
+                <li>@item</li>
+              }
+            </ul>
+        }
+    }
+}
+@* Screen S-C (SPEC section 4). Read-only: there is no edit or delete anywhere on this page. *@
+<h1>@Model.Name</h1>
+<p class="expert-summary">
+  <span class="status @Model.StatusClass">@await Html.PartialAsync("_Icon", Model.StatusIcon) @Model.StatusText</span>
+  <span class="expert-vba">@Text["profile.vba_number"] <span class="mono">@p.RegistrationId</span></span>
+</p>
+
+<div class="expert-details">
+  <section id="details" class="profile-section">
+    <h2>@Text["expert.section.details"]</h2>
+    <h3>@Text["profile.section.name"]</h3>
+    <dl>
+      @{ await Row("profile.first_name", p.FirstName); }
+      @if (!string.IsNullOrWhiteSpace(p.MiddleName))
+      {
+        await Row("profile.middle_name", p.MiddleName);
+      }
+      @{ await Row("profile.last_name", p.LastName); }
+    </dl>
+    <h3>@Text["profile.section.address"]</h3>
+    <dl>
+      @{
+        await Row("profile.street", p.Street);
+        await Row("profile.postcode_city", postcodeAndCity);
+        await Row("profile.phone_mobile", p.PhoneMobile);
+        await Row("profile.phone_work", p.PhoneWork);
+        await Row("profile.phone_home", p.PhoneHome);
+      }
+    </dl>
+    <h3>@Text["profile.section.email"]</h3>
+    <dl>
+      @{ await Row("profile.email", p.Email); }
+    </dl>
+    <h3>@Text["profile.section.company"]</h3>
+    <dl>
+      @{
+        await Row("profile.company", p.Company);
+        await Row("profile.cvr", p.Cvr, mono: true);
+        await Row("profile.designation", p.Designation);
+      }
+    </dl>
+    <h3>@Text["profile.section.skills"]</h3>
+    @{ await List(p.Skills); }
+  </section>
+
+  <section id="vba" class="profile-section readonly">
+    <h2>@Text["profile.section.vba"]</h2>
+    <dl>
+      @{
+        await Row("profile.vba_number", p.RegistrationId, mono: true);
+        await Row("profile.created", Model.Created);
+      }
+      <div class="row">
+        <dt>@Text["profile.status"]</dt>
+        <dd>
+          <span class="status @Model.StatusClass">@await Html.PartialAsync("_Icon", Model.StatusIcon) @Model.StatusText</span>
+          @if (Model.StatusUntil is not null)
+          {
+            <span class="status-until">@Model.StatusUntil</span>
+          }
+        </dd>
+      </div>
+      <div class="row">
+        <dt>@Text["profile.roles"]</dt>
+        <dd>@{ await List(p.Roles); }</dd>
+      </div>
+    </dl>
+  </section>
+</div>
+
+<section id="pending" class="expert-block">
+  <h2>@Text["expert.section.pending"]</h2>
+  @if (Model.Pending.Count == 0)
+  {
+    <p class="expert-none">@Text["pending.none"]</p>
+  }
+  else
+  {
+    @* Oldest first, the same rows as S-B. *@
+    <div class="results-box">
+    <table class="result-table pending-table">
+      <thead>
+        <tr>
+          <th scope="col">@Text["pending.column.field"]</th>
+          <th scope="col">@Text["pending.column.change"]</th>
+          <th scope="col">@Text["pending.column.sent"]</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var row in Model.Pending)
+        {
+          <tr class="change" data-id="@row.Id">
+            <td class="field" data-label="@Text["pending.column.field"]">@row.FieldLabel</td>
+            <td class="change-text" data-label="@Text["pending.column.change"]">
+              @if (row.IsSkills)
+              {
+                <div>
+                  @if (row.Added.Count > 0)
+                  {
+                    <p class="change-line">@Text["pending.added"] @string.Join(", ", row.Added)</p>
+                  }
+                  @if (row.Removed.Count > 0)
+                  {
+                    <p class="change-line">@Text["pending.removed"] @string.Join(", ", row.Removed)</p>
+                  }
+                </div>
+              }
+              else
+              {
+                <p class="change-line">@{ await Value(row.OldValue); } <span aria-hidden="true">→</span> @{ await Value(row.NewValue); }</p>
+              }
+            </td>
+            <td class="sent" data-label="@Text["pending.column.sent"]">@row.Sent</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    </div>
+  }
+</section>
+
+<section id="log" class="expert-block">
+  <h2>@Text["expert.section.log"]</h2>
+  @if (Model.Log.Count == 0)
+  {
+    <p class="expert-none">@Text["expert.log.none"]</p>
+  }
+  else
+  {
+    @* Newest first, 10 per page. Plain text only: no form, button or input, so nothing here can change an entry. *@
+    <div class="results-box">
+    <table class="result-table log-table">
+      <thead>
+        <tr>
+          <th scope="col">@Text["expert.log.when"]</th>
+          <th scope="col">@Text["expert.log.who"]</th>
+          <th scope="col">@Text["expert.log.field"]</th>
+          <th scope="col">@Text["expert.log.old"]</th>
+          <th scope="col">@Text["expert.log.new"]</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var entry in Model.Log)
+        {
+          <tr class="log-entry">
+            <td class="when" data-label="@Text["expert.log.when"]">@entry.When</td>
+            <td class="who@(entry.ByStaff ? " by-staff" : "")" data-label="@Text["expert.log.who"]">@entry.Who</td>
+            <td class="field" data-label="@Text["expert.log.field"]">@entry.Field</td>
+            <td class="old" data-label="@Text["expert.log.old"]">@{ await Value(entry.OldValue); }</td>
+            <td class="new" data-label="@Text["expert.log.new"]">@{ await Value(entry.NewValue); }</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (Model.Pager.PageCount > 1)
+    {
+      @await Html.PartialAsync("_Pager", Model.Pager)
+    }
+    </div>
+    <p class="hint">@Text["expert.log.readonly"]</p>
+  }
+</section>

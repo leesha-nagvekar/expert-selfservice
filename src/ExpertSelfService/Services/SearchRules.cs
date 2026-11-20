@@ -17,8 +17,11 @@ public static class SearchRules
 
     public static bool IsTooLong(string? query) => query is not null && query.Length > MaxLength;
 
-    /// <summary>How many pages the results fill. Always at least 1, so an empty result is page 1 of 1.</summary>
-    public static int PageCount(int total) => Math.Max(1, (total + PageSize - 1) / PageSize);
+    /// <summary>
+    /// How many pages the results fill. Always at least 1, so an empty result is page 1 of 1. S-A uses 25 per page,
+    /// the change log on S-C 10.
+    /// </summary>
+    public static int PageCount(int total, int pageSize = PageSize) => Math.Max(1, (total + pageSize - 1) / pageSize);
 
     /// <summary>
     /// The page number from the query string: absent or empty is page 1. Only plain digits without a leading zero

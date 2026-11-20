@@ -792,6 +792,51 @@ dd {
   margin: 0;
 }
 
+/* S-C: the expert page. Details and "Set by VBA" one under the other, side by side on wide screens (below). */
+.expert-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: -8px 0 24px;
+}
+
+.expert-vba {
+  color: var(--muted);
+}
+
+.expert-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 24px;
+}
+
+.expert-details h3 {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.expert-block {
+  margin-bottom: 32px;
+}
+
+.expert-block > h2 {
+  margin-bottom: 12px;
+}
+
+.expert-none {
+  color: var(--muted);
+}
+
+.log-table .by-staff {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 /* Approve and "Reject…" side by side, smaller text and padding; still 44 px high (guide section 5).
    Approve floats left, so "Reject…" stays next to it also when open; the reason box drops below both
    (clear), full width. Plain CSS, no JavaScript. */
@@ -916,6 +961,12 @@ dd {
      Approve while the box is closed. Room for both side by side (rem: grows with the text size). */
   .decision-actions {
     min-width: 12.5rem;
+  }
+
+  /* S-C: Details wider, "Set by VBA" beside it. */
+  .expert-details {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
   }
 
   .search-layout {

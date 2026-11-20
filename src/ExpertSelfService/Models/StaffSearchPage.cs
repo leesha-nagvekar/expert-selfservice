@@ -38,8 +38,9 @@ public sealed record FilterGroup(string Name, string Legend, IReadOnlyList<Filte
     }
 }
 
-/// <summary>One result row.</summary>
+/// <summary>One result row. The name links to the expert page (S-C).</summary>
 public sealed record SearchRow(
+    long ExpertId,
     string Name,
     string? RegistrationId,
     string? PostcodeCity,
@@ -59,9 +60,10 @@ public sealed record Pager(
     public const int ShowAllUpTo = 7;
 
     /// <param name="url">The URL for a page number, with the search and every tick kept.</param>
-    public static Pager Build(int page, int total, Func<int, string> url)
+    /// <param name="pageSize">Rows per page: 25 on S-A, 10 for the change log on S-C.</param>
+    public static Pager Build(int page, int total, Func<int, string> url, int pageSize = SearchRules.PageSize)
     {
-        var pageCount = SearchRules.PageCount(total);
+        var pageCount = SearchRules.PageCount(total, pageSize);
         var numbers = pageCount <= ShowAllUpTo
             ? Enumerable.Range(1, pageCount).ToList()
             : new[] { 1, page - 1, page, page + 1, pageCount }.Where(n => n >= 1 && n <= pageCount).Distinct().Order().ToList();
@@ -77,8 +79,8 @@ public sealed record Pager(
             links.Add(new PageLink(numbers[i], url(numbers[i]), numbers[i] == page));
         }
 
-        var first = total == 0 ? 0 : ((page - 1) * SearchRules.PageSize) + 1;
-        var last = Math.Min(page * SearchRules.PageSize, total);
+        var first = total == 0 ? 0 : ((page - 1) * pageSize) + 1;
+        var last = Math.Min(page * pageSize, total);
         return new Pager(
             page,
             pageCount,
@@ -136,6 +138,7 @@ public sealed record StaffSearchPage(
             .Skip((page - 1) * SearchRules.PageSize)
             .Take(SearchRules.PageSize)
             .Select(hit => new SearchRow(
+                hit.Id,
                 hit.Name,
                 hit.RegistrationId,
                 hit.Postcode is null ? null : $"{hit.Postcode} {hit.City}".Trim(),
