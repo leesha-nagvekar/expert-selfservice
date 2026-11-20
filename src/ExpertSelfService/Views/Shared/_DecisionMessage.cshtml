@@ -1,0 +1,13 @@
+@model DecisionMessage
+@* The one-time message after a decision, shared by S-B and S-C. *@
+@{
+    var (css, icon) = Model.Kind switch
+    {
+        DecisionMessage.Approved => ("state-saved", "check"),
+        DecisionMessage.Rejected => ("state-rejected", "cross"),
+        _ => ("state-pending", "info"),
+    };
+}
+<p class="decision-message state @css" role="status">
+  <span class="state-word">@await Html.PartialAsync("_Icon", icon) @Model.Text</span>
+</p>

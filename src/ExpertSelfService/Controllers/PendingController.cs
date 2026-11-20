@@ -12,9 +12,9 @@ public class PendingController(PendingListService list, DecisionService decision
 {
     private const string Page = "/staff/pending";
 
-    // The message after a decision lives in TempData, shown once, like "Saved" on the expert pages.
-    private const string MessageKindKey = "pending-message-kind";
-    private const string MessageTextKey = "pending-message-text";
+    // The message after a decision lives in TempData, shown once, like "Saved" on the expert pages (same keys as S-C).
+    private const string MessageKindKey = DecisionMessage.KindKey;
+    private const string MessageTextKey = DecisionMessage.TextKey;
 
     [HttpGet(Page)]
     public IActionResult Index([FromQuery] string? q) => View(Build(q));

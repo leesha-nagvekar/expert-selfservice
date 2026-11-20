@@ -16,13 +16,31 @@ public sealed record PendingRowView(
     IReadOnlyList<string> Removed,
     string Sent);
 
-/// <summary>The message after a decision, shown once: approved, rejected or already decided.</summary>
+/// <summary>
+/// The message after a decision, shown once: approved, rejected or already decided. S-B and S-C keep it in TempData
+/// under the same two keys, like "Saved" on the expert pages.
+/// </summary>
 public sealed record DecisionMessage(string Kind, string Text)
 {
     public const string Approved = "approved";
     public const string Rejected = "rejected";
     public const string AlreadyDecided = "decided";
+
+    public const string KindKey = "pending-message-kind";
+    public const string TextKey = "pending-message-text";
 }
+
+/// <summary>
+/// The Decision cell for one pending change, shared by S-B and S-C (Views/Shared/_DecisionCell.cshtml): where the two
+/// forms post, the hidden fields they send back (S-B's search text), and the reason error for this row, if any.
+/// </summary>
+public sealed record DecisionCell(
+    long ChangeId,
+    string ApproveUrl,
+    string RejectUrl,
+    IReadOnlyList<KeyValuePair<string, string>> Hidden,
+    string? Error = null,
+    string? Reason = null);
 
 /// <summary>
 /// Screen S-B, story S2. Rows is null when the search text is too long. A failed reject keeps its row's reason box

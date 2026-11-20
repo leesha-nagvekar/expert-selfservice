@@ -47,12 +47,17 @@
         }
     }
 }
-@* Screen S-C (SPEC section 4). Read-only: there is no edit or delete anywhere on this page. *@
+@* Screen S-C (SPEC section 4). The details and the log are read-only; the only forms are the decisions on pending changes. *@
 <h1>@Model.Name</h1>
 <p class="expert-summary">
   <span class="status @Model.StatusClass">@await Html.PartialAsync("_Icon", Model.StatusIcon) @Model.StatusText</span>
   <span class="expert-vba">@Text["profile.vba_number"] <span class="mono">@p.RegistrationId</span></span>
 </p>
+
+@if (Model.Message is { } message)
+{
+  @await Html.PartialAsync("_DecisionMessage", message)
+}
 
 <div class="expert-details">
   <section id="details" class="profile-section">
@@ -125,7 +130,7 @@
   }
   else
   {
-    @* Oldest first, the same rows as S-B. *@
+    @* Oldest first, the same rows and Decision cell as S-B; the forms post under this expert's URL. *@
     <div class="results-box">
     <table class="result-table pending-table">
       <thead>
@@ -133,6 +138,7 @@
           <th scope="col">@Text["pending.column.field"]</th>
           <th scope="col">@Text["pending.column.change"]</th>
           <th scope="col">@Text["pending.column.sent"]</th>
+          <th scope="col">@Text["pending.column.decision"]</th>
         </tr>
       </thead>
       <tbody>
@@ -160,6 +166,9 @@
               }
             </td>
             <td class="sent" data-label="@Text["pending.column.sent"]">@row.Sent</td>
+            <td class="decision" data-label="@Text["pending.column.decision"]">
+              @await Html.PartialAsync("_DecisionCell", Model.Cell(row))
+            </td>
           </tr>
         }
       </tbody>

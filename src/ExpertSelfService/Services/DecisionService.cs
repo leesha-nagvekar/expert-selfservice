@@ -24,6 +24,8 @@ public sealed class DecisionService(Database database, ExpertChanges changes, Ti
     /// <summary>The longest reason (SPEC S-B).</summary>
     public const int MaxReason = 500;
 
+    private sealed record StatusRow(long ExpertId, string Status);
+
     private sealed record PendingRow(long ExpertId, string Field, string? OldValue, string? NewValue, string Status, string FirstName, string? MiddleName, string LastName);
 
     /// <summary>The i18n key of what is wrong with a reason, or null when it is fine. Line breaks are allowed.</summary>
@@ -43,28 +45,32 @@ public sealed class DecisionService(Database database, ExpertChanges changes, Ti
         return text.Length > MaxReason ? "pending.error.reason_too_long" : null;
     }
 
-    /// <summary>Done when the change is still pending (it can be decided), else AlreadyDecided or NotFound.</summary>
-    public DecisionOutcome StatusOf(long changeId)
+    /// <summary>
+    /// Done when the change is still pending (it can be decided), else AlreadyDecided or NotFound.
+    /// With <paramref name="expertId"/> (S-C), a change that belongs to another expert is NotFound.
+    /// </summary>
+    public DecisionOutcome StatusOf(long changeId, long? expertId = null)
     {
         using var db = database.Open();
-        var status = db.ExecuteScalar<string?>(
-            "SELECT status FROM ss_pending_changes WHERE id = @changeId", new { changeId });
-        return status switch
+        var row = db.QuerySingleOrDefault<StatusRow>(
+            "SELECT candidate_id AS ExpertId, status AS Status FROM ss_pending_changes WHERE id = @changeId", new { changeId });
+        if (row is null || !Belongs(row.ExpertId, expertId))
         {
-            null => DecisionOutcome.NotFound,
-            "pending" => DecisionOutcome.Done,
-            _ => DecisionOutcome.AlreadyDecided,
-        };
+            return DecisionOutcome.NotFound;
+        }
+
+        return row.Status == "pending" ? DecisionOutcome.Done : DecisionOutcome.AlreadyDecided;
     }
 
-    public DecisionResult Approve(long changeId, long staffId)
+    /// <summary>With <paramref name="expertId"/> (S-C), a change that belongs to another expert is NotFound.</summary>
+    public DecisionResult Approve(long changeId, long staffId, long? expertId = null)
     {
         using var db = database.Open();
         // Not deferred: the write lock is taken at the start, so two decisions on one row run one after the other.
         // Decide's row count is the second guard, should that ever change.
         using var transaction = db.BeginTransaction();
         var row = Read(db, transaction, changeId);
-        if (row is null)
+        if (row is null || !Belongs(row.ExpertId, expertId))
         {
             return new DecisionResult(DecisionOutcome.NotFound);
         }
@@ -92,13 +98,16 @@ public sealed class DecisionService(Database database, ExpertChanges changes, Ti
         return Done(row);
     }
 
-    /// <summary>The caller has checked the reason with <see cref="ReasonError"/>.</summary>
-    public DecisionResult Reject(long changeId, long staffId, string reason)
+    /// <summary>
+    /// The caller has checked the reason with <see cref="ReasonError"/>.
+    /// With <paramref name="expertId"/> (S-C), a change that belongs to another expert is NotFound.
+    /// </summary>
+    public DecisionResult Reject(long changeId, long staffId, string reason, long? expertId = null)
     {
         using var db = database.Open();
         using var transaction = db.BeginTransaction();
         var row = Read(db, transaction, changeId);
-        if (row is null)
+        if (row is null || !Belongs(row.ExpertId, expertId))
         {
             return new DecisionResult(DecisionOutcome.NotFound);
         }
@@ -117,6 +126,9 @@ public sealed class DecisionService(Database database, ExpertChanges changes, Ti
         transaction.Commit();
         return Done(row);
     }
+
+    // S-B passes no expert (any change); S-C passes the expert in its URL, and only that expert's changes count.
+    private static bool Belongs(long changeExpertId, long? expertId) => expertId is null || changeExpertId == expertId;
 
     private static DecisionResult Done(PendingRow row) =>
         new(DecisionOutcome.Done, ExpertName.Full(row.FirstName, row.MiddleName, row.LastName), row.Field);

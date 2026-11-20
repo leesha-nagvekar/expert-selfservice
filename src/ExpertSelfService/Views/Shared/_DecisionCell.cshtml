@@ -1,0 +1,37 @@
+@model DecisionCell
+@{
+    var hasError = Model.Error is not null;
+    var reasonId = $"reason-{Model.ChangeId}";
+
+    // Every form sends its hidden fields back (S-B: the search text), so the page comes back as it was.
+    void Hidden()
+    {
+        foreach (var field in Model.Hidden)
+        {
+            <input type="hidden" name="@field.Key" value="@field.Value">
+        }
+    }
+}
+@* The Decision cell, shared by S-B and S-C. Works without JavaScript: <details> opens the reason box. *@
+<div class="decision-actions">
+  <form method="post" action="@Model.ApproveUrl">
+    @Html.AntiForgeryToken()
+    @{ Hidden(); }
+    <button type="submit">@Text["pending.approve"]</button>
+  </form>
+  <details class="reject" open="@hasError">
+    <summary>@Text["pending.reject_open"]</summary>
+    <form method="post" action="@Model.RejectUrl" novalidate>
+      @Html.AntiForgeryToken()
+      @{ Hidden(); }
+      <label for="@reasonId">@Text["pending.reason"]</label>
+      @if (hasError)
+      {
+        <p class="field-error" id="@reasonId-error">@Model.Error</p>
+      }
+      <textarea id="@reasonId" name="Reason" maxlength="@DecisionService.MaxReason" rows="3"
+                aria-invalid="@(hasError ? "true" : null)" aria-describedby="@(hasError ? $"{reasonId}-error" : null)">@(hasError ? Model.Reason : null)</textarea>
+      <button type="submit" class="secondary">@Text["pending.reject"]</button>
+    </form>
+  </details>
+</div>

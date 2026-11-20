@@ -16,27 +16,15 @@
     }
 
     // Every form posts the search text back, so the list comes back as it was after a decision.
-    void KeepQuery()
-    {
-        if (!string.IsNullOrEmpty(Model.Query))
-        {
-            <input type="hidden" name="q" value="@Model.Query">
-        }
-    }
+    IReadOnlyList<KeyValuePair<string, string>> keep = string.IsNullOrEmpty(Model.Query)
+        ? []
+        : [KeyValuePair.Create("q", Model.Query)];
 }
 <h1>@Text["pending.title"]</h1>
 
 @if (Model.Message is { } message)
 {
-  var (css, icon) = message.Kind switch
-  {
-      DecisionMessage.Approved => ("state-saved", "check"),
-      DecisionMessage.Rejected => ("state-rejected", "cross"),
-      _ => ("state-pending", "info"),
-  };
-  <p class="decision-message state @css" role="status">
-    <span class="state-word">@await Html.PartialAsync("_Icon", icon) @message.Text</span>
-  </p>
+  @await Html.PartialAsync("_DecisionMessage", message)
 }
 
 <form class="search" method="get" action="/staff/pending" novalidate>
@@ -88,7 +76,6 @@
           @foreach (var row in rows)
           {
             var hasError = Model.ErrorRowId == row.Id;
-            var reasonId = $"reason-{row.Id}";
             <tr class="change" data-id="@row.Id">
               <td class="expert result-name" data-label="@Text["pending.column.expert"]"><a href="/staff/experts/@row.ExpertId">@row.ExpertName</a></td>
               <td class="vba-no mono" data-label="@Text["search.column.vba_number"]">@row.RegistrationId</td>
@@ -114,28 +101,9 @@
               </td>
               <td class="sent" data-label="@Text["pending.column.sent"]">@row.Sent</td>
               <td class="decision" data-label="@Text["pending.column.decision"]">
-                <div class="decision-actions">
-                  <form method="post" action="/staff/pending/@row.Id/approve">
-                    @Html.AntiForgeryToken()
-                    @{ KeepQuery(); }
-                    <button type="submit">@Text["pending.approve"]</button>
-                  </form>
-                  <details class="reject" open="@hasError">
-                    <summary>@Text["pending.reject_open"]</summary>
-                    <form method="post" action="/staff/pending/@row.Id/reject" novalidate>
-                      @Html.AntiForgeryToken()
-                      @{ KeepQuery(); }
-                      <label for="@reasonId">@Text["pending.reason"]</label>
-                      @if (hasError)
-                      {
-                        <p class="field-error" id="@reasonId-error">@Model.ReasonError</p>
-                      }
-                      <textarea id="@reasonId" name="Reason" maxlength="@DecisionService.MaxReason" rows="3"
-                                aria-invalid="@(hasError ? "true" : null)" aria-describedby="@(hasError ? $"{reasonId}-error" : null)">@(hasError ? Model.Reason : null)</textarea>
-                      <button type="submit" class="secondary">@Text["pending.reject"]</button>
-                    </form>
-                  </details>
-                </div>
+                @await Html.PartialAsync("_DecisionCell", new DecisionCell(
+                    row.Id, $"/staff/pending/{row.Id}/approve", $"/staff/pending/{row.Id}/reject", keep,
+                    hasError ? Model.ReasonError : null, hasError ? Model.Reason : null))
               </td>
             </tr>
           }
