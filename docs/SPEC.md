@@ -171,7 +171,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
   - A tick applies straight away (plain JavaScript) and keeps the search-box text. Without JavaScript the Search button applies everything.
   - A value that isn't in its list gives 400 (a hand-made URL).
   - On a phone the sidebar sits above the results, folded into "Filters (N ticked)".
-- **Results:** name (First Middle Last), VBA number, postcode + city, status (icon + colour + word), number of pending changes. Sorted by last name, then first name, in Danish order. Heading "N experts found" or "No experts match the filters." No filters shows every expert. Each result will open the expert page when S3 is built.
+- **Results:** name (First Middle Last), VBA number, postcode + city, status (icon + colour + word), number of pending changes. Sorted by last name, then first name, in Danish order. Heading "N experts found" or "No experts match the filters." No filters shows every expert. The name opens the expert page (S-C) and carries this search (text, ticks and page), so S-C can link back to it. *(Changed 20 Nov 2026 with S3.)*
   - 25 per page, with a shaded header and striped rows. Under the table: "Showing 1–25 of 100", page numbers, Previous and Next (when there are more than 7 pages: first, last, the current ±1 and "…"). The heading still counts every result. *(Added 17 Nov 2026.)*
   - The page is `?page=N` in the query string. A page link keeps the search text and every tick. The form has no page field, so a new search or a tick goes to page 1. A page that isn't plain digits (`0`, `07`, `-1`, `abc`) or is past the last page gives 400.
 
@@ -188,11 +188,21 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - **"Reject…"** opens a reason box in the row. The reason is required, max 500 characters, line breaks allowed. Errors next to the box: "Write a reason for rejecting", "The reason can be at most 500 characters.", "The reason can't contain control characters." The box stays open with the text kept.
 - After a decision the list comes back with the search text kept and one message: "Approved: Anna Demo – Fields of expertise", "Rejected: …".
 - A change that has already been decided can't be decided again: "This change has already been decided." An unknown change gives "Page not found".
-- Names are plain text until S-C exists.
+- A name opens the expert page (S-C) and carries this list with its search text, so S-C can link back to it. *(Changed 20 Nov 2026 with S3.)*
 
 **S-C Expert page and change log (S3)**
-- The expert's details (read-only) and their change log, newest first: when, who (expert or secretariat user), field, old value, new value.
-- There is no edit or delete anywhere. The database blocks it too (section 5).
+*(Written out 20 Nov 2026 with S3. See `docs/decisions.md`.)*
+- GET `/staff/experts/{id}`, opened from a name on S-A or S-B. Staff only: an expert gets 403, someone not logged in goes to the front page, and an unknown id gives "Page not found". A Retired expert opens too.
+- **Back link** above the name: "← Back to search" or "← Back to pending approvals". It returns to the list as it was left (S-A with its search text, ticks and page; S-B with its search text). The list's URL travels as `?back=`. Only `/staff` and `/staff/pending`, with or without a query, are kept; anything else (another site, another page, `//`, `\`, path tricks, control characters, over 2,000 characters) gives "← Back to search" to `/staff`. A bad `back` is never an error. `back` is kept through the log pages, the decisions and the reason error, and is only ever a link, never a redirect.
+- **Heading**: the name (First Middle Last), then status (icon + colour + word) and VBA no.
+- **Details** (read-only): name, address and phone, email, company (company, CVR, job title) and fields of expertise, as on the expert's own profile. An empty value shows "Not given". No edit links.
+- **Set by VBA** (read-only): VBA number, created, status (with "until …" for Standby) and roles. On wide screens Details and Set by VBA sit side by side; on a phone one under the other.
+- **Pending changes**: the expert's waiting changes, oldest first, with the same columns, Approve and "Reject…" as S-B, and the same rules (section 3; reason required, max 500 characters). "No changes are waiting." when none.
+  - The forms post to `/staff/experts/{id}/changes/{changeId}/approve` or `/reject`. A change that doesn't belong to this expert gives "Page not found" and nothing is decided.
+  - After a decision the expert page comes back (log page 1) with the same message as S-B. The change is gone from both S-C and S-B, and the top-bar count goes down.
+- **Change log**, newest first (entries from one save: newest id first): when (local date and time), who ("The expert" or "Sofie (secretariat)"), field (the profile's labels), old value, new value ("Not given" when empty). Approvals are logged; rejections are not (nothing changed). "No changes yet." when empty.
+  - 10 per page, with the same pager and rules as S-A: "Showing 1–10 of N", page numbers, Previous and Next; `?page=N`, and a page that isn't plain digits or is past the last page gives 400. An unknown expert gives "Page not found" whatever the page says. Details and pending changes show on every page.
+  - There is no edit or delete anywhere: the log has no form, button or input, and the database blocks UPDATE and DELETE on `ss_change_log` (section 5). The page says "The change log can't be changed or deleted."
 
 **The secretariat view**
 After logging in, a secretariat user lands on Search experts. The top bar has Search experts, pending approvals (with a count), Help, DA/EN and Log out.

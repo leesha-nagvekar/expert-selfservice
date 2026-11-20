@@ -129,3 +129,10 @@ In my break-it checks, removing the expert filter from the skills query showed o
 Claude to add Approve and Reject to the pending changes on S-C. One rule: a change can only be decided from the page of the expert it belongs to.
 
 - **Learned:** Breaking a check in two directions proves the tests cover two sides.
+
+## 20 Nov – S3 step C: back link on the expert page (S-C)
+
+- **Asked:** Claude to add a " Back to search" / " Back to pending approvals" link on S-C that returns to the list as Sofie left it, with a safety rule so the link can only go to /staff or /staff/pending.
+
+- **Went wrong:** 
+Pager break-it showed that PageUrl trusts back without checking; it does no harm, because S-C checks back again on the next request.

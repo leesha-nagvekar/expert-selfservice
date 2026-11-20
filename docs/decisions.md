@@ -2,6 +2,31 @@
 
 Short records of choices made in the project and why.
 
+## S3 expert page and change log (19–20 Nov 2026)
+
+**Built in three steps, each with failing tests first.** A: the page, details, change log and name links. B: approve and reject on S-C. C: the back link. A mockup (`mockups/s3-expert-page.html`) was approved before step A.
+
+**The expert side is not touched.** `ProfileService.Load` refuses Retired experts and is proven by the profile tests, so S-C has its own read, `StaffExpertService.Load`: the same columns, Retired included, never Notes or the other hidden columns. It reuses the public `ProfileService.Roles` and `NewestStates`.
+
+**Change log only, no separate decisions list.** Approvals are in the log; a rejection changed nothing, so it is only on the pending row (as in S2).
+
+**The log pages like S-A (Leesha, after the plan).** 10 per page, newest first, `?page=N` with S-A's rules. `Pager.Build` and `SearchRules.PageCount` take a page size (25 stays the default, so S-A is unchanged), and the pager markup moved into `Views/Shared/_Pager.cshtml`. Unlike S-A the log pages in SQL (`LIMIT`/`OFFSET` with parameters): nothing is matched in C#. Entries written at the same moment come newest id first, so the order never changes between loads.
+
+**One field-label map.** `FieldLabels.For` names all 13 logged fields with the profile's labels; S-B and S-C both use it.
+
+**A change counts only under its own expert, checked inside the decision.** S-C's forms post under the expert's URL. `DecisionService.Approve`, `Reject` and `StatusOf` take an optional `expertId` and answer "not found" for another expert's change, in the same transaction as the decision. S-B passes none and is unchanged. The same check also turns away an unknown expert. Break-it checked in five places (the check itself, too loose and too strict; Approve without it; the controller not passing the id to Approve and to StatusOf): a test failed each time. Methods with a required expert id were considered, so the compiler would catch a missing id too; the optional parameter was kept, because each call has its own test.
+
+**Leesha's three points for step B.** The approve and reject pass the right expert id; the top-bar count goes down after a decision on S-C (no code needed: the layout reads it on every page); a change decided on S-C is gone from S-B, and the other way round. Each has its own tests.
+
+**One Decision cell and one message, shared.** `_DecisionCell.cshtml` and `_DecisionMessage.cshtml` are used by S-B and S-C; S-B's HTML is unchanged. The two TempData keys moved to `DecisionMessage`.
+
+**The back link travels in the URL and is checked once.** Names on S-A and S-B carry their own list URL as `?back=`. `BackLink.Safe` keeps only a path of exactly `/staff` or `/staff/pending` (with or without a query); that one rule rules out other sites, other pages and every `/../` trick, encoded ones included. Backslashes, control characters and values over 2,000 characters are refused too. A bad `back` falls back to `/staff` with no error. `back` is only ever an `href`; the redirect after a decision always goes to S-C itself. When `back` is plain `/staff` it is left out, so the usual URL stays `/staff/experts/{id}`.
+
+**Gaps found in break-it checks, closed with tests.** Step A: removing the expert filter from the skills query showed another expert's skill and no test failed; two tests added. 
+Guards added in step C: an encoded `//` in `back` falls back to `/staff`, and a test that the redirect never goes to `back`, proved with an open-redirect break.
+
+**The language switch's `next=` carries the whole URL, `back` included.** That was so before S3 and is safe: it only redirects to a local URL, and S-C checks `back` again.
+
 ## S2 approve or reject (18 Nov 2026)
 
 **A page of its own, linked from the top bar.** S-B is `/staff/pending`. Staff pages now have "Search experts" and "Pending approvals (N)" in the top bar; expert pages don't. The expert page S-C gets its own approve and reject with S3. A search box "Name, email or VBA no." sits above the list, with the same every-word rule as S1. The word matching moved from `ExpertSearchService` to `SearchRules.AllWordsMatch`, so both pages use the same code; on S-B the start of the VBA no. takes the place of the postcode.
