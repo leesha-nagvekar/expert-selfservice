@@ -46,9 +46,10 @@ Status: Approved at Gate 1 (28 Oct 2026). Updated 2 Nov 2026 for the new guide (
 - Pending approval means one ss_pending_changes row is written. Candidates is not touched until the secretariat approves.
 - While a change to a field is pending, the expert can't edit that field again. The screen shows the pending value and "Pending approval".
 - On approval the new value is written to Candidates (or CandidateSkills), `LastUpdated` is set, and a change-log row is written. Who = the secretariat user, plus a link to the pending change, which shows which expert asked for it.
-- On rejection nothing in Candidates changes. The expert sees "Rejected" and the reason on the profile until they make a new change to that field.
+- On rejection nothing in Candidates changes. The expert sees "Rejected" and the reason on the profile until they make a new change to that field. The reason keeps its line breaks. *(Line breaks added 23 Nov 2026.)*
 - On approval the expert sees "Approved" (green, icon + colour + word) on that field until they make a new change to it. The badge shows the word only, because the field already shows the new value. *(Added 18 Nov 2026 with S2, for demo step 6.)*
 - Approving fields of expertise changes only what differs: rows of removed fields are deleted, added fields get a new row, and unchanged CandidateSkills rows keep their Id. *(Added 18 Nov 2026.)*
+- An approval that changes nothing, because the new value is already in place, still decides the change ("Approved"), but writes no change-log row and leaves `LastUpdated` as it is. *(Added 23 Nov 2026, code review.)*
 
 ## 4. Screens
 
@@ -185,7 +186,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
   - A name change shows old → new; an empty value shows "Not given". Two name fields of one expert are two rows, decided one at a time.
   - A fields-of-expertise change shows "Added: …" and "Removed: …", worked out from the stored old and new lists.
 - **"Approve"** applies the change (section 3). No confirmation step.
-- **"Reject…"** opens a reason box in the row. The reason is required, max 500 characters, line breaks allowed. Errors next to the box: "Write a reason for rejecting", "The reason can be at most 500 characters.", "The reason can't contain control characters." The box stays open with the text kept.
+- **"Reject…"** opens a reason box in the row. The reason is required, max 500 characters, line breaks allowed; a line break counts as one character, as in the box (it is stored as one `\n`, although the browser sends two). *(Added 23 Nov 2026, code review.)* Errors next to the box: "Write a reason for rejecting", "The reason can be at most 500 characters.", "The reason can't contain control characters." The box stays open with the text kept.
 - After a decision the list comes back with the search text kept and one message: "Approved: Anna Demo – Fields of expertise", "Rejected: …".
 - A change that has already been decided can't be decided again: "This change has already been decided." An unknown change gives "Page not found".
 - A name opens the expert page (S-C) and carries this list with its search text, so S-C can link back to it. *(Changed 20 Nov 2026 with S3.)*
@@ -197,6 +198,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - **Heading**: the name (First Middle Last), then status (icon + colour + word) and VBA no.
 - **Details** (read-only): name, address and phone, email, company (company, CVR, job title) and fields of expertise, as on the expert's own profile. An empty value shows "Not given". No edit links.
 - **Set by VBA** (read-only): VBA number, created, status (with "until …" for Standby) and roles. On wide screens Details and Set by VBA sit side by side; on a phone one under the other.
+- Fields of expertise and roles are in Danish order in both languages, as on S-A and S-B, so the order never changes with the language. (The expert's own pages sort by their language.) *(Added 23 Nov 2026, code review.)*
 - **Pending changes**: the expert's waiting changes, oldest first, with the same columns, Approve and "Reject…" as S-B, and the same rules (section 3; reason required, max 500 characters). "No changes are waiting." when none.
   - The forms post to `/staff/experts/{id}/changes/{changeId}/approve` or `/reject`. A change that doesn't belong to this expert gives "Page not found" and nothing is decided.
   - After a decision the expert page comes back (log page 1) with the same message as S-B. The change is gone from both S-C and S-B, and the top-bar count goes down.
