@@ -466,6 +466,48 @@ public sealed class DecisionTests : IAsyncLifetime, IDisposable
         Assert.Equal(bo, SkillRows(2));
     }
 
+    // -------------------------------------------------------------------------
+    // An approval that changes nothing (review finding #3): the change is decided, but no change-log row is written
+    // and LastUpdated stays, because one row is written per changed field (SPEC section 3).
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task Approving_skills_that_are_already_in_place_writes_no_log_row()
+    {
+        // The list already matches what Anna sent: Maskinanlæg is gone and Netværk is there.
+        RemoveSkill(1, "Maskinanlæg");
+        AddSkill(1, "Netværk");
+        var skillsBefore = SkillRows(1);
+
+        AssertRedirect(await Approve(AnnaSkills), Page);
+
+        Assert.Equal("approved", Change(AnnaSkills).Status);
+        Assert.Empty(Log());
+        Assert.Null(Candidate<string?>(1, "LastUpdated"));
+        Assert.Equal(skillsBefore, SkillRows(1));
+        Assert.Contains("Approved: Anna Demo – Fields of expertise", Text(await _browser.Html(Page)));
+    }
+
+    [Theory]
+    [InlineData(SoerenFirst, "FirstName", "Sören")]
+    [InlineData(SoerenMiddle, "MiddleName", null)]
+    public async Task Approving_a_name_that_is_already_in_place_writes_no_log_row(long changeId, string column, string? value)
+    {
+        using (var db = _app.Open())
+        {
+            // The column comes from the test's own data, never from a request.
+            db.Execute($"UPDATE Candidates SET {column} = @value WHERE Id = 4", new { value });
+        }
+
+        AssertRedirect(await Approve(changeId), Page);
+
+        Assert.Equal("approved", Change(changeId).Status);
+        Assert.Empty(Log());
+        Assert.Null(Candidate<string?>(4, "LastUpdated"));
+        Assert.Equal(value, Candidate<string?>(4, column));
+        Assert.Contains("Approved:", Text(await _browser.Html(Page)));
+    }
+
     [Fact]
     public async Task After_approving_the_message_says_what_was_approved_and_the_row_is_gone()
     {
@@ -520,9 +562,53 @@ public sealed class DecisionTests : IAsyncLifetime, IDisposable
     [Fact]
     public async Task A_reason_may_have_line_breaks()
     {
+        // Stored with \n: the browser sends \r\n, but a line break is one character (review finding #2).
         AssertRedirect(await Reject(AnnaSkills, "First line.\r\nSecond line."), Page);
 
-        Assert.Equal("First line.\r\nSecond line.", Change(AnnaSkills).Reason);
+        Assert.Equal("First line.\nSecond line.", Change(AnnaSkills).Reason);
+    }
+
+    /// <summary>
+    /// <paramref name="letters"/> letters in five lines, joined by the browser's \r\n: the box counts each line break
+    /// as one character (maxlength), but the form sends two.
+    /// </summary>
+    private static string FiveLines(int letters)
+    {
+        var last = letters - 400;
+        return string.Join("\r\n", new string('a', 100), new string('b', 100), new string('c', 100), new string('d', 100), new string('e', last));
+    }
+
+    [Fact]
+    public async Task A_line_break_counts_as_one_character()
+    {
+        // 496 letters + 4 line breaks: 500 in the box, 504 sent.
+        var reason = FiveLines(496);
+
+        AssertRedirect(await Reject(AnnaSkills, reason), Page);
+
+        var change = Change(AnnaSkills);
+        Assert.Equal("rejected", change.Status);
+        Assert.Equal(reason.Replace("\r\n", "\n", StringComparison.Ordinal), change.Reason);
+        Assert.Equal(500, change.Reason!.Length);
+    }
+
+    [Fact]
+    public async Task One_more_letter_with_line_breaks_is_too_long()
+    {
+        // 497 letters + 4 line breaks: 501.
+        var response = await Reject(AnnaSkills, FiveLines(497));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("The reason can be at most 500 characters.", Text(Row(await Body(response), AnnaSkills)));
+        Assert.Equal("pending", Change(AnnaSkills).Status);
+    }
+
+    [Fact]
+    public async Task A_lone_carriage_return_is_stored_as_a_line_break()
+    {
+        AssertRedirect(await Reject(AnnaSkills, "First line.\rSecond line."), Page);
+
+        Assert.Equal("First line.\nSecond line.", Change(AnnaSkills).Reason);
     }
 
     [Theory]

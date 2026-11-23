@@ -170,6 +170,59 @@ public sealed class ExpertPageTests : IAsyncLifetime, IDisposable
         Assert.Equal(["EL", "Maskinanlæg", "Varmepumpe"], skills);
     }
 
+    /// <summary>The items of the first plain list in a section, in page order.</summary>
+    private static List<string> ListItems(string sectionHtml)
+    {
+        var list = Regex.Match(sectionHtml, """<ul class="plain-list">(.*?)</ul>""", RegexOptions.Singleline);
+        Assert.True(list.Success, "No list in the section");
+        return [.. Regex.Matches(list.Groups[1].Value, "<li>(.*?)</li>", RegexOptions.Singleline).Select(match => Text(match.Groups[1].Value))];
+    }
+
+    /// <summary>The page in English, then in Danish, for the same session.</summary>
+    private async Task<(string English, string Danish)> InBothLanguages(string url)
+    {
+        var english = await _browser.Html(url);
+        await _browser.Get("/language/da?next=%2F");
+        return (english, await _browser.Html(url));
+    }
+
+    [Fact]
+    public async Task The_fields_of_expertise_are_in_danish_order_in_both_languages()
+    {
+        // In English, Æ sorts as "ae", so the page's own language would put Æstetik first (review finding #4).
+        using (var db = _app.Open())
+        {
+            db.Execute(
+                """
+                DELETE FROM CandidateSkills WHERE CandidateId = 1;
+                INSERT INTO CandidateSkills (CandidateId, Skill) VALUES (1, 'Æstetik'), (1, 'Beton'), (1, 'Afløb');
+                """);
+        }
+
+        var (english, danish) = await InBothLanguages(AnnaPage);
+
+        Assert.Equal(["Afløb", "Beton", "Æstetik"], ListItems(Section(english, "details")));
+        Assert.Equal(["Afløb", "Beton", "Æstetik"], ListItems(Section(danish, "details")));
+    }
+
+    [Fact]
+    public async Task The_roles_are_in_danish_order_in_both_languages()
+    {
+        using (var db = _app.Open())
+        {
+            db.Execute(
+                """
+                INSERT INTO ProfessionTags (Id, Tag) VALUES (37, 'Mediator'), (39, 'Mægler'), (41, 'Mentor');
+                INSERT INTO CandidateTags (CandidateId, TagId) VALUES (1, 39), (1, 41), (1, 37);
+                """);
+        }
+
+        var (english, danish) = await InBothLanguages(AnnaPage);
+
+        Assert.Equal(["Mediator", "Mentor", "Mægler", "Skønsmand"], ListItems(Section(english, "vba")));
+        Assert.Equal(["Mediator", "Mentor", "Mægler", "Skønsmand"], ListItems(Section(danish, "vba")));
+    }
+
     [Fact]
     public async Task Set_by_vba_shows_the_number_created_status_and_roles()
     {

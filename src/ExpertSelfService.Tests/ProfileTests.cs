@@ -248,6 +248,61 @@ public sealed class ProfileTests : IAsyncLifetime, IDisposable
         Assert.Contains("Send us the marriage certificate first", name);
     }
 
+    // -------------------------------------------------------------------------
+    // The reason keeps its line breaks (click-through of review finding #2): it sits in its own
+    // <span class="reason-text">, and app.css keeps the line breaks there. All three pages use _SectionState.
+    // -------------------------------------------------------------------------
+
+    private const string ThreeLines = "Line one\nLine two\nLine three";
+    private const string ReasonSpan = $"""<span class="reason-text">{ThreeLines}</span>""";
+
+    /// <summary>
+    /// The reason is on the page with its line breaks, inside its own span. Razor writes a line break as "&amp;#xA;",
+    /// which the browser reads as a real line break, so the HTML is decoded first, as the browser does.
+    /// </summary>
+    private static void AssertReasonSpan(string html)
+    {
+        var decoded = WebUtility.HtmlDecode(html);
+        Assert.Contains(ThreeLines, decoded);
+        Assert.Contains(ReasonSpan, decoded);
+    }
+
+    [Fact]
+    public async Task The_reason_keeps_its_line_breaks_on_the_profile()
+    {
+        Pending(1, "LastName", "Demosen", status: "rejected", reason: ThreeLines);
+
+        AssertReasonSpan(await ProfileOf(Anna));
+    }
+
+    [Fact]
+    public async Task The_reason_keeps_its_line_breaks_on_the_name_page()
+    {
+        Pending(1, "LastName", "Demosen", status: "rejected", reason: ThreeLines);
+        await ProfileOf(Anna);
+
+        AssertReasonSpan(await _browser.Html("/profile/name"));
+    }
+
+    [Fact]
+    public async Task The_reason_keeps_its_line_breaks_on_the_skills_page()
+    {
+        Pending(1, "Skills", "EL; Fiber", status: "rejected", reason: ThreeLines);
+        await ProfileOf(Anna);
+
+        AssertReasonSpan(await _browser.Html("/profile/skills"));
+    }
+
+    [Fact]
+    public void The_reason_text_is_shown_with_its_line_breaks()
+    {
+        var css = RepoFiles.Read("src", "ExpertSelfService", "wwwroot", "app.css");
+
+        var rule = Regex.Match(css, @"(?m)^\.reason-text \{[^}]*\}").Value;
+        Assert.Contains("white-space: pre-line;", rule);
+        Assert.Contains("overflow-wrap: anywhere;", rule);
+    }
+
     [Fact]
     public async Task A_newer_pending_change_replaces_an_older_rejection()
     {

@@ -545,6 +545,12 @@ dd {
   background: var(--accent-soft);
 }
 
+/* The secretariat's reason, with the line breaks it was written with; a long word wraps instead of widening the page. */
+.reason-text {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
 /* "Saved", once, after an edit screen (X4). Green, never colour alone: icon + word. */
 .state-saved {
   border: 1px solid var(--ok);

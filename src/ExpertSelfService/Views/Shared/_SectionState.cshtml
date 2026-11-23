@@ -35,6 +35,6 @@ else
       <span class="state-word">@await Html.PartialAsync("_Icon", "cross") @Text["profile.rejected"]</span>
       @{ await Value(); }
     </p>
-    <p>@Text["profile.reason"] @Model.Reason</p>
+    <p>@Text["profile.reason"] <span class="reason-text">@Model.Reason</span></p>
   </div>
 }

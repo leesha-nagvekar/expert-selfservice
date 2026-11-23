@@ -28,16 +28,23 @@ public sealed class DecisionService(Database database, ExpertChanges changes, Ti
 
     private sealed record PendingRow(long ExpertId, string Field, string? OldValue, string? NewValue, string Status, string FirstName, string? MiddleName, string LastName);
 
+    /// <summary>
+    /// The reason as measured and stored: every line break as one \n, trimmed. The browser sends \r\n but its
+    /// maxlength counts a line break as one character, so the box and the check agree (review finding #2).
+    /// </summary>
+    public static string CleanReason(string reason) =>
+        reason.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n').Trim();
+
     /// <summary>The i18n key of what is wrong with a reason, or null when it is fine. Line breaks are allowed.</summary>
     public static string? ReasonError(string? reason)
     {
-        var text = reason?.Trim() ?? "";
+        var text = CleanReason(reason ?? "");
         if (text.Length == 0)
         {
             return "pending.error.reason_required";
         }
 
-        if (TextRules.HasControlCharacter(text.Replace("\r", "", StringComparison.Ordinal).Replace("\n", "", StringComparison.Ordinal)))
+        if (TextRules.HasControlCharacter(text.Replace("\n", "", StringComparison.Ordinal)))
         {
             return "pending.error.reason_control";
         }
@@ -84,9 +91,12 @@ public sealed class DecisionService(Database database, ExpertChanges changes, Ti
             ? ApplySkills(db, transaction, row.ExpertId, row.OldValue, row.NewValue)
             : (ApplyName(db, transaction, row.ExpertId, row.Field, row.NewValue), row.NewValue);
 
-        changes.Record(
-            db, transaction, row.ExpertId, ExpertChanges.ByStaff, staffId,
-            [new FieldChange(row.Field, oldValue, newValue)], changeId);
+        // Nothing changed when the value was already in place: the change is still decided, but no log row is
+        // written and LastUpdated stays, one row per changed field (SPEC section 3, review finding #3).
+        IReadOnlyList<FieldChange> changed = string.Equals(oldValue, newValue, StringComparison.Ordinal)
+            ? []
+            : [new FieldChange(row.Field, oldValue, newValue)];
+        changes.Record(db, transaction, row.ExpertId, ExpertChanges.ByStaff, staffId, changed, changeId);
 
         // Not committed: disposing the transaction undoes the write above and the log row.
         if (!Decide(db, transaction, changeId, "approved", null, staffId))
@@ -118,7 +128,7 @@ public sealed class DecisionService(Database database, ExpertChanges changes, Ti
         }
 
         // Candidates and the change log are not touched: nothing changed (SPEC section 3).
-        if (!Decide(db, transaction, changeId, "rejected", reason.Trim(), staffId))
+        if (!Decide(db, transaction, changeId, "rejected", CleanReason(reason), staffId))
         {
             return new DecisionResult(DecisionOutcome.AlreadyDecided);
         }

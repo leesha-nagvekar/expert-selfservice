@@ -299,6 +299,20 @@ public sealed class ExpertDecisionTests : IAsyncLifetime, IDisposable
         Assert.Equal("pending", Change(AnnaSkills).Status);
     }
 
+    [Fact]
+    public async Task A_line_break_counts_as_one_character_on_s_c_too()
+    {
+        // 496 letters + 4 line breaks: 500 in the box, 504 sent by the browser (\r\n).
+        var reason = string.Join("\r\n", new string('a', 100), new string('b', 100), new string('c', 100), new string('d', 100), new string('e', 96));
+
+        AssertRedirect(await Reject(1, AnnaSkills, reason), AnnaPage);
+
+        var change = Change(AnnaSkills);
+        Assert.Equal("rejected", change.Status);
+        Assert.Equal(500, change.Reason!.Length);
+        Assert.DoesNotContain('\r', change.Reason);
+    }
+
     // -------------------------------------------------------------------------
     // The change must belong to the expert in the URL (point 1)
     // -------------------------------------------------------------------------

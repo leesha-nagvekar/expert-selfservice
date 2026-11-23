@@ -1,4 +1,3 @@
-using System.Globalization;
 using Dapper;
 
 namespace ExpertSelfService.Services;
@@ -47,12 +46,15 @@ public sealed class StaffExpertService(Database database)
 
         transaction.Commit();
 
+        // Fields and roles in one fixed order, whatever the page's language, as on S-A, S-B and in the change log
+        // (review finding #4). The expert's own pages keep their language's order (E2), so the roles from
+        // ProfileService.Roles are sorted again here.
         return new ExpertProfile(
             row.FirstName, row.MiddleName, row.LastName, row.Street, row.Postcode, row.City,
             row.PhoneMobile, row.PhoneWork, row.PhoneHome, row.Email, row.Company, row.Cvr, row.Designation,
             row.RegistrationId, row.Created, row.Status, row.UntilDate,
-            [.. skills.Order(StringComparer.Create(CultureInfo.CurrentCulture, ignoreCase: true))],
-            roles,
+            SkillRules.Sorted(skills),
+            [.. roles.Order(DanishOrder.Comparer)],
             states);
     }
 
