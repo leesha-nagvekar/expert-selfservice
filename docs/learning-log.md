@@ -136,3 +136,10 @@ Claude to add Approve and Reject to the pending changes on S-C. One rule: a chan
 
 - **Went wrong:** 
 Pager break-it showed that PageUrl trusts back without checking; it does no harm, because S-C checks back again on the next request.
+
+## 23 Nov – Phase 6: /code-review, fix #1 (back link to a page that no longer exists)
+- **Asked:** 
+Claude to run /code-review and it found that "Back to search" could open an error page: after approving on S-C, a "pending only" search gets shorter, and the back link still pointed to a page that no longer existed. Claude added tests and fixed the problem.
+
+- **Learned:**
+A code review can find problems where two features meet, even when each feature's own tests pass

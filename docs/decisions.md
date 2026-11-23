@@ -27,6 +27,8 @@ Guards added in step C: an encoded `//` in `back` falls back to `/staff`, and a 
 
 **The language switch's `next=` carries the whole URL, `back` included.** That was so before S3 and is safe: it only redirects to a local URL, and S-C checks `back` again.
 
+**After the code review (23 Nov): S-A sends a page past the end to the last page; S-C keeps the 400.** `/code-review` found that "Back to search" could open a 400 page: approving on S-C takes experts out of "pending only", so the page in the back link can be gone. S-A now redirects to the last page with the text and ticks kept, so the address, the pager and the name links agree on the page; a malformed page or a bad tick is still 400. S-C's log is append-only, so its page count never shrinks and a page past the end can only be hand-made: it stays 400. Leesha's three checks are tested: all five pending experts approved gives "No experts match the filters."; landing on a lower page marks it in the pager (with only one page left, no pager shows); S-C with 12 entries and `?page=5` is 400. Break-it: the 400 put back in S-A, the redirect dropping a tick, and S-C clamped too; tests failed each time.
+
 ## S2 approve or reject (18 Nov 2026)
 
 **A page of its own, linked from the top bar.** S-B is `/staff/pending`. Staff pages now have "Search experts" and "Pending approvals (N)" in the top bar; expert pages don't. The expert page S-C gets its own approve and reject with S3. A search box "Name, email or VBA no." sits above the list, with the same every-word rule as S1. The word matching moved from `ExpertSearchService` to `SearchRules.AllWordsMatch`, so both pages use the same code; on S-B the start of the VBA no. takes the place of the postcode.
