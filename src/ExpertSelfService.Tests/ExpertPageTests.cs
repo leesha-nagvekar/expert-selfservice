@@ -474,13 +474,18 @@ public sealed class ExpertPageTests : IAsyncLifetime, IDisposable
 
     [Theory]
     [InlineData(23, 4)]
+    [InlineData(12, 5)]
     [InlineData(10, 2)]
     [InlineData(0, 2)]
     public async Task A_page_past_the_end_is_a_bad_request(int entries, int page)
     {
+        // Unlike S-A, no redirect: the log only grows, so a page past the end can only be a hand-made URL.
         ManyEntries(entries);
 
-        Assert.Equal(HttpStatusCode.BadRequest, (await _browser.Get($"{AnnaPage}?page={page}")).StatusCode);
+        var response = await _browser.Get($"{AnnaPage}?page={page}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("Page not found", await Body(response));
     }
 
     [Fact]

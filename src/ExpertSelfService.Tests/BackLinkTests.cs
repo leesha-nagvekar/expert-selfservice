@@ -398,4 +398,100 @@ public sealed class BackLinkTests : IAsyncLifetime, IDisposable
         Assert.Equal(Search, BackLink(html).Href);
         Assert.Equal(4, Regex.Matches(html, """<input type="hidden" name="back" value="/staff\?q=Demo&amp;status=1">""").Count);
     }
+
+    // -------------------------------------------------------------------------
+    // Back to a list that shrank: decisions on S-C take experts out of "pending only", so the page in the back link
+    // can be past the end. S-A then goes to the last page instead of an error page (code review, 23 Nov).
+    // -------------------------------------------------------------------------
+
+    private const string PendingOnly = "/staff?pending=1";
+
+    /// <summary><paramref name="count"/> Active experts, Pending01 …, each with one pending last-name change.</summary>
+    private void AddPendingExperts(int count)
+    {
+        using var db = _app.Open();
+        for (var n = 1; n <= count; n++)
+        {
+            var id = 200 + n;
+            db.Execute(
+                """
+                INSERT INTO Candidates (Id, FirstName, LastName, Email, Status, RegistrationId, Created)
+                VALUES (@id, 'Test', @lastName, @email, 1, @number, '2020-01-01');
+                INSERT INTO ss_pending_changes (candidate_id, field, old_value, new_value, status, created_at)
+                VALUES (@id, 'LastName', @lastName, @newName, 'pending', '2026-11-08T10:00:00Z');
+                """,
+                new { id, lastName = $"Pending{n:00}", newName = $"Changed{n:00}", email = $"pending{n:00}@example.com", number = $"92{id:0000}" });
+        }
+    }
+
+    /// <summary>
+    /// The real flow: open the first expert on <paramref name="listUrl"/> by their name link, approve their change on
+    /// S-C and return the back link S-C then shows.
+    /// </summary>
+    private async Task<string> ApproveFirstExpertOn(string listUrl)
+    {
+        var link = Regex.Match(await _browser.Html(listUrl), """<a href="(/staff/experts/(\d+)\?[^"]*)">""");
+        Assert.True(link.Success, $"No name link on {listUrl}");
+        var expertPage = WebUtility.HtmlDecode(link.Groups[1].Value);
+        var expertId = long.Parse(link.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture);
+        Assert.Equal(listUrl, BackOf(expertPage));
+
+        long changeId;
+        using (var db = _app.Open())
+        {
+            changeId = db.ExecuteScalar<long>(
+                "SELECT id FROM ss_pending_changes WHERE candidate_id = @expertId AND status = 'pending'", new { expertId });
+        }
+
+        var response = await _browser.Post(
+            $"/staff/experts/{expertId}/changes/{changeId}/approve", expertPage, ("back", listUrl));
+        Assert.True(response.StatusCode is HttpStatusCode.Redirect, $"Expected a redirect, got {(int)response.StatusCode}");
+        return BackLink(await _browser.Html(response.Headers.Location!.OriginalString)).Href;
+    }
+
+    [Fact]
+    public async Task Back_to_a_page_that_no_longer_exists_goes_to_the_last_page()
+    {
+        // 26 pending: page 2 holds one expert. Approving them leaves 25, one page.
+        AddPendingExperts(26);
+
+        var back = await ApproveFirstExpertOn($"{PendingOnly}&page=2");
+
+        Assert.Equal($"{PendingOnly}&page=2", back);
+        AssertRedirect(await _browser.Get(back), PendingOnly);
+        var html = await _browser.Html(PendingOnly);
+        Assert.Contains("25 experts found", Text(html));
+        Assert.DoesNotContain("class=\"pager\"", html);
+    }
+
+    [Fact]
+    public async Task The_pager_marks_the_page_it_lands_on()
+    {
+        // 51 pending: page 3 holds one expert. Approving them leaves 50, two pages.
+        AddPendingExperts(51);
+
+        var back = await ApproveFirstExpertOn($"{PendingOnly}&page=3");
+
+        AssertRedirect(await _browser.Get(back), $"{PendingOnly}&page=2");
+        var html = await _browser.Html($"{PendingOnly}&page=2");
+        Assert.Contains("50 experts found", Text(html));
+        Assert.Matches("""aria-current="page">2</a>""", html);
+    }
+
+    [Fact]
+    public async Task When_every_pending_change_is_approved_the_filter_shows_no_experts()
+    {
+        AddPendingExperts(5);
+
+        var back = "";
+        for (var i = 0; i < 5; i++)
+        {
+            back = await ApproveFirstExpertOn(PendingOnly);
+        }
+
+        Assert.Equal(PendingOnly, back);
+        var response = await _browser.Get(back);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("No experts match the filters.", Text(await Body(response)));
+    }
 }

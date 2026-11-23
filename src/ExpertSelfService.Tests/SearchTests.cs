@@ -690,9 +690,8 @@ public sealed partial class SearchTests : IAsyncLifetime, IDisposable
     [InlineData("page=%2B2")]   // +2
     [InlineData("page=1.5")]
     [InlineData("page=%201")]  // a space before
-    [InlineData("page=3")]      // past the last page (35 experts: 2 pages)
-    [InlineData("page=9999999")]
-    [InlineData("page=2&q=nobodyatall")] // no results: 1 page
+    [InlineData("page=abc&pending=1")]
+    [InlineData("page=9999999")] // more than 6 digits is not a page number (SearchRules.ReadPage)
     public async Task A_bad_page_is_a_bad_request(string query)
     {
         AddPagingExperts();
@@ -700,12 +699,41 @@ public sealed partial class SearchTests : IAsyncLifetime, IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, (await _browser.Get($"{Page}?{query}")).StatusCode);
     }
 
-    [Fact]
-    public async Task A_page_with_a_search_text_that_is_too_long_is_a_bad_request()
+    /// <summary>
+    /// A well-formed page past the end goes to the last page, with the text and ticks kept: the list can shrink
+    /// after decisions on S-B or S-C, so an old page number (the S-C back link) is normal use, not a hand-made URL.
+    /// </summary>
+    [Theory]
+    [InlineData("page=3", "/staff?page=2")]                             // 35 experts: 2 pages
+    [InlineData("page=999999", "/staff?page=2")]                        // the largest page number allowed
+    [InlineData("q=nobodyatall&page=2", "/staff?q=nobodyatall")]        // no results: 1 page
+    [InlineData("q=Paging&status=1&page=5", "/staff?q=Paging&status=1&page=2")] // 30 hits: 2 pages
+    [InlineData("pending=1&page=2", "/staff?pending=1")]                // only Anna Demo has pending changes
+    public async Task A_page_past_the_end_goes_to_the_last_page(string query, string lastPage)
     {
         AddPagingExperts();
 
-        Assert.Equal(HttpStatusCode.BadRequest, (await _browser.Get($"{Page}?page=2&q={new string('a', 255)}")).StatusCode);
+        AssertRedirect(await _browser.Get($"{Page}?{query}"), lastPage);
+    }
+
+    [Fact]
+    public async Task The_last_page_itself_is_shown_without_a_redirect()
+    {
+        AddPagingExperts();
+
+        Assert.Equal(HttpStatusCode.OK, (await _browser.Get($"{Page}?page=2")).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_page_with_a_search_text_that_is_too_long_goes_to_page_1_with_the_error()
+    {
+        AddPagingExperts();
+        var tooLong = new string('a', 255);
+
+        var response = await _browser.Get($"{Page}?page=2&q={tooLong}");
+
+        AssertRedirect(response, $"{Page}?q={tooLong}");
+        Assert.Contains("at most 254", await _browser.Html(response.Headers.Location!.OriginalString));
     }
 
     [Fact]
