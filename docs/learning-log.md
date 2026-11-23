@@ -138,8 +138,32 @@ Claude to add Approve and Reject to the pending changes on S-C. One rule: a chan
 Pager break-it showed that PageUrl trusts back without checking; it does no harm, because S-C checks back again on the next request.
 
 ## 23 Nov – Phase 6: /code-review, fix #1 (back link to a page that no longer exists)
+
 - **Asked:** 
 Claude to run /code-review and it found that "Back to search" could open an error page: after approving on S-C, a "pending only" search gets shorter, and the back link still pointed to a page that no longer existed. Claude added tests and fixed the problem.
 
 - **Learned:**
 A code review can find problems where two features meet, even when each feature's own tests pass
+
+## 23 Nov – Review fix #2: line breaks in a reject reason
+
+- **Asked:** 
+Claude to fix /code-review finding #2: a line break in a reject reason was counted as two characters, so a reason that fit the box (500) was refused as too long. Claude added tests and fixed the problem now each line break becomes one.
+
+- **Went wrong:** 
+Click-through found a problem: the expert saw 5-line reason as one paragraph. I asked Claude to fix it, so the reason is now shown with its line breaks on the profile.
+
+- **Learned:** 
+A test can prove the data is right while the screen still looks wrong, only a click-through shows what the user sees.
+
+## 23 Nov – Review fix #4: one order for fields and roles on S-C
+
+- **Asked:** 
+/code-review found that on S-C the fields of expertise were sorted by the page language, so Danish and English showed different orders (Æ counts as "ae" in English). Claude fixed it: S-C now always uses the Danish order.
+
+- **Went wrong:** I couldn't see the bug in the app at first, because the seeded fields start with normal letters, so both languages looked the same. For the click-through, asked Claude to add two test fields (Afløb, Æstetik) to Anna in my local database only, which I removed afterwards.
+
+## 23 Nov – Review fix #3: an approval that changes nothing
+
+- **Asked:** 
+/code-review found that if a change was already in place when it was approved, a log row with old = new was written and LastUpdated moved. Claude fixed it: the change is still marked approved and "Approved" is shown, but no log row is written.
