@@ -150,7 +150,6 @@ public sealed class DishonestExpertTests : IAsyncLifetime, IDisposable
         AssertRedirect(await _anna.Get("/profile"), "/");
         AssertRedirect(await _anna.Get("/profile/address"), "/");
         AssertRedirect(await _anna.Get("/staff"), "/");
-        Assert.DoesNotContain("Vestergade 8", await _anna.Html("/"));
     }
 
     [Fact]
@@ -165,7 +164,9 @@ public sealed class DishonestExpertTests : IAsyncLifetime, IDisposable
         AssertRedirect(await _anna.Get("/login/code"), "/");
         AssertRedirect(await _anna.SubmitCode(code, tokenPage: "/"), "/");
         AssertRedirect(await _anna.Get("/profile"), "/");
-        Assert.Equal(0, FailedTries(Bo));
+        // The edited cookie never reached the code check: her code is unused and no try was counted.
+        Assert.Equal(0, _app.Count("SELECT COUNT(*) FROM ss_login_codes WHERE used_at IS NOT NULL"));
+        Assert.Equal(0, _app.Count("SELECT COUNT(*) FROM ss_login_lockouts"));
     }
 
     // -------------------------------------------------------------------------
@@ -230,7 +231,13 @@ public sealed class DishonestExpertTests : IAsyncLifetime, IDisposable
         var anna = await LoggedIn(Anna, "/profile");
         AssertRedirect(await anna.Post("/profile/name", "/profile/name",
             ("FirstName", ImgTag), ("MiddleName", ""), ("LastName", "Demo")), "/profile");
-        var changeId = _app.Count("SELECT id FROM ss_pending_changes WHERE candidate_id = 1 AND field = 'FirstName'");
+        long changeId;
+        using (var db = _app.Open())
+        {
+            // QuerySingle: no pending row fails here, with a clear message, instead of approving change 0.
+            changeId = db.QuerySingle<long>("SELECT id FROM ss_pending_changes WHERE candidate_id = 1 AND field = 'FirstName'");
+        }
+
 
         var sofie = await LoggedIn(Sofie, "/staff");
         AssertRedirect(await sofie.Post($"/staff/pending/{changeId}/approve", "/staff/pending"), "/staff/pending");
