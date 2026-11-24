@@ -185,3 +185,11 @@ Claude to do a security review of the whole app as it is today. The review found
 
 - **Learned:** 
 Listening only on 127.0.0.1 doesn't stop a page in my own browser from reaching the app, the app must also check the host name.
+
+## 24 Nov – Phase 6, T5: attacking the app 
+
+- **Asked:** 
+Claude to act as a dishonest expert logged in as anna.demo@example.com, list every way to read or change another expert's (Bo's) data, and write a test proving each one is blocked. No attack worked, but 7 were blocked without any test (C2, C3, C5, C6, D2, E1, E3). 
+
+- **Went wrong:** 
+The first C2 test (20 guesses at the same time) couldn't fail even with the protection broken, because through HTTP the guesses never really overlapped. Claude replaced it with a new test.
