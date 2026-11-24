@@ -5,6 +5,7 @@ using System.Text.Unicode;
 using ExpertSelfService.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HostFiltering;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.WebEncoders;
@@ -17,6 +18,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // This machine only. The app is never put on the internet (CLAUDE.md, ground rule 7).
 builder.WebHost.ConfigureKestrel(options => options.Listen(IPAddress.Loopback, 5080));
+// This machine only, by name too: a web page that points its own name at 127.0.0.1 (DNS rebinding) still sends
+// its own Host header, and gets a 400. Set in code, so an AllowedHosts setting can't open it up again.
+builder.Services.Configure<HostFilteringOptions>(options => options.AllowedHosts = ["127.0.0.1", "localhost"]);
 
 // CSRF: every POST must carry the antiforgery token, for all controllers, not one by one.
 builder.Services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
