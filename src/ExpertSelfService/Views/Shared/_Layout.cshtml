@@ -7,7 +7,9 @@
     var next = Uri.EscapeDataString(page);
     // Staff only: links to S-A and S-B, with the number of waiting changes (SPEC "The secretariat view").
     var isStaff = User.HasClaim(claim => claim.Type == SessionClaims.StaffId);
-    var path = Context.Request.Path.Value ?? "";
+    // Routing ignores letter case and a trailing slash, so /Staff/ opens S-A too: compare the same way.
+    var path = (Context.Request.Path.Value ?? "").TrimEnd('/');
+    bool IsPage(string href) => string.Equals(path, href, StringComparison.OrdinalIgnoreCase);
 }
 @inject PendingListService PendingList
 <!doctype html>
@@ -34,8 +36,8 @@
     {
       var pendingCount = PendingList.Count();
       <nav class="topbar-staff" aria-label="@Text["topbar.staff_nav"]">
-        <a href="/staff" aria-current="@(path == "/staff" ? "page" : null)">@await Html.PartialAsync("_Icon", "search")<span class="label-long">@Text["staff.title"]</span><span class="label-short">@Text["topbar.search_short"]</span></a>
-        <a href="/staff/pending" aria-current="@(path == "/staff/pending" ? "page" : null)">@await Html.PartialAsync("_Icon", "clock")<span class="label-long">@string.Format(CultureInfo.CurrentCulture, Text["topbar.pending"], pendingCount)</span><span class="label-short">@string.Format(CultureInfo.CurrentCulture, Text["topbar.pending_short"], pendingCount)</span></a>
+        <a href="/staff" aria-current="@(IsPage("/staff") ? "page" : null)">@await Html.PartialAsync("_Icon", "search")<span class="label-long">@Text["staff.title"]</span><span class="label-short">@Text["topbar.search_short"]</span></a>
+        <a href="/staff/pending" aria-current="@(IsPage("/staff/pending") ? "page" : null)">@await Html.PartialAsync("_Icon", "clock")<span class="label-long">@string.Format(CultureInfo.CurrentCulture, Text["topbar.pending"], pendingCount)</span><span class="label-short">@string.Format(CultureInfo.CurrentCulture, Text["topbar.pending_short"], pendingCount)</span></a>
       </nav>
     }
     <div class="topbar-actions">

@@ -810,6 +810,30 @@ public sealed class DecisionTests : IAsyncLifetime, IDisposable
         Assert.StartsWith("""<a href="/staff/pending" aria-current="page">""", NavLink(pending, "/staff/pending"));
     }
 
+    // Routing ignores letter case and a trailing slash, so a typed or bookmarked address like /Staff/ still opens
+    // S-A or S-B. The top bar must mark the page there too (review finding #5).
+    [Theory]
+    [InlineData("/Staff", "/staff", "/staff/pending")]
+    [InlineData("/staff/", "/staff", "/staff/pending")]
+    [InlineData("/STAFF/", "/staff", "/staff/pending")]
+    [InlineData("/Staff/Pending", "/staff/pending", "/staff")]
+    [InlineData("/staff/pending/", "/staff/pending", "/staff")]
+    public async Task The_top_bar_marks_the_page_whatever_the_letter_case_or_trailing_slash(
+        string url, string marked, string notMarked)
+    {
+        var html = await _browser.Html(url);
+        Assert.StartsWith($"""<a href="{marked}" aria-current="page">""", NavLink(html, marked));
+        Assert.StartsWith($"""<a href="{notMarked}">""", NavLink(html, notMarked));
+    }
+
+    [Fact]
+    public async Task The_expert_page_marks_neither_top_bar_link()
+    {
+        var html = await _browser.Html("/staff/experts/1");
+        Assert.StartsWith("""<a href="/staff">""", NavLink(html, "/staff"));
+        Assert.StartsWith("""<a href="/staff/pending">""", NavLink(html, "/staff/pending"));
+    }
+
     [Fact]
     public async Task On_a_phone_the_staff_links_have_an_icon_and_a_short_label()
     {
