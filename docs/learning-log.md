@@ -193,3 +193,11 @@ Claude to act as a dishonest expert logged in as anna.demo@example.com, list eve
 
 - **Went wrong:** 
 The first C2 test (20 guesses at the same time) couldn't fail even with the protection broken, because through HTTP the guesses never really overlapped. Claude replaced it with a new test.
+
+## 24 Nov – Phase 6: language switch after a bad reason (bug from my 360 px check)
+
+- **Asked:** 
+Claude to confirm the cause of a bug I found myself: on S-B in Danish, a reject with an empty reason showed the error correctly, but switching to English then gave "Page not found" at /staff/pending/4/reject. I asked for every affected page and the fix, with failing tests first.
+
+- **Learned:** 
+A page shown after a POST lives at an address you can't visit, so anything that reloads "the current address" breaks there. 
