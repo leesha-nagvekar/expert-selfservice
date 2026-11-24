@@ -26,6 +26,7 @@ Status: Approved at Gate 1 (28 Oct 2026). Updated 2 Nov 2026 for the new guide (
 - Every query for expert data on expert pages uses `expert_id` **from the session**. No expert page takes an expert id from the URL or a form. Changing an id in the URL gives "Page not found" (demo step 7).
 - The login session is an encrypted cookie (ASP.NET Core cookie authentication). It is encrypted with ASP.NET's Data Protection keys, which are kept in the Windows user profile, outside the repo, so there is no session secret in `.env`. The key for the one-time codes (`CODE_KEY`) lives in `.env`. *(Changed 9 Nov 2026 with E1, see `docs/decisions.md`.)*
 - The session ends after 60 minutes without use, and when the browser is closed.
+- The app listens on `127.0.0.1:5080` only and answers only the host names `127.0.0.1` and `localhost`. Any other `Host` header gets 400 before any page runs, so a web page that points its own name at this machine (DNS rebinding) can't read the dev mailbox or log in. *(Added 24 Nov 2026, security review.)*
 
 ## 3. Approval rule (Field Rule)
 

@@ -2,6 +2,16 @@
 
 Short records of choices made in the project and why.
 
+## Phase 6 test and harden (24 Nov 2026)
+
+**Security review of the whole app: one finding, fixed.** `/security-review` covered everything under `src/` and the Python tools: login, the one-time codes, sessions, the expert and staff pages, the email change, the dev mailbox, error pages and logging. One finding, rated low: the app accepted any `Host` header. Listening on `127.0.0.1` keeps other machines out, but not a web page in the user's own browser: with DNS rebinding, `evil.example:5080` can point at `127.0.0.1`, read the dev mailbox (no login), ask for a code, log in and read the staff pages. A test showed the login going through. Low, because the data is fake, the app runs only during demo and test, and recent Chrome versions ask before a public site reaches a local address; other browsers don't all do that.
+
+- *The fix:* `Program.cs` sets ASP.NET's host filtering to `127.0.0.1` and `localhost`, next to the `Listen(IPAddress.Loopback)` line. Any other host name gets a plain 400 before any page runs. `[::1]` is left out: Kestrel listens on IPv4 only.
+- *In code, not in `appsettings.json`:* ASP.NET only reads the `AllowedHosts` setting when code sets no list, so an `AllowedHosts=*` in the environment can't open it up again. Break-it proved it: with the list in a settings file, `AllowedHosts=*` let `evil.example` back in.
+- *Tests:* `HostTests` (15): this machine's names answered; other names (including `127.0.0.1.evil.example` and `localhost.evil.example`) refused; the dev mailbox, a login with a real token and a staff page all refused under another name. Break-it: the line removed, the list moved to a settings file, `*` added; tests failed each time.
+
+**Kept on purpose, not changed.** The dev mailbox needs no login in Development and the console shows codes and full URLs: ground rule 5 asks for that, and rule 7 keeps it on this machine. Logging out removes the cookie but doesn't revoke a copied one, and staff sessions aren't checked again on each request: the app has no way to remove a staff user. Anyone can lock an email for 15 minutes with 5 wrong codes: accepted, so the lock reveals nothing. No `Secure` flag on cookies: plain HTTP on loopback.
+
 ## S3 expert page and change log (19–20 Nov 2026)
 
 **Built in three steps, each with failing tests first.** A: the page, details, change log and name links. B: approve and reject on S-C. C: the back link. A mockup (`mockups/s3-expert-page.html`) was approved before step A.
