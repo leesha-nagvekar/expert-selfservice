@@ -12,6 +12,17 @@ Short records of choices made in the project and why.
 
 **Kept on purpose, not changed.** The dev mailbox needs no login in Development and the console shows codes and full URLs: ground rule 5 asks for that, and rule 7 keeps it on this machine. Logging out removes the cookie but doesn't revoke a copied one, and staff sessions aren't checked again on each request: the app has no way to remove a staff user. Anyone can lock an email for 15 minutes with 5 wrong codes: accepted, so the lock reveals nothing. No `Secure` flag on cookies: plain HTTP on loopback.
 
+**A dishonest expert's attacks, each proven blocked (Leesha, 24 Nov).** Anna, logged in, tried every way to read or change another expert's data through what an expert session can reach: her own pages, the login and code pages, the language switch, the error pages, the dev mailbox and the staff pages. 15 attacks were already blocked and tested where the feature is tested: ids in the path, query or form; Bo's data or pending changes on her pages; a shared CVR; Bo's old field of expertise; her own roles or status; the staff pages; approving with a valid token; guessing a code in turn; an email-change code used to log in; taking a used email; the address taken between request and confirm; a post without the token. 7 had no test, and now have one in `DishonestExpertTests`. No app code changed: all 7 were already blocked.
+
+- *C2, guesses at the same time.* 20 threads call `LoginService.CheckCode` at the same instant: exactly 5 tries count, and then the right code is refused. Through the web pages each guess is too quick, and SQLite's retry pauses too long, for 20 guesses to really meet, so that version couldn't fail. One level down it does: with a transaction that only locks when it writes, the threads collide and fail with "database is locked".
+- *C3, her own code for Bo.* In one tab the email in progress is Bo's, and in a second tab she asks for her own code, so hers is the newest code of all. The email is checked twice, in the lookup and in the hash: removing either alone still blocks it, and removing both lets her in.
+- *C5 and C6, an edited login cookie or email cookie.* Either counts as no cookie. The protection is ASP.NET's encryption, so the break-it checked the test instead: without the edit, both fail.
+- *D2, Bo's address in capitals.* It's refused like the lower-case one. Breaking it took two changes: no lower-casing and an exact compare.
+- *E1, script in her own data.* Names, street, company and job title all allow `<` and `>`. Markup reaches S-A, S-B and S-C as text, never as a tag. Break-it: `Html.Raw` on each page.
+- *E3, her own token in Bo's browser.* Refused with 400 and nothing saved, because the token is tied to the session. Break-it: `[IgnoreAntiforgeryToken]` on the form.
+
+**Two stay open, on purpose.** In Development, anyone who can reach the app can read Bo's login code in the dev mailbox: ground rule 5 asks for the mailbox, and outside Development it is 404. And anyone can lock Bo out for 15 minutes with 5 wrong codes: that affects his access, not his data, and it's what keeps the lock from revealing who is registered.
+
 ## S3 expert page and change log (19–20 Nov 2026)
 
 **Built in three steps, each with failing tests first.** A: the page, details, change log and name links. B: approve and reject on S-C. C: the back link. A mockup (`mockups/s3-expert-page.html`) was approved before step A.
