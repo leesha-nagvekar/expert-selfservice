@@ -189,6 +189,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - **"Approve"** applies the change (section 3). No confirmation step.
 - **"Reject…"** opens a reason box in the row. The reason is required, max 500 characters, line breaks allowed; a line break counts as one character, as in the box (it is stored as one `\n`, although the browser sends two). *(Added 23 Nov 2026, code review.)* Errors next to the box: "Write a reason for rejecting", "The reason can be at most 500 characters.", "The reason can't contain control characters." The box stays open with the text kept.
 - After a decision the list comes back with the search text kept and one message: "Approved: Anna Demo – Fields of expertise", "Rejected: …".
+- After a bad reason, switching language returns to the list with its search text (the error and the typed reason go, as on the expert's forms). *(Added 24 Nov 2026: it gave "Page not found".)*
 - A change that has already been decided can't be decided again: "This change has already been decided." An unknown change gives "Page not found".
 - A name opens the expert page (S-C) and carries this list with its search text, so S-C can link back to it. *(Changed 20 Nov 2026 with S3.)*
 
@@ -203,6 +204,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
 - **Pending changes**: the expert's waiting changes, oldest first, with the same columns, Approve and "Reject…" as S-B, and the same rules (section 3; reason required, max 500 characters). "No changes are waiting." when none.
   - The forms post to `/staff/experts/{id}/changes/{changeId}/approve` or `/reject`. A change that doesn't belong to this expert gives "Page not found" and nothing is decided.
   - After a decision the expert page comes back (log page 1) with the same message as S-B. The change is gone from both S-C and S-B, and the top-bar count goes down.
+  - After a bad reason, switching language returns to the expert page with its back link kept. *(Added 24 Nov 2026: it gave "Page not found".)*
 - **Change log**, newest first (entries from one save: newest id first): when (local date and time), who ("The expert" or "Sofie (secretariat)"), field (the profile's labels), old value, new value ("Not given" when empty). Approvals are logged; rejections are not (nothing changed). "No changes yet." when empty.
   - 10 per page, with the same pager and rules as S-A: "Showing 1–10 of N", page numbers, Previous and Next; `?page=N`, and a page that isn't plain digits or is past the last page gives 400. Unlike S-A, a page past the end is not sent to the last page: the log only grows, so such a page can only come from a hand-made URL. An unknown expert gives "Page not found" whatever the page says. Details and pending changes show on every page.
   - There is no edit or delete anywhere: the log has no form, button or input, and the database blocks UPDATE and DELETE on `ss_change_log` (section 5). The page says "The change log can't be changed or deleted."
