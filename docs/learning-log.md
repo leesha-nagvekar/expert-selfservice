@@ -167,3 +167,13 @@ A test can prove the data is right while the screen still looks wrong, only a cl
 
 - **Asked:** 
 /code-review found that if a change was already in place when it was approved, a log row with old = new was written and LastUpdated moved. Claude fixed it: the change is still marked approved and "Approved" is shown, but no log row is written.
+
+## Phase 6 – Review finding #5 (top bar "current page" mark)
+
+**Asked:** 
+Claude to fix finding #5. The top bar didn't mark the page I was on when the address had capital letters or a slash at the end (/Staff/, /staff/pending/). Also added a guard test so the expert page marks neither link.
+
+### Phase 6 – /security-review (phase5-secretariat)
+
+**Asked:** 
+Claude to run /security-review on the phase5-secretariat branch before merging. Then I asked whether anything was found below its 8/10 confidence bar. No vulnerabilities found.
