@@ -170,10 +170,18 @@ A test can prove the data is right while the screen still looks wrong, only a cl
 
 ## Phase 6 – Review finding #5 (top bar "current page" mark)
 
-**Asked:** 
+- **Asked:** 
 Claude to fix finding #5. The top bar didn't mark the page I was on when the address had capital letters or a slash at the end (/Staff/, /staff/pending/). Also added a guard test so the expert page marks neither link.
 
 ### Phase 6 – /security-review (phase5-secretariat)
 
-**Asked:** 
+- **Asked:** 
 Claude to run /security-review on the phase5-secretariat branch before merging. Then I asked whether anything was found below its 8/10 confidence bar. No vulnerabilities found.
+
+## Phase 6 – Whole-app security review (24 Nov)
+
+- **Asked:** 
+Claude to do a security review of the whole app as it is today. The review found one low finding: the app answered any Host header, so a bad web page could use DNS rebinding to read /dev/mailbox, log in as staff and read expert data. Claude fixed it, with tests first.
+
+- **Learned:** 
+Listening only on 127.0.0.1 doesn't stop a page in my own browser from reaching the app, the app must also check the host name.
