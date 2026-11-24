@@ -207,7 +207,7 @@ Every screen has the top bar: the white VBA logo on the left (the mark on narrow
   - There is no edit or delete anywhere: the log has no form, button or input, and the database blocks UPDATE and DELETE on `ss_change_log` (section 5). The page says "The change log can't be changed or deleted."
 
 **The secretariat view**
-After logging in, a secretariat user lands on Search experts. The top bar has Search experts, pending approvals (with a count), Help, DA/EN and Log out.
+After logging in, a secretariat user lands on Search experts. The top bar has Search experts, pending approvals (with a count), Help, DA/EN and Log out. The link to the page you are on is marked, whatever the letter case or a trailing slash in the address. *(Marking added 24 Nov 2026, code review.)*
 Experts are searched with one box (name, email or postcode), and a filter sidebar narrows the results by region, role, field of expertise, status and pending changes (the filter sidebar can have more filters). Results appear in a table: name, VBA no., postcode and city, status and pending changes. The details are in S-A above.
 Clicking a name opens the expert page: a read-only profile, pending changes to approve or reject (rejecting needs a reason the expert sees), and the change log, which can’t be edited.
 Pending approvals lists all waiting changes, oldest first, with a search box (name, email or VBA no.), so I can approve or reject them there too. The details are in S-B above.

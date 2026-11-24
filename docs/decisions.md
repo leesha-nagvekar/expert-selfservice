@@ -35,6 +35,8 @@ Guards added in step C: an encoded `//` in `back` falls back to `/staff`, and a 
 - *#3, no log row when nothing changed.* When the value was already in place, `Approve` wrote a log row with Old equal to New and moved `LastUpdated`. It now passes an empty list to `ExpertChanges.Record`, which writes nothing; the change is still marked approved. The same rule covers names, which go through the same line.
 - Break-its, all caught: the raw length measured, the raw reason stored, the `white-space` rule and the span removed, the language order back for fields and for roles, the change always written, and never written.
 
+**After the code review (24 Nov): finding #5, the top bar marks the page whatever the letter case or a trailing slash.** Routing ignores both, so a typed or bookmarked `/Staff/` or `/staff/pending/` opened S-A or S-B, but the top bar compared the path exactly and marked neither link (no `aria-current="page"`, no highlight). `_Layout.cshtml` now strips trailing slashes and compares without case. The expert page `/staff/experts/{id}` still marks neither link: it is a page of its own. Break-it: the case-sensitive compare put back, and the `TrimEnd` dropped; three rows failed each time.
+
 ## S2 approve or reject (18 Nov 2026)
 
 **A page of its own, linked from the top bar.** S-B is `/staff/pending`. Staff pages now have "Search experts" and "Pending approvals (N)" in the top bar; expert pages don't. The expert page S-C gets its own approve and reject with S3. A search box "Name, email or VBA no." sits above the list, with the same every-word rule as S1. The word matching moved from `ExpertSearchService` to `SearchRules.AllWordsMatch`, so both pages use the same code; on S-B the start of the VBA no. takes the place of the postcode.
