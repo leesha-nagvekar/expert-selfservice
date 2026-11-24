@@ -50,6 +50,8 @@ public class PendingController(PendingListService list, DecisionService decision
         }
 
         var error = string.Format(CultureInfo.CurrentCulture, text[errorKey], DecisionService.MaxReason);
+        // Shown at the POST address, which has no GET: the language switch returns to the list as shown.
+        ViewData[LanguageLinks.NextKey] = page.BackUrl;
         return View("Index", page with { ErrorRowId = id, ReasonError = error, Reason = reason });
     }
 

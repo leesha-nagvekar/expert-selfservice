@@ -73,6 +73,8 @@ public class ExpertController(
         // The page again (log page 1), with the error in that row, the reason and the back link kept.
         var error = string.Format(CultureInfo.CurrentCulture, text[errorKey], DecisionService.MaxReason);
         var page = Build(id, profile, 1, safeBack, null);
+        // Shown at the POST address, which has no GET: the language switch returns to the expert page, back link kept.
+        ViewData[LanguageLinks.NextKey] = ExpertPage.PageUrl(id, 1, safeBack);
         return View("Index", page with { ErrorRowId = changeId, ReasonError = error, Reason = reason });
     }
 

@@ -1,9 +1,11 @@
 @{
     var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    // On an error page, switching language goes to the front page.
-    var page = Context.Request.Path.StartsWithSegments("/error")
-        ? "/"
-        : $"{Context.Request.Path}{Context.Request.QueryString}";
+    // Switching language returns to the address the page names (LanguageLinks), else to the current one.
+    // On an error page it goes to the front page.
+    var page = ViewData[LanguageLinks.NextKey] as string
+        ?? (Context.Request.Path.StartsWithSegments("/error")
+            ? "/"
+            : $"{Context.Request.Path}{Context.Request.QueryString}");
     var next = Uri.EscapeDataString(page);
     // Staff only: links to S-A and S-B, with the number of waiting changes (SPEC "The secretariat view").
     var isStaff = User.HasClaim(claim => claim.Type == SessionClaims.StaffId);

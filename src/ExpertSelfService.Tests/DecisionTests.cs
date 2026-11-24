@@ -627,6 +627,34 @@ public sealed class DecisionTests : IAsyncLifetime, IDisposable
         Assert.Empty(Log());
     }
 
+    // A bad reason shows S-B again at the POST address, which has no GET. The language switch must return to the
+    // list, with its search text, not to that address (Leesha's click-through, 24 Nov: it gave "Page not found").
+    [Theory]
+    [InlineData(null, "/staff/pending")]
+    [InlineData("anna demo", "/staff/pending?q=anna%20demo")]
+    public async Task After_a_bad_reason_the_language_switch_returns_to_the_list(string? q, string list)
+    {
+        var response = q is null ? await Reject(AnnaSkills, "") : await Reject(AnnaSkills, "", ("q", q));
+        var html = await Body(response);
+        Assert.Contains("Write a reason for rejecting", Text(html));
+
+        var link = LanguageLink(html, "da");
+        Assert.Equal($"/language/da?next={Uri.EscapeDataString(list)}", link);
+
+        AssertRedirect(await _browser.Get(link), list);
+        var danish = await _browser.Get(list);
+        Assert.Equal(HttpStatusCode.OK, danish.StatusCode);
+        Assert.Contains("<html lang=\"da\">", await Body(danish));
+    }
+
+    [Fact]
+    public async Task On_the_list_itself_the_language_switch_returns_to_the_current_address()
+    {
+        var html = await _browser.Html($"{Page}?q=anna");
+
+        Assert.Equal($"/language/da?next={Uri.EscapeDataString($"{Page}?q=anna")}", LanguageLink(html, "da"));
+    }
+
     [Fact]
     public async Task A_reason_over_500_characters_is_refused_and_kept_in_the_box()
     {

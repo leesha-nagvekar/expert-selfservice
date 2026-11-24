@@ -285,6 +285,41 @@ public sealed class ExpertDecisionTests : IAsyncLifetime, IDisposable
         Assert.Empty(Log());
     }
 
+    // A bad reason shows S-C again at the POST address, which has no GET. The language switch must return to the
+    // expert page, with its back link, not to that address (Leesha's click-through, 24 Nov: it gave "Page not found").
+    [Theory]
+    [InlineData(null, "← Tilbage til søgningen")]
+    [InlineData("/staff/pending?q=Anna", "← Tilbage til Afventer godkendelse")]
+    public async Task After_a_bad_reason_the_language_switch_returns_to_the_expert_page(string? back, string danishBack)
+    {
+        var expertPage = back is null ? AnnaPage : $"{AnnaPage}?back={Uri.EscapeDataString(back)}";
+        var response = back is null
+            ? await Reject(1, AnnaSkills, "")
+            : await _browser.Post(RejectUrl(1, AnnaSkills), expertPage, ("Reason", ""), ("back", back));
+        var html = await Body(response);
+        Assert.Contains("Write a reason for rejecting", Text(html));
+
+        var link = LanguageLink(html, "da");
+        Assert.Equal($"/language/da?next={Uri.EscapeDataString(expertPage)}", link);
+
+        AssertRedirect(await _browser.Get(link), expertPage);
+        var danish = await _browser.Get(expertPage);
+        Assert.Equal(HttpStatusCode.OK, danish.StatusCode);
+        var danishHtml = await Body(danish);
+        Assert.Contains("<html lang=\"da\">", danishHtml);
+        Assert.Contains(danishBack, Text(danishHtml));
+    }
+
+    [Fact]
+    public async Task On_the_expert_page_itself_the_language_switch_returns_to_the_current_address()
+    {
+        var address = $"{AnnaPage}?back={Uri.EscapeDataString("/staff/pending")}";
+
+        var html = await _browser.Html(address);
+
+        Assert.Equal($"/language/da?next={Uri.EscapeDataString(address)}", LanguageLink(html, "da"));
+    }
+
     [Fact]
     public async Task A_reason_over_500_characters_is_refused_and_kept_in_the_box()
     {

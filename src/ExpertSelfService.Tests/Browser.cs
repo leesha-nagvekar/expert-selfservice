@@ -72,6 +72,14 @@ public sealed class Browser
 
     public Task<HttpResponseMessage> LogOut(string tokenPage) => Post("/logout", tokenPage);
 
+    /// <summary>The top bar's link that switches to this language, decoded: /language/da?next=...</summary>
+    public static string LanguageLink(string html, string code)
+    {
+        var match = Regex.Match(html, "<a href=\"(/language/" + code + "\\?next=[^\"]*)\"");
+        Assert.True(match.Success, $"No language link to {code}");
+        return WebUtility.HtmlDecode(match.Groups[1].Value);
+    }
+
     public static async Task<string> Body(HttpResponseMessage response) =>
         await response.Content.ReadAsStringAsync();
 
