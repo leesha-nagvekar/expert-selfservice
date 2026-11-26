@@ -201,3 +201,8 @@ Claude to confirm the cause of a bug I found myself: on S-B in Danish, a reject 
 
 - **Learned:** 
 A page shown after a POST lives at an address you can't visit, so anything that reloads "the current address" breaks there. 
+
+## 24 Nov – Phase 6: second /code-review 
+
+- **Asked:** 
+Claude to run /code-review on phase6-hardening, no bugs in the app, but three lines in Claude's own new tests looked like protection and could never fail: C5 checked that Bo's street wasn't on Anna's front page, which never shows a street; C6 checked that Bo had 0 wrong tries, in a test that never touches Bo; E1 read the change id in a way that quietly gave 0 when the row was missing. Claude removed C5's line, gave C6 two real checks and made E1 stop at once if the row is missing.
